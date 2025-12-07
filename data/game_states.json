@@ -44,5 +44,17 @@
     "current_job": "Janitor",
     "job_wage": 20,
     "turn": 2
+  },
+  "Tomek2": {
+    "money": 655,
+    "items": [
+      "Clothes",
+      "Food",
+      "Food"
+    ],
+    "qualification": "PhD",
+    "current_job": "Executive",
+    "job_wage": 150,
+    "turn": 25
   }
 }

@@ -92,7 +92,7 @@ def get_llm_response(action, user_message, game_state=None):
 def get_openai_response(system_prompt, user_message):
     """Get response from OpenAI API"""
     try:
-        import openai
+        from openai import OpenAI
 
         if not config.OPENAI_API_KEY:
             return "Error: OpenAI API key not configured. Please configure secrets_config.json."
@@ -100,9 +100,9 @@ def get_openai_response(system_prompt, user_message):
         # Get model configuration from llm_config.json
         model_config = config.get_llm_model_config('openai')
 
-        openai.api_key = config.OPENAI_API_KEY
+        client = OpenAI(api_key=config.OPENAI_API_KEY)
 
-        response = openai.chat.completions.create(
+        response = client.chat.completions.create(
             model=model_config.get('model', 'gpt-4o-mini'),
             messages=[
                 {"role": "system", "content": system_prompt},
