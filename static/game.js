@@ -157,8 +157,72 @@ function updateGameUI(state) {
         : 'None';
 }
 
-// Perform game action
-async function performAction(action) {
+// Store selected action for confirmation
+let selectedAction = null;
+
+// Location details
+const locationDetails = {
+    university: {
+        title: 'University',
+        icon: '🎓',
+        description: 'Study hard to improve your qualifications. Each level unlocks better job opportunities.',
+        cost: 'Cost: $50 per level'
+    },
+    job_office: {
+        title: 'Job Office',
+        icon: '💼',
+        description: 'Find a job matching your qualifications. Better education leads to higher-paying positions.',
+        cost: 'Free'
+    },
+    workplace: {
+        title: 'Workplace',
+        icon: '🏢',
+        description: 'Go to work and earn money based on your current job position.',
+        cost: 'Earns money based on your job'
+    },
+    shop: {
+        title: 'Shop',
+        icon: '🛒',
+        description: 'Purchase items to improve your lifestyle and show off your success.',
+        cost: 'Prices vary by item'
+    }
+};
+
+// Show location modal
+function showLocationModal(action) {
+    selectedAction = action;
+    const details = locationDetails[action];
+
+    const modal = document.getElementById('location-modal');
+    const modalImage = document.getElementById('modal-image');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDescription = document.getElementById('modal-description');
+    const modalCost = document.getElementById('modal-cost');
+
+    // Set content
+    modalImage.className = 'modal-image ' + action;
+    modalImage.textContent = details.icon;
+    modalTitle.textContent = details.title;
+    modalDescription.textContent = details.description;
+    modalCost.textContent = details.cost;
+
+    // Show modal
+    modal.style.display = 'flex';
+}
+
+// Close location modal
+function closeLocationModal() {
+    document.getElementById('location-modal').style.display = 'none';
+    selectedAction = null;
+}
+
+// Confirm action
+async function confirmAction() {
+    if (!selectedAction) return;
+
+    const action = selectedAction;
+    closeLocationModal();
+
     try {
         const response = await fetch('/api/action', {
             method: 'POST',
@@ -179,6 +243,14 @@ async function performAction(action) {
     } catch (error) {
         showActionMessage('Error performing action', true);
         console.error(error);
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('location-modal');
+    if (event.target === modal) {
+        closeLocationModal();
     }
 }
 

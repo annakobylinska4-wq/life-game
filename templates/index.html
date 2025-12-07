@@ -76,31 +76,42 @@
                 <!-- Action Message -->
                 <div id="action-message" class="action-message"></div>
 
-                <!-- Actions -->
-                <div class="actions-panel">
-                    <h2>Where do you want to go?</h2>
-                    <div class="actions-grid">
-                        <div class="action-card" onclick="performAction('university')">
-                            <h3>🎓 University</h3>
-                            <p>Study to improve your qualifications</p>
-                            <p class="cost">Cost: $50</p>
+                <!-- City Map -->
+                <div class="city-map-panel">
+                    <h2>City Map - Click a location to visit</h2>
+                    <div class="city-map">
+                        <div class="map-location university" onclick="showLocationModal('university')" title="University">
+                            <div class="building-icon">🎓</div>
+                            <div class="building-label">University</div>
                         </div>
-                        <div class="action-card" onclick="performAction('job_office')">
-                            <h3>💼 Job Office</h3>
-                            <p>Find a job based on your qualifications</p>
-                            <p class="cost">Free</p>
+                        <div class="map-location job-office" onclick="showLocationModal('job_office')" title="Job Office">
+                            <div class="building-icon">💼</div>
+                            <div class="building-label">Job Office</div>
                         </div>
-                        <div class="action-card" onclick="performAction('workplace')">
-                            <h3>🏢 Workplace</h3>
-                            <p>Work at your current job to earn money</p>
-                            <p class="cost">Earns money</p>
+                        <div class="map-location workplace" onclick="showLocationModal('workplace')" title="Workplace">
+                            <div class="building-icon">🏢</div>
+                            <div class="building-label">Workplace</div>
                         </div>
-                        <div class="action-card" onclick="performAction('shop')">
-                            <h3>🛒 Shop</h3>
-                            <p>Buy items to improve your lifestyle</p>
-                            <p class="cost">Varies</p>
+                        <div class="map-location shop" onclick="showLocationModal('shop')" title="Shop">
+                            <div class="building-icon">🛒</div>
+                            <div class="building-label">Shop</div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location Modal -->
+        <div id="location-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeLocationModal()">&times;</span>
+                <div id="modal-image" class="modal-image"></div>
+                <h2 id="modal-title">Location</h2>
+                <p id="modal-description">Description</p>
+                <p id="modal-cost" class="modal-cost">Cost</p>
+                <div class="modal-buttons">
+                    <button class="confirm-btn" onclick="confirmAction()">Confirm</button>
+                    <button class="cancel-btn" onclick="closeLocationModal()">Cancel</button>
                 </div>
             </div>
         </div>
