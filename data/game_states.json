@@ -1,0 +1,18 @@
+{
+  "Anna": {
+    "money": 50,
+    "items": [],
+    "qualification": "High School",
+    "current_job": "Cashier",
+    "job_wage": 35,
+    "turn": 4
+  },
+  "Tomek": {
+    "money": 50,
+    "items": [],
+    "qualification": "High School",
+    "current_job": "Cashier",
+    "job_wage": 35,
+    "turn": 4
+  }
+}

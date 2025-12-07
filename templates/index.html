@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Game - Jones Style</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login/Register Screen -->
+        <div id="auth-screen" class="screen">
+            <div class="container">
+                <h1>Life Game</h1>
+                <p class="subtitle">Navigate through life, one turn at a time!</p>
+
+                <div id="login-form" class="form-container">
+                    <h2>Login</h2>
+                    <input type="text" id="login-username" placeholder="Username">
+                    <input type="password" id="login-password" placeholder="Password">
+                    <button onclick="login()">Login</button>
+                    <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
+                </div>
+
+                <div id="register-form" class="form-container" style="display: none;">
+                    <h2>Register</h2>
+                    <input type="text" id="register-username" placeholder="Username">
+                    <input type="password" id="register-password" placeholder="Password">
+                    <button onclick="register()">Register</button>
+                    <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+                </div>
+
+                <div id="message" class="message"></div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen" style="display: none;">
+            <div class="container">
+                <div class="header">
+                    <h1>Life Game</h1>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+
+                <!-- Player Status -->
+                <div class="status-panel">
+                    <h2>Your Status</h2>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <span class="label">Turn:</span>
+                            <span id="turn" class="value">1</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">Money:</span>
+                            <span id="money" class="value">$100</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">Job:</span>
+                            <span id="job" class="value">Unemployed</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">Wage:</span>
+                            <span id="wage" class="value">$0</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">Qualification:</span>
+                            <span id="qualification" class="value">None</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="label">Items:</span>
+                            <span id="items" class="value">None</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Message -->
+                <div id="action-message" class="action-message"></div>
+
+                <!-- Actions -->
+                <div class="actions-panel">
+                    <h2>Where do you want to go?</h2>
+                    <div class="actions-grid">
+                        <div class="action-card" onclick="performAction('university')">
+                            <h3>🎓 University</h3>
+                            <p>Study to improve your qualifications</p>
+                            <p class="cost">Cost: $50</p>
+                        </div>
+                        <div class="action-card" onclick="performAction('job_office')">
+                            <h3>💼 Job Office</h3>
+                            <p>Find a job based on your qualifications</p>
+                            <p class="cost">Free</p>
+                        </div>
+                        <div class="action-card" onclick="performAction('workplace')">
+                            <h3>🏢 Workplace</h3>
+                            <p>Work at your current job to earn money</p>
+                            <p class="cost">Earns money</p>
+                        </div>
+                        <div class="action-card" onclick="performAction('shop')">
+                            <h3>🛒 Shop</h3>
+                            <p>Buy items to improve your lifestyle</p>
+                            <p class="cost">Varies</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/game.js"></script>
+</body>
+</html>
