@@ -2,7 +2,7 @@
 LLM client module for handling interactions with OpenAI and Anthropic APIs
 Supports tool calling via MCP
 """
-from config import config
+from config.config import config
 from mcp_server.tools import get_tools_for_context, execute_tool
 from .prompts import get_npc_prompt
 

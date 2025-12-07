@@ -15,7 +15,7 @@ import hashlib
 from typing import Optional
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from actions import perform_action
-from config import config
+from config.config import config
 from chat_service import get_llm_response
 
 app = FastAPI()
