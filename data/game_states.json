@@ -1,11 +1,13 @@
 {
   "Anna": {
     "money": 50,
-    "items": [],
-    "qualification": "High School",
-    "current_job": "Cashier",
-    "job_wage": 35,
-    "turn": 4
+    "items": [
+      "Food"
+    ],
+    "qualification": "Bachelor",
+    "current_job": "Office Worker",
+    "job_wage": 60,
+    "turn": 8
   },
   "Tomek": {
     "money": 50,

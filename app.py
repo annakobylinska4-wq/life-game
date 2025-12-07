@@ -3,6 +3,7 @@ import json
 import os
 from datetime import datetime
 import hashlib
+from actions import perform_action
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-this'
@@ -120,7 +121,7 @@ def get_game_state():
     return jsonify({'success': True, 'state': game_states[username]})
 
 @app.route('/api/action', methods=['POST'])
-def perform_action():
+def handle_action():
     if 'username' not in session:
         return jsonify({'success': False, 'message': 'Not logged in'}), 401
 
@@ -131,74 +132,20 @@ def perform_action():
     game_states = load_game_states()
     state = game_states[username]
 
-    message = ""
+    # Perform the action using the actions module
+    updated_state, message, success = perform_action(action, state)
 
-    if action == 'university':
-        cost = 50
-        if state['money'] >= cost:
-            state['money'] -= cost
-            qualifications = ['None', 'High School', 'Bachelor', 'Master', 'PhD']
-            current_idx = qualifications.index(state['qualification'])
-            if current_idx < len(qualifications) - 1:
-                state['qualification'] = qualifications[current_idx + 1]
-                message = "You studied hard and earned a {} degree! (-${})".format(state['qualification'], cost)
-            else:
-                message = "You are already at the highest qualification level!"
-                state['money'] += cost
-        else:
-            return jsonify({'success': False, 'message': 'Not enough money! Need ${}'.format(cost)}), 400
-
-    elif action == 'job_office':
-        # Better qualifications = better jobs
-        jobs = {
-            'None': ('Janitor', 20),
-            'High School': ('Cashier', 35),
-            'Bachelor': ('Office Worker', 60),
-            'Master': ('Manager', 100),
-            'PhD': ('Executive', 150)
-        }
-        job_title, wage = jobs.get(state['qualification'], ('Unemployed', 0))
-        state['current_job'] = job_title
-        state['job_wage'] = wage
-        message = "You secured a job as {} earning ${} per turn!".format(job_title, wage)
-
-    elif action == 'workplace':
-        if state['current_job'] == 'Unemployed':
-            return jsonify({'success': False, 'message': 'You need to get a job first!'}), 400
-        earnings = state['job_wage']
-        state['money'] += earnings
-        message = "You worked as {} and earned ${}!".format(state['current_job'], earnings)
-
-    elif action == 'shop':
-        items_available = [
-            ('Food', 10),
-            ('Clothes', 25),
-            ('Phone', 100),
-            ('Laptop', 300),
-            ('Car', 1000)
-        ]
-
-        # Buy a random affordable item
-        affordable = [item for item in items_available if item[1] <= state['money']]
-        if affordable:
-            import random
-            item_name, item_cost = random.choice(affordable)
-            state['money'] -= item_cost
-            state['items'].append(item_name)
-            message = "You bought {} for ${}!".format(item_name, item_cost)
-        else:
-            return jsonify({'success': False, 'message': 'Not enough money to buy anything!'}), 400
-
-    else:
-        return jsonify({'success': False, 'message': 'Invalid action'}), 400
+    if not success:
+        return jsonify({'success': False, 'message': message}), 400
 
     # Increment turn
-    state['turn'] += 1
+    updated_state['turn'] += 1
 
-    game_states[username] = state
+    # Save updated state
+    game_states[username] = updated_state
     save_game_states(game_states)
 
-    return jsonify({'success': True, 'state': state, 'message': message})
+    return jsonify({'success': True, 'state': updated_state, 'message': message})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
