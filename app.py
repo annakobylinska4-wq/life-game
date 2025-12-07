@@ -217,7 +217,7 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
 
 @app.post('/api/chat')
 async def handle_chat(data: ChatRequest, username: str = Depends(get_current_user)):
-    """Handle chat messages with LLM"""
+    """Handle chat messages with LLM and execute any triggered actions"""
     if not data.action or not data.message:
         raise HTTPException(status_code=400, detail='Missing action or message')
 
@@ -225,10 +225,22 @@ async def handle_chat(data: ChatRequest, username: str = Depends(get_current_use
     game_states = load_game_states()
     state = game_states.get(username)
 
-    # Get LLM response
-    response = get_llm_response(data.action, data.message, state)
+    # Get LLM response with potential tool calls
+    result = get_llm_response(data.action, data.message, state)
 
-    return {'success': True, 'response': response}
+    # If tools were called and state was updated, save the new state
+    if result.get('updated_state'):
+        game_states[username] = result['updated_state']
+        # Increment turn when action is taken
+        game_states[username]['turn'] += 1
+        save_game_states(game_states)
+
+    return {
+        'success': True,
+        'response': result['response'],
+        'tool_calls': result.get('tool_calls', []),
+        'state': result.get('updated_state') or state
+    }
 
 if __name__ == '__main__':
     import uvicorn
