@@ -4,10 +4,10 @@
     "items": [
       "Food"
     ],
-    "qualification": "Bachelor",
-    "current_job": "Office Worker",
-    "job_wage": 60,
-    "turn": 8
+    "qualification": "PhD",
+    "current_job": "Manager",
+    "job_wage": 100,
+    "turn": 13
   },
   "Tomek": {
     "money": 50,

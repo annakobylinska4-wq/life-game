@@ -4,13 +4,14 @@ import os
 from datetime import datetime
 import hashlib
 from actions import perform_action
+from config import config
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-this'
+app.secret_key = config.SECRET_KEY
 
-DATA_DIR = 'data'
-USERS_FILE = os.path.join(DATA_DIR, 'users.json')
-GAME_STATES_FILE = os.path.join(DATA_DIR, 'game_states.json')
+DATA_DIR = config.DATA_DIR
+USERS_FILE = os.path.join(DATA_DIR, config.USERS_FILE)
+GAME_STATES_FILE = os.path.join(DATA_DIR, config.GAME_STATES_FILE)
 
 # Ensure data directory exists
 os.makedirs(DATA_DIR, exist_ok=True)
@@ -45,7 +46,7 @@ def save_game_states(states):
 
 def create_new_game_state():
     return {
-        'money': 100,
+        'money': config.INITIAL_MONEY,
         'items': [],
         'qualification': 'None',
         'current_job': 'Unemployed',
@@ -148,4 +149,4 @@ def handle_action():
     return jsonify({'success': True, 'state': updated_state, 'message': message})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=config.DEBUG, port=config.PORT)

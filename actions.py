@@ -2,6 +2,7 @@
 Game actions module - handles all player actions in the game
 """
 import random
+from config import config
 
 
 def visit_university(state):
@@ -14,7 +15,7 @@ def visit_university(state):
     Returns:
         tuple: (updated_state, message, success)
     """
-    cost = 50
+    cost = config.UNIVERSITY_COST
 
     if state['money'] < cost:
         return state, 'Not enough money! Need ${}'.format(cost), False
