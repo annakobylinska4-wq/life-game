@@ -5,6 +5,7 @@ from datetime import datetime
 import hashlib
 from actions import perform_action
 from config import config
+from chat_service import get_llm_response
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
@@ -147,6 +148,28 @@ def handle_action():
     save_game_states(game_states)
 
     return jsonify({'success': True, 'state': updated_state, 'message': message})
+
+@app.route('/api/chat', methods=['POST'])
+def handle_chat():
+    if 'username' not in session:
+        return jsonify({'success': False, 'message': 'Not logged in'}), 401
+
+    username = session['username']
+    data = request.json
+    action = data.get('action')
+    message = data.get('message')
+
+    if not action or not message:
+        return jsonify({'success': False, 'message': 'Missing action or message'}), 400
+
+    # Get current game state for context
+    game_states = load_game_states()
+    state = game_states.get(username)
+
+    # Get LLM response
+    response = get_llm_response(action, message, state)
+
+    return jsonify({'success': True, 'response': response})
 
 if __name__ == '__main__':
     app.run(debug=config.DEBUG, port=config.PORT)

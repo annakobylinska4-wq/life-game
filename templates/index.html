@@ -109,9 +109,28 @@
                 <h2 id="modal-title">Location</h2>
                 <p id="modal-description">Description</p>
                 <p id="modal-cost" class="modal-cost">Cost</p>
-                <div class="modal-buttons">
-                    <button class="confirm-btn" onclick="confirmAction()">Confirm</button>
-                    <button class="cancel-btn" onclick="closeLocationModal()">Cancel</button>
+
+                <!-- Tab Navigation -->
+                <div class="modal-tabs">
+                    <button class="tab-btn active" onclick="showTab('action', event)">Action</button>
+                    <button class="tab-btn" onclick="showTab('chat', event)">Chat with <span id="npc-name">NPC</span></button>
+                </div>
+
+                <!-- Action Tab -->
+                <div id="action-tab" class="tab-content active">
+                    <div class="modal-buttons">
+                        <button class="confirm-btn" onclick="confirmAction()">Confirm</button>
+                        <button class="cancel-btn" onclick="closeLocationModal()">Cancel</button>
+                    </div>
+                </div>
+
+                <!-- Chat Tab -->
+                <div id="chat-tab" class="tab-content" style="display: none;">
+                    <div id="chat-messages" class="chat-messages"></div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="Type your message..." onkeypress="handleChatKeyPress(event)">
+                        <button class="send-btn" onclick="sendChatMessage()">Send</button>
+                    </div>
                 </div>
             </div>
         </div>

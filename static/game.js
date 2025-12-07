@@ -166,25 +166,29 @@ const locationDetails = {
         title: 'University',
         icon: '🎓',
         description: 'Study hard to improve your qualifications. Each level unlocks better job opportunities.',
-        cost: 'Cost: $50 per level'
+        cost: 'Cost: $50 per level',
+        npcName: 'Professor'
     },
     job_office: {
         title: 'Job Office',
         icon: '💼',
         description: 'Find a job matching your qualifications. Better education leads to higher-paying positions.',
-        cost: 'Free'
+        cost: 'Free',
+        npcName: 'Clerk'
     },
     workplace: {
         title: 'Workplace',
         icon: '🏢',
         description: 'Go to work and earn money based on your current job position.',
-        cost: 'Earns money based on your job'
+        cost: 'Earns money based on your job',
+        npcName: 'Boss'
     },
     shop: {
         title: 'Shop',
         icon: '🛒',
         description: 'Purchase items to improve your lifestyle and show off your success.',
-        cost: 'Prices vary by item'
+        cost: 'Prices vary by item',
+        npcName: 'Shopkeeper'
     }
 };
 
@@ -198,6 +202,7 @@ function showLocationModal(action) {
     const modalTitle = document.getElementById('modal-title');
     const modalDescription = document.getElementById('modal-description');
     const modalCost = document.getElementById('modal-cost');
+    const npcName = document.getElementById('npc-name');
 
     // Set content
     modalImage.className = 'modal-image ' + action;
@@ -205,6 +210,14 @@ function showLocationModal(action) {
     modalTitle.textContent = details.title;
     modalDescription.textContent = details.description;
     modalCost.textContent = details.cost;
+    npcName.textContent = details.npcName;
+
+    // Reset to action tab
+    showTab('action');
+
+    // Clear chat messages
+    document.getElementById('chat-messages').innerHTML = '';
+    document.getElementById('chat-input').value = '';
 
     // Show modal
     modal.style.display = 'flex';
@@ -251,6 +264,88 @@ window.onclick = function(event) {
     const modal = document.getElementById('location-modal');
     if (event.target === modal) {
         closeLocationModal();
+    }
+}
+
+// Tab switching
+function showTab(tabName, event) {
+    // Update tab buttons
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+
+    // Update tab content
+    if (tabName === 'action') {
+        document.getElementById('action-tab').style.display = 'block';
+        document.getElementById('chat-tab').style.display = 'none';
+    } else if (tabName === 'chat') {
+        document.getElementById('action-tab').style.display = 'none';
+        document.getElementById('chat-tab').style.display = 'block';
+        document.getElementById('chat-input').focus();
+    }
+}
+
+// Chat functionality
+function addChatMessage(message, isUser = false) {
+    const chatMessages = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message ' + (isUser ? 'user-message' : 'npc-message');
+    messageDiv.textContent = message;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+async function sendChatMessage() {
+    const chatInput = document.getElementById('chat-input');
+    const message = chatInput.value.trim();
+
+    if (!message) return;
+
+    // Add user message to chat
+    addChatMessage(message, true);
+    chatInput.value = '';
+
+    // Show typing indicator
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'chat-message npc-message typing';
+    typingIndicator.textContent = '...';
+    typingIndicator.id = 'typing-indicator';
+    document.getElementById('chat-messages').appendChild(typingIndicator);
+
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: selectedAction,
+                message: message
+            })
+        });
+
+        const data = await response.json();
+
+        // Remove typing indicator
+        document.getElementById('typing-indicator')?.remove();
+
+        if (data.success) {
+            addChatMessage(data.response, false);
+        } else {
+            addChatMessage('Error: ' + data.message, false);
+        }
+    } catch (error) {
+        document.getElementById('typing-indicator')?.remove();
+        addChatMessage('Error: Could not reach the server', false);
+        console.error(error);
+    }
+}
+
+function handleChatKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendChatMessage();
     }
 }
 

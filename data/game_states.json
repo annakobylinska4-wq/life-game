@@ -1,13 +1,14 @@
 {
   "Anna": {
-    "money": 50,
+    "money": 25,
     "items": [
-      "Food"
+      "Food",
+      "Clothes"
     ],
     "qualification": "PhD",
-    "current_job": "Manager",
-    "job_wage": 100,
-    "turn": 13
+    "current_job": "Executive",
+    "job_wage": 150,
+    "turn": 17
   },
   "Tomek": {
     "money": 50,
@@ -16,5 +17,32 @@
     "current_job": "Cashier",
     "job_wage": 35,
     "turn": 4
+  },
+  "Anna2": {
+    "money": 30,
+    "items": [
+      "Food",
+      "Phone"
+    ],
+    "qualification": "Master",
+    "current_job": "Cashier",
+    "job_wage": 35,
+    "turn": 17
+  },
+  "Anna3": {
+    "money": 100,
+    "items": [],
+    "qualification": "None",
+    "current_job": "Unemployed",
+    "job_wage": 0,
+    "turn": 1
+  },
+  "Alek": {
+    "money": 100,
+    "items": [],
+    "qualification": "None",
+    "current_job": "Janitor",
+    "job_wage": 20,
+    "turn": 2
   }
 }
