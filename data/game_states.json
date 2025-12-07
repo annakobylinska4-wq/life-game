@@ -14,5 +14,13 @@
     "current_job": "Janitor",
     "job_wage": 20,
     "turn": 3
+  },
+  "test": {
+    "money": 100,
+    "items": [],
+    "qualification": "None",
+    "current_job": "Unemployed",
+    "job_wage": 0,
+    "turn": 1
   }
 }
