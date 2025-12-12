@@ -14,22 +14,23 @@ def visit_shop(state):
     Returns:
         tuple: (updated_state, message, success)
     """
+    # Food items: (name, cost, calories)
     items_available = [
-        ('Apple', 3),
-        ('Banana', 2),
-        ('Bread', 5),
-        ('Milk', 4),
-        ('Eggs', 6),
-        ('Cheese', 8),
-        ('Chicken', 12),
-        ('Beef', 15),
-        ('Rice', 7),
-        ('Pasta', 6),
-        ('Vegetables', 10),
-        ('Pizza', 14),
-        ('Sandwich', 9),
-        ('Coffee', 5),
-        ('Chocolate', 4)
+        ('Apple', 3, 95),
+        ('Banana', 2, 105),
+        ('Bread', 5, 265),
+        ('Milk', 4, 150),
+        ('Eggs', 6, 155),
+        ('Cheese', 8, 200),
+        ('Chicken', 12, 335),
+        ('Beef', 15, 425),
+        ('Rice', 7, 205),
+        ('Pasta', 6, 220),
+        ('Vegetables', 10, 120),
+        ('Pizza', 14, 285),
+        ('Sandwich', 9, 250),
+        ('Coffee', 5, 95),
+        ('Chocolate', 4, 210)
     ]
 
     # Buy a random affordable item
@@ -38,9 +39,15 @@ def visit_shop(state):
     if not affordable:
         return state, 'Not enough money to buy anything!', False
 
-    item_name, item_cost = random.choice(affordable)
+    item_name, item_cost, calories = random.choice(affordable)
     state['money'] -= item_cost
     state['items'].append(item_name)
 
-    message = "You bought {} for ${}!".format(item_name, item_cost)
+    # Reduce hunger based on calories (higher calories = more hunger reduction)
+    hunger_reduction = min(calories // 10, state['hunger'])  # Each 10 calories reduces 1 hunger point
+    state['hunger'] = max(0, state['hunger'] - hunger_reduction)
+
+    message = "You bought {} for ${} ({} calories). Hunger reduced by {}!".format(
+        item_name, item_cost, calories, hunger_reduction
+    )
     return state, message, True

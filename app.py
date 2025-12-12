@@ -201,8 +201,10 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
     if not success:
         raise HTTPException(status_code=400, detail=message)
 
-    # Increment turn
-    updated_state['turn'] += 1
+    # Use GameState class to handle turn increment and per-turn updates
+    game_state_obj = GameState(updated_state)
+    game_state_obj.increment_turn()
+    updated_state = game_state_obj.to_dict()
 
     # Save updated state
     game_states[username] = updated_state
@@ -225,9 +227,10 @@ async def handle_chat(data: ChatRequest, username: str = Depends(get_current_use
 
     # If tools were called and state was updated, save the new state
     if result.get('updated_state'):
-        game_states[username] = result['updated_state']
-        # Increment turn when action is taken
-        game_states[username]['turn'] += 1
+        # Use GameState class to handle turn increment and per-turn updates
+        game_state_obj = GameState(result['updated_state'])
+        game_state_obj.increment_turn()
+        game_states[username] = game_state_obj.to_dict()
         save_game_states(game_states)
 
     return {

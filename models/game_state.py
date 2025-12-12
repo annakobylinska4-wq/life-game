@@ -70,8 +70,17 @@ class GameState:
         return cls()
 
     def increment_turn(self):
-        """Increment the turn counter"""
+        """Increment the turn counter and apply per-turn updates"""
         self.turn += 1
+        self._apply_turn_updates()
+
+    def _apply_turn_updates(self):
+        """
+        Apply automatic updates that occur each turn.
+        Currently includes:
+        - Hunger increases by x (uncapped, can go arbitrarily high)
+        """
+        self.hunger += 25
 
     def add_money(self, amount):
         """Add money to the player's balance"""
