@@ -145,8 +145,27 @@ async function loadGameState() {
     }
 }
 
+// Toggle status popup panel
+function toggleStatusPanel() {
+    const popup = document.getElementById('status-popup');
+    if (popup.style.display === 'none' || popup.style.display === '') {
+        popup.style.display = 'flex';
+    } else {
+        popup.style.display = 'none';
+    }
+}
+
+// Close status panel when clicking outside
+window.addEventListener('click', function(event) {
+    const popup = document.getElementById('status-popup');
+    if (event.target === popup) {
+        popup.style.display = 'none';
+    }
+});
+
 // Update game UI with current state
 function updateGameUI(state) {
+    // Basic stats
     document.getElementById('turn').textContent = state.turn;
     document.getElementById('money').textContent = '$' + state.money;
     document.getElementById('job').textContent = state.current_job;
@@ -155,6 +174,23 @@ function updateGameUI(state) {
     document.getElementById('items').textContent = state.items.length > 0
         ? state.items.join(', ')
         : 'None';
+
+    // Wellbeing stats (default to initial values if not present)
+    const happiness = state.happiness !== undefined ? state.happiness : 50;
+    const tiredness = state.tiredness !== undefined ? state.tiredness : 0;
+    const hunger = state.hunger !== undefined ? state.hunger : 0;
+
+    // Update happiness
+    document.getElementById('happiness-value').textContent = happiness;
+    document.getElementById('happiness-bar').style.width = happiness + '%';
+
+    // Update tiredness
+    document.getElementById('tiredness-value').textContent = tiredness;
+    document.getElementById('tiredness-bar').style.width = tiredness + '%';
+
+    // Update hunger
+    document.getElementById('hunger-value').textContent = hunger;
+    document.getElementById('hunger-bar').style.width = hunger + '%';
 }
 
 // Store selected action for confirmation
@@ -343,6 +379,10 @@ async function sendChatMessage() {
 
         if (data.success) {
             addChatMessage(data.response, false);
+            // Update UI if state changed
+            if (data.state) {
+                updateGameUI(data.state);
+            }
         } else {
             addChatMessage('Error: ' + data.message, false);
         }

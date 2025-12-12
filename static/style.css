@@ -166,6 +166,28 @@ h2 {
     margin-bottom: 30px;
 }
 
+.header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.status-toggle-btn {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.status-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
 .logout-btn {
     padding: 10px 20px;
     background: #dc3545;
@@ -179,6 +201,194 @@ h2 {
 
 .logout-btn:hover {
     background: #c82333;
+}
+
+/* Status Popup Panel */
+.status-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+}
+
+.status-popup-content {
+    background: white;
+    border-radius: 20px;
+    padding: 0;
+    max-width: 600px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    animation: slideUp 0.3s ease;
+}
+
+.status-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 30px;
+    border-bottom: 2px solid #e0e0e0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 20px 20px 0 0;
+}
+
+.status-popup-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.8em;
+}
+
+.close-status {
+    font-size: 30px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.3s;
+    line-height: 1;
+}
+
+.close-status:hover {
+    color: #333;
+}
+
+.status-sections {
+    padding: 20px 30px 30px 30px;
+}
+
+.status-section {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px solid #e9ecef;
+}
+
+.status-section.turn-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    text-align: center;
+}
+
+.status-section.turn-section .label {
+    color: white;
+    font-size: 1.1em;
+}
+
+.status-section.turn-section .value {
+    color: white;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.section-title {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.3em;
+    font-weight: bold;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 8px;
+}
+
+.status-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.status-item-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.status-item-inline .label {
+    font-weight: 600;
+    color: #555;
+    font-size: 1em;
+}
+
+.status-item-inline .value {
+    color: #1e3a5f;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.status-item-bar {
+    padding: 12px 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.bar-label .label {
+    font-weight: 600;
+    color: #555;
+    font-size: 1em;
+}
+
+.bar-label .value {
+    color: #1e3a5f;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease, background 0.3s ease;
+}
+
+.happiness-bar {
+    background: linear-gradient(90deg, #00b894 0%, #00cec9 100%);
+}
+
+.tiredness-bar {
+    background: linear-gradient(90deg, #fdcb6e 0%, #e17055 100%);
+}
+
+.hunger-bar {
+    background: linear-gradient(90deg, #ff7675 0%, #d63031 100%);
+}
+
+.items-list {
+    padding: 12px 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    min-height: 50px;
+}
+
+.items-value {
+    color: #555;
+    font-weight: 500;
+    font-size: 1em;
 }
 
 /* Status Panel */

@@ -39,36 +39,95 @@
             <div class="container">
                 <div class="header">
                     <h1>Life Game</h1>
-                    <button class="logout-btn" onclick="logout()">Logout</button>
+                    <div class="header-buttons">
+                        <button class="status-toggle-btn" onclick="toggleStatusPanel()">📊 Status</button>
+                        <button class="logout-btn" onclick="logout()">Logout</button>
+                    </div>
                 </div>
 
-                <!-- Player Status -->
-                <div class="status-panel">
-                    <h2>Your Status</h2>
-                    <div class="status-grid">
-                        <div class="status-item">
-                            <span class="label">Turn:</span>
-                            <span id="turn" class="value">1</span>
+                <!-- Status Popup Panel -->
+                <div id="status-popup" class="status-popup" style="display: none;">
+                    <div class="status-popup-content">
+                        <div class="status-popup-header">
+                            <h2>📊 Player Status</h2>
+                            <span class="close-status" onclick="toggleStatusPanel()">&times;</span>
                         </div>
-                        <div class="status-item">
-                            <span class="label">Money:</span>
-                            <span id="money" class="value">$100</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="label">Job:</span>
-                            <span id="job" class="value">Unemployed</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="label">Wage:</span>
-                            <span id="wage" class="value">$0</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="label">Qualification:</span>
-                            <span id="qualification" class="value">None</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="label">Items:</span>
-                            <span id="items" class="value">None</span>
+
+                        <div class="status-sections">
+                            <!-- Turn Info -->
+                            <div class="status-section turn-section">
+                                <div class="status-item-inline">
+                                    <span class="label">Turn:</span>
+                                    <span id="turn" class="value">1</span>
+                                </div>
+                            </div>
+
+                            <!-- Economy Section -->
+                            <div class="status-section">
+                                <h3 class="section-title">💰 Economy</h3>
+                                <div class="status-group">
+                                    <div class="status-item-inline">
+                                        <span class="label">Money:</span>
+                                        <span id="money" class="value">$100</span>
+                                    </div>
+                                    <div class="status-item-inline">
+                                        <span class="label">Job:</span>
+                                        <span id="job" class="value">Unemployed</span>
+                                    </div>
+                                    <div class="status-item-inline">
+                                        <span class="label">Wage:</span>
+                                        <span id="wage" class="value">$0</span>
+                                    </div>
+                                    <div class="status-item-inline">
+                                        <span class="label">Qualification:</span>
+                                        <span id="qualification" class="value">None</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Wellbeing Section -->
+                            <div class="status-section">
+                                <h3 class="section-title">❤️ Wellbeing</h3>
+                                <div class="status-group">
+                                    <div class="status-item-bar">
+                                        <div class="bar-label">
+                                            <span class="label">😊 Happiness</span>
+                                            <span id="happiness-value" class="value">50</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div id="happiness-bar" class="progress-fill happiness-bar" style="width: 50%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="status-item-bar">
+                                        <div class="bar-label">
+                                            <span class="label">😴 Tiredness</span>
+                                            <span id="tiredness-value" class="value">0</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div id="tiredness-bar" class="progress-fill tiredness-bar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="status-item-bar">
+                                        <div class="bar-label">
+                                            <span class="label">🍔 Hunger</span>
+                                            <span id="hunger-value" class="value">0</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div id="hunger-bar" class="progress-fill hunger-bar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Items Section -->
+                            <div class="status-section">
+                                <h3 class="section-title">🎒 Inventory</h3>
+                                <div class="status-group">
+                                    <div class="items-list">
+                                        <span id="items" class="items-value">None</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
