@@ -6,21 +6,24 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5f8d 100%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 0;
+    overflow: hidden;
 }
 
 .container {
     background: white;
-    border-radius: 15px;
-    padding: 30px;
-    max-width: 1200px;
-    width: 95%;
-    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+    border-radius: 0;
+    padding: 20px 30px;
+    max-width: 1920px;
+    width: 100vw;
+    height: 100vh;
+    box-shadow: none;
+    overflow-y: auto;
 }
 
 h1 {
@@ -180,35 +183,46 @@ h2 {
 
 /* Status Panel */
 .status-panel {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .status-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+    gap: 20px;
     margin-top: 15px;
 }
 
 .status-item {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
+    padding: 15px 18px;
     background: white;
-    border-radius: 8px;
-    border-left: 4px solid #667eea;
+    border-radius: 12px;
+    border-left: 5px solid #1e3a5f;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.status-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .status-item .label {
     font-weight: bold;
     color: #555;
+    font-size: 0.95em;
 }
 
 .status-item .value {
-    color: #333;
+    color: #1e3a5f;
+    font-weight: 600;
+    font-size: 1.05em;
 }
 
 /* City Map Panel */
@@ -218,23 +232,29 @@ h2 {
 
 .city-map {
     position: relative;
-    background: linear-gradient(to bottom, #87CEEB 0%, #B8E6F0 40%, #D8B5A0 100%);
+    background: url('https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&h=800&fit=crop') center/cover;
     border-radius: 15px;
     padding: 0;
-    height: 600px;
+    height: 700px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* Sky */
-.sky {
+/* London map overlay */
+.city-map::before {
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 60%;
-    background: linear-gradient(to bottom, #87CEEB 0%, #B8E6F0 100%);
+    height: 100%;
+    background: rgba(30, 58, 95, 0.15);
     z-index: 1;
+}
+
+/* Sky - hidden for London map */
+.sky {
+    display: none;
 }
 
 .sun {
@@ -340,71 +360,51 @@ h2 {
     to { transform: translateX(100vw); }
 }
 
-/* Street/Ground */
+/* Street - hidden for London map */
 .street {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 80px;
-    background: #5A5A5A;
-    z-index: 2;
-    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
+    display: none;
 }
 
-.street::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 10px;
-    background: #4A4A4A;
-}
-
-.street-line {
-    position: absolute;
-    top: 50%;
-    width: 60px;
-    height: 4px;
-    background: #FFD700;
-    transform: translateY(-50%);
-    animation: move-lines 2s linear infinite;
-}
-
-.street-line:nth-child(1) {
-    left: 10%;
-}
-
-.street-line:nth-child(2) {
-    left: 40%;
-    animation-delay: -1s;
-}
-
-@keyframes move-lines {
-    from { transform: translateX(0) translateY(-50%); }
-    to { transform: translateX(400px) translateY(-50%); opacity: 0; }
-}
-
-/* Buildings Container */
+/* Buildings Container - London locations */
 .buildings-container {
     position: absolute;
-    bottom: 80px;
+    top: 0;
     left: 0;
     width: 100%;
-    height: calc(100% - 80px);
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-evenly;
-    padding: 0 60px;
-    gap: 30px;
-    z-index: 3;
+    height: 100%;
+    z-index: 10;
 }
 
 .building-wrapper {
+    position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+/* London positioning */
+.building-left {
+    /* King's College - Central London (Strand) */
+    left: 40%;
+    top: 45%;
+}
+
+.building-center-left {
+    /* Canary Wharf - East London */
+    left: 70%;
+    top: 55%;
+}
+
+.building-center-right {
+    /* The City/Bank - Central business */
+    left: 55%;
+    top: 35%;
+}
+
+.building-right {
+    /* Oxford Street/Covent Garden - West End */
+    left: 25%;
+    top: 40%;
 }
 
 .map-location {
@@ -412,16 +412,18 @@ h2 {
     border: none;
     padding: 0;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
     position: relative;
 }
 
 .map-location:hover {
-    transform: translateY(-10px);
+    transform: scale(1.15);
+    z-index: 100;
 }
 
 .map-location:hover .building-structure {
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 15px 40px rgba(255, 215, 0, 0.6);
+    filter: brightness(1.2);
 }
 
 .building-structure {
@@ -430,13 +432,17 @@ h2 {
     align-items: center;
     transition: all 0.3s ease;
     margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
 }
 
 .building-top {
-    font-size: 3.5em;
-    margin-bottom: -10px;
+    font-size: 4em;
+    margin-bottom: 5px;
     z-index: 2;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
     animation: float-gentle 3s ease-in-out infinite;
 }
 
@@ -446,92 +452,32 @@ h2 {
 }
 
 .building-body {
-    width: 140px;
-    background: linear-gradient(135deg, #e0e0e0 0%, #b0b0b0 100%);
-    border-radius: 8px 8px 0 0;
-    padding: 15px 12px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    border: 2px solid #999;
-    height: 150px;
-}
-
-.building-structure.tall .building-body {
-    height: 220px;
-    grid-template-columns: 1fr 1fr;
-}
-
-.building-structure.short .building-body {
-    height: 120px;
-}
-
-.window {
-    background: linear-gradient(135deg, #6DD5FA 0%, #2980B9 100%);
-    border-radius: 3px;
-    border: 2px solid #555;
-    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3);
-    animation: window-lights 4s ease-in-out infinite;
-}
-
-@keyframes window-lights {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
+    display: none;
 }
 
 .building-door {
-    width: 40px;
-    height: 50px;
-    background: linear-gradient(135deg, #8B4513 0%, #654321 100%);
-    border-radius: 5px 5px 0 0;
-    margin: 0 auto;
-    margin-top: -5px;
-    border: 2px solid #4A3010;
-    position: relative;
+    display: none;
 }
 
-.building-door::before {
-    content: '';
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: #FFD700;
-    border-radius: 50%;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
+.window {
+    display: none;
 }
 
 .building-label {
-    font-size: 0.95em;
+    font-size: 0.85em;
     font-weight: bold;
-    color: #333;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 8px 16px;
-    border-radius: 20px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    color: #1e3a5f;
+    background: rgba(255, 255, 255, 0.98);
+    padding: 6px 12px;
+    border-radius: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     white-space: nowrap;
+    margin-top: 8px;
 }
 
-/* Building specific colors */
-.university .building-body {
-    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
-}
-
-.job-office .building-body {
-    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
-}
-
-.workplace .building-body {
-    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-}
-
-.shop .building-body {
-    background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
-}
+/* Building specific colors - removed as buildings are hidden */
 
 /* Modal */
 .modal {
@@ -559,15 +505,32 @@ h2 {
 
 .modal-content {
     background: white;
-    border-radius: 15px;
-    padding: 30px;
-    max-width: 500px;
+    border-radius: 20px;
+    padding: 0;
+    max-width: 600px;
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
     animation: slideUp 0.3s ease;
     position: relative;
+}
+
+.modal-content h2 {
+    padding: 0 30px;
+    margin-top: 10px;
+}
+
+.modal-content p {
+    padding: 0 30px;
+}
+
+.modal-content .modal-tabs {
+    margin: 20px 30px;
+}
+
+.modal-content .tab-content {
+    padding: 0 30px 30px 30px;
 }
 
 @keyframes slideUp {
@@ -598,43 +561,39 @@ h2 {
 
 .modal-image {
     width: 100%;
-    height: 200px;
-    border-radius: 10px;
+    height: 300px;
+    border-radius: 20px 20px 0 0;
     margin-bottom: 20px;
     background-size: cover;
     background-position: center;
+    position: relative;
+}
+
+.modal-image::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+    border-radius: 0 0 10px 10px;
 }
 
 .modal-image.university {
-    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 5em;
+    background: url('https://images.unsplash.com/photo-1564981797816-1043664bf78d?w=800&h=600&fit=crop') center/cover;
 }
 
-.modal-image.job-office {
-    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 5em;
+.modal-image.job_office {
+    background: url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop') center/cover;
 }
 
 .modal-image.workplace {
-    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 5em;
+    background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop') center/cover;
 }
 
 .modal-image.shop {
-    background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 5em;
+    background: url('https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800&h=600&fit=crop') center/cover;
 }
 
 .modal-cost {

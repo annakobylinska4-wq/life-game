@@ -163,32 +163,32 @@ let selectedAction = null;
 // Location details
 const locationDetails = {
     university: {
-        title: 'University',
+        title: "King's College London",
         icon: '🎓',
-        description: 'Study hard to improve your qualifications. Each level unlocks better job opportunities.',
-        cost: 'Cost: $50 per level',
+        description: 'Study at one of London\'s most prestigious universities. Improve your qualifications to unlock better career opportunities in the city.',
+        cost: 'Cost: £50 per level',
         npcName: 'Professor'
     },
     job_office: {
-        title: 'Job Office',
+        title: 'Canary Wharf Recruitment',
         icon: '💼',
-        description: 'Find a job matching your qualifications. Better education leads to higher-paying positions.',
+        description: 'Find your perfect role in London\'s financial district. Better qualifications lead to higher-paying positions in the City.',
         cost: 'Free',
-        npcName: 'Clerk'
+        npcName: 'Recruiter'
     },
     workplace: {
-        title: 'Workplace',
+        title: 'The City Office',
         icon: '🏢',
-        description: 'Go to work and earn money based on your current job position.',
+        description: 'Work in the heart of London\'s business district. Earn your salary based on your current position.',
         cost: 'Earns money based on your job',
-        npcName: 'Boss'
+        npcName: 'Manager'
     },
     shop: {
-        title: 'Shop',
+        title: 'Oxford Street Shopping',
         icon: '🛒',
-        description: 'Purchase items to improve your lifestyle and show off your success.',
+        description: 'Shop at London\'s premier shopping destination. Purchase items to improve your lifestyle and show your success.',
         cost: 'Prices vary by item',
-        npcName: 'Shopkeeper'
+        npcName: 'Shop Assistant'
     }
 };
 
@@ -206,7 +206,7 @@ function showLocationModal(action) {
 
     // Set content
     modalImage.className = 'modal-image ' + action;
-    modalImage.textContent = details.icon;
+    modalImage.textContent = ''; // No text content for background images
     modalTitle.textContent = details.title;
     modalDescription.textContent = details.description;
     modalCost.textContent = details.cost;
