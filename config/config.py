@@ -9,9 +9,9 @@ import json
 class Config:
     """Application configuration"""
 
-    # Flask secret key for session management
+    # secret key for session management
     # IMPORTANT: Change this to a secure random string in production
-    SECRET_KEY = 'your-secret-key-change-this'
+    SECRET_KEY = '94d879fbfd41c394d07041cb9b7ce606a5825b9634838d5d11a918976c2e6bc1'
 
     # Server configuration
     PORT = 5001
