@@ -4,3 +4,5 @@ pydantic
 itsdangerous
 openai
 anthropic
+boto3
+jinja2
