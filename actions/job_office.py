@@ -13,13 +13,19 @@ def visit_job_office(state):
     Returns:
         tuple: (updated_state, message, success)
     """
-    # Better qualifications = better jobs
+    # Better qualifications = better jobs - Career ladder from Intern to CEO
     jobs = {
-        'None': ('Janitor', 20),
-        'High School': ('Cashier', 35),
-        'Bachelor': ('Office Worker', 60),
-        'Master': ('Manager', 100),
-        'PhD': ('Executive', 150)
+        'None': ('Janitor', 15),
+        'High School': ('Intern', 25),
+        'Bachelor - Part 1': ('Junior Associate', 40),
+        'Bachelor - Part 2': ('Associate', 55),
+        'Bachelor - Part 3': ('Senior Associate', 70),
+        'Master - Part 1': ('Team Lead', 90),
+        'Master - Part 2': ('Manager', 115),
+        'Master - Part 3': ('Senior Manager', 140),
+        'PhD - Part 1': ('Director', 180),
+        'PhD - Part 2': ('Vice President', 230),
+        'PhD - Part 3': ('CEO', 300)
     }
 
     job_title, wage = jobs.get(state['qualification'], ('Unemployed', 0))

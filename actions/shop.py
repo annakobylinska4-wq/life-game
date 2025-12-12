@@ -15,11 +15,21 @@ def visit_shop(state):
         tuple: (updated_state, message, success)
     """
     items_available = [
-        ('Food', 10),
-        ('Clothes', 25),
-        ('Phone', 100),
-        ('Laptop', 300),
-        ('Car', 1000)
+        ('Apple', 3),
+        ('Banana', 2),
+        ('Bread', 5),
+        ('Milk', 4),
+        ('Eggs', 6),
+        ('Cheese', 8),
+        ('Chicken', 12),
+        ('Beef', 15),
+        ('Rice', 7),
+        ('Pasta', 6),
+        ('Vegetables', 10),
+        ('Pizza', 14),
+        ('Sandwich', 9),
+        ('Coffee', 5),
+        ('Chocolate', 4)
     ]
 
     # Buy a random affordable item
