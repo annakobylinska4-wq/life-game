@@ -25,6 +25,9 @@ class Config:
     # Game configuration
     INITIAL_MONEY = 100
     UNIVERSITY_COST = 50
+    INITIAL_HAPPINESS = 50
+    INITIAL_TIREDNESS = 0
+    INITIAL_HUNGER = 0
 
     # Configuration files
     _secrets_config = None

@@ -17,6 +17,7 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from actions import perform_action
 from config.config import config
 from chat_service import get_llm_response
+from models import GameState
 
 app = FastAPI()
 
@@ -80,14 +81,8 @@ def save_game_states(states):
         json.dump(states, f, indent=2)
 
 def create_new_game_state():
-    return {
-        'money': config.INITIAL_MONEY,
-        'items': [],
-        'qualification': 'None',
-        'current_job': 'Unemployed',
-        'job_wage': 0,
-        'turn': 1
-    }
+    """Create a new game state using the GameState class"""
+    return GameState.create_new().to_dict()
 
 def create_session_token(username: str) -> str:
     """Create a signed session token"""
