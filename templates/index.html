@@ -78,23 +78,91 @@
 
                 <!-- City Map -->
                 <div class="city-map-panel">
-                    <h2>City Map - Click a location to visit</h2>
+                    <h2>🏙️ Your City - Click a location to visit</h2>
                     <div class="city-map">
-                        <div class="map-location university" onclick="showLocationModal('university')" title="University">
-                            <div class="building-icon">🎓</div>
-                            <div class="building-label">University</div>
+                        <!-- Sky -->
+                        <div class="sky">
+                            <div class="cloud cloud1"></div>
+                            <div class="cloud cloud2"></div>
+                            <div class="cloud cloud3"></div>
+                            <div class="sun"></div>
                         </div>
-                        <div class="map-location job-office" onclick="showLocationModal('job_office')" title="Job Office">
-                            <div class="building-icon">💼</div>
-                            <div class="building-label">Job Office</div>
+
+                        <!-- Buildings -->
+                        <div class="buildings-container">
+                            <!-- University (left) -->
+                            <div class="building-wrapper building-left">
+                                <div class="map-location university" onclick="showLocationModal('university')" title="University">
+                                    <div class="building-structure">
+                                        <div class="building-top">🎓</div>
+                                        <div class="building-body">
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                        </div>
+                                        <div class="building-door"></div>
+                                    </div>
+                                    <div class="building-label">University</div>
+                                </div>
+                            </div>
+
+                            <!-- Job Office (center-left) -->
+                            <div class="building-wrapper building-center-left">
+                                <div class="map-location job-office" onclick="showLocationModal('job_office')" title="Job Office">
+                                    <div class="building-structure">
+                                        <div class="building-top">💼</div>
+                                        <div class="building-body">
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                        </div>
+                                        <div class="building-door"></div>
+                                    </div>
+                                    <div class="building-label">Job Office</div>
+                                </div>
+                            </div>
+
+                            <!-- Workplace (center-right) -->
+                            <div class="building-wrapper building-center-right">
+                                <div class="map-location workplace" onclick="showLocationModal('workplace')" title="Workplace">
+                                    <div class="building-structure tall">
+                                        <div class="building-top">🏢</div>
+                                        <div class="building-body">
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                        </div>
+                                        <div class="building-door"></div>
+                                    </div>
+                                    <div class="building-label">Workplace</div>
+                                </div>
+                            </div>
+
+                            <!-- Shop (right) -->
+                            <div class="building-wrapper building-right">
+                                <div class="map-location shop" onclick="showLocationModal('shop')" title="Shop">
+                                    <div class="building-structure short">
+                                        <div class="building-top">🛒</div>
+                                        <div class="building-body">
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                        </div>
+                                        <div class="building-door"></div>
+                                    </div>
+                                    <div class="building-label">Shop</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="map-location workplace" onclick="showLocationModal('workplace')" title="Workplace">
-                            <div class="building-icon">🏢</div>
-                            <div class="building-label">Workplace</div>
-                        </div>
-                        <div class="map-location shop" onclick="showLocationModal('shop')" title="Shop">
-                            <div class="building-icon">🛒</div>
-                            <div class="building-label">Shop</div>
+
+                        <!-- Ground/Street -->
+                        <div class="street">
+                            <div class="street-line"></div>
+                            <div class="street-line"></div>
                         </div>
                     </div>
                 </div>

@@ -192,7 +192,7 @@ const locationDetails = {
     }
 };
 
-// Show location modal
+// Show location modal with animation
 function showLocationModal(action) {
     selectedAction = action;
     const details = locationDetails[action];
@@ -219,8 +219,15 @@ function showLocationModal(action) {
     document.getElementById('chat-messages').innerHTML = '';
     document.getElementById('chat-input').value = '';
 
-    // Show modal
+    // Show modal with animation
     modal.style.display = 'flex';
+
+    // Add entrance animation
+    const modalContent = modal.querySelector('.modal-content');
+    modalContent.style.animation = 'none';
+    setTimeout(() => {
+        modalContent.style.animation = 'slideUp 0.3s ease';
+    }, 10);
 }
 
 // Close location modal
@@ -274,6 +281,9 @@ function showTab(tabName, event) {
     tabButtons.forEach(btn => btn.classList.remove('active'));
     if (event && event.target) {
         event.target.classList.add('active');
+    } else {
+        // If no event, set first tab as active
+        tabButtons[0].classList.add('active');
     }
 
     // Update tab content
