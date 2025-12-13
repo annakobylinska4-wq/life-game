@@ -760,9 +760,9 @@ h2 {
 }
 
 .building-left {
-    /* King's College - University (top row, center-left) */
-    left: 28%;
-    top: 35%;
+    /* King's College - University (top row, right side) */
+    left: 68%;
+    top: 25%;
 }
 
 .building-center-left {
@@ -1476,4 +1476,75 @@ h2 {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border-radius: 20px;
+}
+
+/* Action Result Popup */
+.action-result-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+}
+
+.action-result-content {
+    background: white;
+    padding: 40px 50px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+    max-width: 450px;
+    width: 90%;
+}
+
+.action-result-content.success {
+    border-top: 5px solid #28a745;
+}
+
+.action-result-content.error {
+    border-top: 5px solid #dc3545;
+}
+
+.action-result-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+}
+
+.action-result-icon.success {
+    color: #28a745;
+}
+
+.action-result-icon.error {
+    color: #dc3545;
+}
+
+.action-result-message {
+    font-size: 1.2em;
+    color: #333;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.action-result-ok-btn {
+    padding: 12px 50px;
+    font-size: 18px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.action-result-ok-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
 }

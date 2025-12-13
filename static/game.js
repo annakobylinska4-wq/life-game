@@ -47,15 +47,28 @@ function clearMessage() {
 }
 
 function showActionMessage(message, isError = false) {
-    const messageEl = document.getElementById('action-message');
-    messageEl.textContent = message;
-    messageEl.className = 'action-message ' + (isError ? 'error' : 'success');
-    messageEl.style.display = 'block';
+    const popup = document.getElementById('action-result-popup');
+    const content = popup.querySelector('.action-result-content');
+    const icon = document.getElementById('action-result-icon');
+    const messageEl = document.getElementById('action-result-message');
 
-    // Auto-hide after 3 seconds
-    setTimeout(() => {
-        messageEl.style.display = 'none';
-    }, 3000);
+    // Set content based on success/error
+    if (isError) {
+        content.className = 'action-result-content error';
+        icon.className = 'action-result-icon error';
+        icon.textContent = '✗';
+    } else {
+        content.className = 'action-result-content success';
+        icon.className = 'action-result-icon success';
+        icon.textContent = '✓';
+    }
+
+    messageEl.textContent = message;
+    popup.style.display = 'flex';
+}
+
+function closeActionResultPopup() {
+    document.getElementById('action-result-popup').style.display = 'none';
 }
 
 // Eating animation popup
