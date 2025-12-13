@@ -1,3 +1,17 @@
+// Look avatar URLs for each level (1-5)
+// Middle-aged man going from very dishevelled/scruffy to well-groomed businessman
+const LOOK_AVATARS = {
+    1: 'https://images.unsplash.com/photo-1499996860823-5f5d3a85ef7f?w=300&h=300&fit=crop&crop=face', // Shabby - tired, dishevelled man
+    2: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop&crop=face', // Scruffy - unshaven, messy
+    3: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face', // Presentable - normal casual
+    4: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face', // Smart - professional look
+    5: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop&crop=face'  // Very well groomed - business suit
+};
+
+function getLookAvatarUrl(lookLevel) {
+    return LOOK_AVATARS[lookLevel] || LOOK_AVATARS[1];
+}
+
 // Show/hide screens
 function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(screen => {
@@ -206,7 +220,18 @@ function updateGameUI(state) {
     document.getElementById('top-money').textContent = '$' + state.money;
     document.getElementById('top-job').textContent = state.current_job;
     document.getElementById('top-qualification').textContent = state.qualification;
-    document.getElementById('top-look').textContent = state.look_label || 'Shabby';
+
+    // Update look avatar and label in status panel
+    const lookLevel = state.look || 1;
+    const lookLabel = state.look_label || 'Shabby';
+    const lookAvatarEl = document.getElementById('look-avatar');
+    const lookLabelEl = document.getElementById('look-label');
+    if (lookAvatarEl) {
+        lookAvatarEl.src = getLookAvatarUrl(lookLevel);
+    }
+    if (lookLabelEl) {
+        lookLabelEl.textContent = lookLabel;
+    }
 
     // Update top bar progress bars
     document.getElementById('top-happiness-value').textContent = happiness;

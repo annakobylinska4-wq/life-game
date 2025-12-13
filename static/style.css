@@ -284,6 +284,41 @@ h2 {
     color: #fd79a8;
 }
 
+/* Look avatar styles */
+.look-avatar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.look-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.look-avatar:hover {
+    transform: scale(1.1);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.look-label {
+    font-size: 0.7em;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.top-stat-item.look-stat {
+    min-width: auto;
+    padding: 8px 12px;
+}
+
 /* Responsive top stats bar */
 @media (max-width: 900px) {
     .top-stats-bar {
@@ -1397,4 +1432,48 @@ h2 {
 .eating-ok-btn:hover {
     transform: scale(1.05);
     box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+}
+
+/* Look Section in Status Panel */
+.look-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    text-align: center;
+}
+
+.look-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.look-avatar-large {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #667eea;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.look-avatar-large:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+}
+
+.look-status-label {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
 }
