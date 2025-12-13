@@ -230,13 +230,20 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
     # Use GameState class to handle turn increment and per-turn updates
     game_state_obj = GameState(updated_state)
     game_state_obj.increment_turn()
+
+    # Check for burnout (exhausted AND starving)
+    burnout = game_state_obj.check_burnout()
+    if burnout:
+        game_state_obj.reset()
+        message = "BURNOUT"  # Special message to trigger frontend popup
+
     updated_state = game_state_obj.to_dict()
 
     # Save updated state
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout}
 
 @app.get('/api/shop/catalogue')
 async def get_catalogue(username: str = Depends(get_current_user)):
@@ -258,13 +265,20 @@ async def handle_purchase(data: PurchaseRequest, username: str = Depends(get_cur
     # Use GameState class to handle turn increment and per-turn updates
     game_state_obj = GameState(updated_state)
     game_state_obj.increment_turn()
+
+    # Check for burnout (exhausted AND starving)
+    burnout = game_state_obj.check_burnout()
+    if burnout:
+        game_state_obj.reset()
+        message = "BURNOUT"
+
     updated_state = game_state_obj.to_dict()
 
     # Save updated state
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout}
 
 @app.get('/api/john_lewis/catalogue')
 async def get_john_lewis_cat(username: str = Depends(get_current_user)):
@@ -287,13 +301,20 @@ async def handle_john_lewis_purchase(data: PurchaseRequest, username: str = Depe
     game_state_obj = GameState(updated_state)
     game_state_obj.update_look()  # Update look based on clothing items
     game_state_obj.increment_turn()
+
+    # Check for burnout (exhausted AND starving)
+    burnout = game_state_obj.check_burnout()
+    if burnout:
+        game_state_obj.reset()
+        message = "BURNOUT"
+
     updated_state = game_state_obj.to_dict()
 
     # Save updated state
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout}
 
 @app.post('/api/chat')
 async def handle_chat(data: ChatRequest, username: str = Depends(get_current_user)):
@@ -343,13 +364,20 @@ async def handle_rent_flat(data: RentFlatRequest, username: str = Depends(get_cu
     # Use GameState class to handle turn increment and per-turn updates
     game_state_obj = GameState(updated_state)
     game_state_obj.increment_turn()
+
+    # Check for burnout (exhausted AND starving)
+    burnout = game_state_obj.check_burnout()
+    if burnout:
+        game_state_obj.reset()
+        message = "BURNOUT"
+
     updated_state = game_state_obj.to_dict()
 
     # Save updated state
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout}
 
 @app.get('/api/university/catalogue')
 async def get_courses_catalogue(username: str = Depends(get_current_user)):
@@ -435,13 +463,20 @@ async def handle_apply_job(data: ApplyJobRequest, username: str = Depends(get_cu
     # Use GameState class to handle turn increment
     game_state_obj = GameState(updated_state)
     game_state_obj.increment_turn()
+
+    # Check for burnout (exhausted AND starving)
+    burnout = game_state_obj.check_burnout()
+    if burnout:
+        game_state_obj.reset()
+        message = "BURNOUT"
+
     updated_state = game_state_obj.to_dict()
 
     # Save updated state
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout}
 
 if __name__ == '__main__':
     import uvicorn

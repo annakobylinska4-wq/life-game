@@ -85,6 +85,15 @@ function closeActionResultPopup() {
     document.getElementById('action-result-popup').style.display = 'none';
 }
 
+// Burnout popup
+function showBurnoutPopup() {
+    document.getElementById('burnout-popup').style.display = 'flex';
+}
+
+function closeBurnoutPopup() {
+    document.getElementById('burnout-popup').style.display = 'none';
+}
+
 // Eating animation popup
 let eatingPopupCallback = null;
 
@@ -510,7 +519,12 @@ async function confirmAction() {
 
         if (data.success) {
             updateGameUI(data.state);
-            showActionMessage(data.message, false);
+            // Check for burnout
+            if (data.burnout) {
+                showBurnoutPopup();
+            } else {
+                showActionMessage(data.message, false);
+            }
         } else {
             showActionMessage(data.message, true);
         }
@@ -684,10 +698,15 @@ async function purchaseShopItem(itemName) {
             updateGameUI(data.state);
             closeLocationModal();
 
-            // Show eating animation popup, then show success message after user acknowledges
-            showEatingPopup(() => {
-                showActionMessage(data.message, false);
-            });
+            // Check for burnout
+            if (data.burnout) {
+                showBurnoutPopup();
+            } else {
+                // Show eating animation popup, then show success message after user acknowledges
+                showEatingPopup(() => {
+                    showActionMessage(data.message, false);
+                });
+            }
         } else {
             // Handle error response
             const errorMsg = data.detail || data.message || 'Purchase failed';
@@ -759,7 +778,12 @@ async function purchaseJohnLewisItem(itemName) {
         if (response.ok && data.success) {
             updateGameUI(data.state);
             closeLocationModal();
-            showActionMessage(data.message, false);
+            // Check for burnout
+            if (data.burnout) {
+                showBurnoutPopup();
+            } else {
+                showActionMessage(data.message, false);
+            }
         } else {
             const errorMsg = data.detail || data.message || 'Purchase failed';
             showActionMessage(errorMsg, true);
@@ -830,7 +854,12 @@ async function rentFlat(tier) {
         if (response.ok && data.success) {
             updateGameUI(data.state);
             closeLocationModal();
-            showActionMessage(data.message, false);
+            // Check for burnout
+            if (data.burnout) {
+                showBurnoutPopup();
+            } else {
+                showActionMessage(data.message, false);
+            }
         } else {
             const errorMsg = data.detail || data.message || 'Rental failed';
             showActionMessage(errorMsg, true);
@@ -1014,7 +1043,12 @@ async function applyForJob(jobTitle) {
         if (response.ok && data.success) {
             updateGameUI(data.state);
             closeLocationModal();
-            showActionMessage(data.message, false);
+            // Check for burnout
+            if (data.burnout) {
+                showBurnoutPopup();
+            } else {
+                showActionMessage(data.message, false);
+            }
         } else {
             const errorMsg = data.detail || data.message || 'Application failed';
             showActionMessage(errorMsg, true);

@@ -317,6 +317,45 @@ class GameState:
         """Get the human-readable label for current look level"""
         return LOOK_LABELS.get(self.look, 'Shabby')
 
+    def check_burnout(self):
+        """
+        Check if player has burned out (exhausted AND starving).
+        This triggers a game reset.
+
+        Returns:
+            bool: True if player is burned out, False otherwise
+        """
+        # Exhausted = tiredness >= 81, Starving = hunger >= 81
+        is_exhausted = self.tiredness >= 81
+        is_starving = self.hunger >= 81
+        return is_exhausted and is_starving
+
+    def reset(self):
+        """
+        Reset the game state to initial values.
+        Called when player burns out from exhaustion and starvation.
+        Preserves the turn count to track total game progress.
+        """
+        # Preserve turn count
+        current_turn = self.turn
+
+        # Reset everything to initial values
+        self.money = config.INITIAL_MONEY
+        self.items = []
+        self.qualification = 'None'
+        self.current_job = 'Unemployed'
+        self.job_wage = 0
+        self.turn = current_turn  # Keep turn count
+        self.happiness = config.INITIAL_HAPPINESS
+        self.tiredness = config.INITIAL_TIREDNESS
+        self.hunger = config.INITIAL_HUNGER
+        self.look = 1
+        self.flat_tier = 0
+        self.rent = 0
+        self.completed_courses = []
+        self.enrolled_course = None
+        self.lectures_completed = 0
+
     def __repr__(self):
         """String representation for debugging"""
         return f"GameState(turn={self.turn}, money={self.money}, job={self.current_job}, happiness={self.happiness}, tiredness={self.tiredness}, hunger={self.hunger}, look={self.look}, flat_tier={self.flat_tier}, rent={self.rent})"
