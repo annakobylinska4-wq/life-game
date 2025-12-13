@@ -294,6 +294,41 @@ function updateGameUI(state) {
 
     // Track current flat tier for home display
     currentFlatTier = state.flat_tier || 0;
+
+    // Update education section in status panel
+    const qualificationLabel = document.getElementById('qualification-label');
+    const enrolledCourseLabel = document.getElementById('enrolled-course-label');
+    const lectureProgressContainer = document.getElementById('lecture-progress-container');
+    const lectureProgress = document.getElementById('lecture-progress');
+    const completedCoursesList = document.getElementById('completed-courses-list');
+
+    if (qualificationLabel) {
+        qualificationLabel.textContent = state.qualification || 'None';
+    }
+
+    if (enrolledCourseLabel) {
+        enrolledCourseLabel.textContent = state.enrolled_course ? state.enrolled_course.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Not enrolled';
+    }
+
+    if (lectureProgressContainer && lectureProgress) {
+        if (state.enrolled_course && state.lectures_completed !== undefined) {
+            lectureProgressContainer.style.display = 'flex';
+            lectureProgress.textContent = `${state.lectures_completed} lectures completed`;
+        } else {
+            lectureProgressContainer.style.display = 'none';
+        }
+    }
+
+    if (completedCoursesList) {
+        if (state.completed_courses && state.completed_courses.length > 0) {
+            const courseNames = state.completed_courses.map(id =>
+                id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+            );
+            completedCoursesList.textContent = courseNames.join(', ');
+        } else {
+            completedCoursesList.textContent = 'None';
+        }
+    }
 }
 
 // Store selected action for confirmation
@@ -391,29 +426,36 @@ function showLocationModal(action) {
     npcName.textContent = details.npcName;
     confirmBtn.textContent = details.confirmButtonLabel;
 
-    // Show browse buttons for shop, john_lewis and estate_agent, hide confirm button for these
+    // Show browse buttons for various locations
     const browseBtn = document.getElementById('browse-btn');
     const browseJLBtn = document.getElementById('browse-jl-btn');
     const browseFlatsBtn = document.getElementById('browse-flats-btn');
+    const browseCoursesBtn = document.getElementById('browse-courses-btn');
+    const browseJobsBtn = document.getElementById('browse-jobs-btn');
+
+    // Hide all browse buttons first
+    browseBtn.style.display = 'none';
+    browseJLBtn.style.display = 'none';
+    browseFlatsBtn.style.display = 'none';
+    browseCoursesBtn.style.display = 'none';
+    browseJobsBtn.style.display = 'none';
+
     if (action === 'shop') {
         browseBtn.style.display = 'inline-block';
-        browseJLBtn.style.display = 'none';
-        browseFlatsBtn.style.display = 'none';
         confirmBtn.style.display = 'none';
     } else if (action === 'john_lewis') {
-        browseBtn.style.display = 'none';
         browseJLBtn.style.display = 'inline-block';
-        browseFlatsBtn.style.display = 'none';
         confirmBtn.style.display = 'none';
     } else if (action === 'estate_agent') {
-        browseBtn.style.display = 'none';
-        browseJLBtn.style.display = 'none';
         browseFlatsBtn.style.display = 'inline-block';
         confirmBtn.style.display = 'none';
+    } else if (action === 'university') {
+        browseCoursesBtn.style.display = 'inline-block';
+        confirmBtn.style.display = 'inline-block';
+    } else if (action === 'job_office') {
+        browseJobsBtn.style.display = 'inline-block';
+        confirmBtn.style.display = 'none';
     } else {
-        browseBtn.style.display = 'none';
-        browseJLBtn.style.display = 'none';
-        browseFlatsBtn.style.display = 'none';
         confirmBtn.style.display = 'inline-block';
     }
 
@@ -795,6 +837,177 @@ async function rentFlat(tier) {
         }
     } catch (error) {
         showActionMessage('Error renting flat', true);
+        console.error(error);
+    }
+}
+
+// Browse university courses
+async function browseCourses() {
+    try {
+        const response = await fetch('/api/university/catalogue');
+        const data = await response.json();
+
+        if (data.success) {
+            displayCoursesCatalogue(data.courses, data.enrolled_course);
+        } else {
+            showActionMessage('Error loading course catalogue', true);
+        }
+    } catch (error) {
+        showActionMessage('Error loading course catalogue', true);
+        console.error(error);
+    }
+}
+
+// Display course catalogue
+function displayCoursesCatalogue(courses, enrolledCourse) {
+    const catalogueContainer = document.getElementById('catalogue-items');
+    catalogueContainer.innerHTML = '';
+
+    courses.forEach(course => {
+        const courseCard = document.createElement('div');
+        courseCard.className = 'catalogue-item course-item';
+        if (!course.can_enroll) {
+            courseCard.classList.add('locked');
+        }
+
+        // Build prerequisites text
+        let prereqText = '';
+        if (course.missing_prerequisites && course.missing_prerequisites.length > 0) {
+            prereqText = `<div class="course-prereqs">Requires: ${course.missing_prerequisites.join(', ')}</div>`;
+        }
+
+        // Build jobs unlocked text
+        const jobsText = course.jobs_unlocked
+            .map(job => `${job[0]} (£${job[1]})`)
+            .join(', ');
+
+        courseCard.innerHTML = `
+            <div class="item-emoji">${course.emoji}</div>
+            <div class="item-details">
+                <div class="item-name">${course.name}</div>
+                <div class="item-description">${course.description}</div>
+                ${prereqText}
+                <div class="course-jobs">Unlocks: ${jobsText}</div>
+                <div class="item-info">
+                    <span class="item-cost">£${course.cost_per_lecture}/lecture</span>
+                    <span class="course-lectures">${course.lectures_required} lectures</span>
+                </div>
+            </div>
+        `;
+
+        if (course.can_enroll) {
+            courseCard.onclick = () => enrollCourse(course.id);
+        }
+
+        catalogueContainer.appendChild(courseCard);
+    });
+
+    // Hide default buttons and show catalogue
+    document.querySelector('.modal-buttons').style.display = 'none';
+    document.getElementById('shop-catalogue').style.display = 'block';
+}
+
+// Enroll in a course
+async function enrollCourse(courseId) {
+    try {
+        const response = await fetch('/api/university/enroll', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ course_id: courseId })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            updateGameUI(data.state);
+            closeLocationModal();
+            showActionMessage(data.message, false);
+        } else {
+            const errorMsg = data.detail || data.message || 'Enrollment failed';
+            showActionMessage(errorMsg, true);
+        }
+    } catch (error) {
+        showActionMessage('Error enrolling in course', true);
+        console.error(error);
+    }
+}
+
+// Browse jobs at job office
+async function browseJobs() {
+    try {
+        const response = await fetch('/api/job_office/jobs');
+        const data = await response.json();
+
+        if (data.success) {
+            displayJobsCatalogue(data.jobs, data.current_job);
+        } else {
+            showActionMessage('Error loading jobs', true);
+        }
+    } catch (error) {
+        showActionMessage('Error loading jobs', true);
+        console.error(error);
+    }
+}
+
+// Display jobs catalogue
+function displayJobsCatalogue(jobs, currentJob) {
+    const catalogueContainer = document.getElementById('catalogue-items');
+    catalogueContainer.innerHTML = '';
+
+    jobs.forEach(job => {
+        const jobCard = document.createElement('div');
+        jobCard.className = 'catalogue-item job-item';
+        if (job.title === currentJob) {
+            jobCard.classList.add('current-job');
+        }
+
+        jobCard.innerHTML = `
+            <div class="item-emoji">💼</div>
+            <div class="item-details">
+                <div class="item-name">${job.title}${job.title === currentJob ? ' (Current)' : ''}</div>
+                <div class="item-info">
+                    <span class="item-cost job-wage">£${job.wage}/turn</span>
+                </div>
+            </div>
+        `;
+
+        if (job.title !== currentJob && job.title !== 'Unemployed') {
+            jobCard.onclick = () => applyForJob(job.title);
+        }
+
+        catalogueContainer.appendChild(jobCard);
+    });
+
+    // Hide default buttons and show catalogue
+    document.querySelector('.modal-buttons').style.display = 'none';
+    document.getElementById('shop-catalogue').style.display = 'block';
+}
+
+// Apply for a job
+async function applyForJob(jobTitle) {
+    try {
+        const response = await fetch('/api/job_office/apply', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ job_title: jobTitle })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            updateGameUI(data.state);
+            closeLocationModal();
+            showActionMessage(data.message, false);
+        } else {
+            const errorMsg = data.detail || data.message || 'Application failed';
+            showActionMessage(errorMsg, true);
+        }
+    } catch (error) {
+        showActionMessage('Error applying for job', true);
         console.error(error);
     }
 }

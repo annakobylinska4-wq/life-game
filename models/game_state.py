@@ -151,6 +151,10 @@ class GameState:
             self.look = state_dict.get('look', 1)
             self.flat_tier = state_dict.get('flat_tier', 0)  # 0 = homeless
             self.rent = state_dict.get('rent', 0)
+            # Education state
+            self.completed_courses = state_dict.get('completed_courses', [])
+            self.enrolled_course = state_dict.get('enrolled_course', None)
+            self.lectures_completed = state_dict.get('lectures_completed', 0)
         else:
             # Create new game state with initial values
             self.money = config.INITIAL_MONEY
@@ -165,6 +169,10 @@ class GameState:
             self.look = 1  # Start at level 1 (Shabby)
             self.flat_tier = 0  # Start homeless
             self.rent = 0  # No rent when homeless
+            # Education state
+            self.completed_courses = []
+            self.enrolled_course = None
+            self.lectures_completed = 0
 
     def to_dict(self):
         """
@@ -190,7 +198,10 @@ class GameState:
             'look_label': LOOK_LABELS.get(self.look, 'Shabby'),
             'flat_tier': self.flat_tier,
             'flat_label': get_flat_label(self.flat_tier),
-            'rent': self.rent
+            'rent': self.rent,
+            'completed_courses': self.completed_courses,
+            'enrolled_course': self.enrolled_course,
+            'lectures_completed': self.lectures_completed
         }
 
     @classmethod

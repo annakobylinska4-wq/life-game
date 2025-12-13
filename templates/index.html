@@ -152,6 +152,29 @@
                                 </div>
                             </div>
 
+                            <!-- Education Section -->
+                            <div class="status-section">
+                                <h3 class="section-title">🎓 Education</h3>
+                                <div class="status-group">
+                                    <div class="status-item-inline">
+                                        <span class="label">Highest Qualification:</span>
+                                        <span id="qualification-label" class="value">None</span>
+                                    </div>
+                                    <div class="status-item-inline">
+                                        <span class="label">Currently Enrolled:</span>
+                                        <span id="enrolled-course-label" class="value">Not enrolled</span>
+                                    </div>
+                                    <div id="lecture-progress-container" class="status-item-inline" style="display: none;">
+                                        <span class="label">Progress:</span>
+                                        <span id="lecture-progress" class="value">0/0 lectures</span>
+                                    </div>
+                                    <div id="completed-courses-container" class="status-item-inline">
+                                        <span class="label">Completed Courses:</span>
+                                        <span id="completed-courses-list" class="value">None</span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Items Section -->
                             <div class="status-section">
                                 <h3 class="section-title">🎒 Inventory</h3>
@@ -332,6 +355,8 @@
                         <button id="browse-btn" class="browse-btn" onclick="browseShopAisles()" style="display: none;">🛒 Browse the aisles</button>
                         <button id="browse-jl-btn" class="browse-btn" onclick="browseJohnLewis()" style="display: none;">🏬 Browse products</button>
                         <button id="browse-flats-btn" class="browse-btn" onclick="browseFlats()" style="display: none;">🏘️ Browse flats</button>
+                        <button id="browse-courses-btn" class="browse-btn" onclick="browseCourses()" style="display: none;">🎓 Browse courses</button>
+                        <button id="browse-jobs-btn" class="browse-btn" onclick="browseJobs()" style="display: none;">💼 Browse jobs</button>
                         <button class="cancel-btn" onclick="closeLocationModal()">Cancel</button>
                     </div>
 

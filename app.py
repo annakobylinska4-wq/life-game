@@ -18,6 +18,8 @@ from actions import perform_action
 from actions.shop import get_shop_catalogue, purchase_item
 from actions.john_lewis import get_john_lewis_catalogue, purchase_john_lewis_item
 from actions.estate_agent import get_flat_catalogue, rent_flat
+from actions.university import get_course_catalogue, get_available_courses, enroll_course, get_course_by_id
+from actions.job_office import get_available_jobs, apply_for_job
 from config.config import config
 from chat_service import get_llm_response
 from models import GameState
@@ -70,6 +72,12 @@ class PurchaseRequest(BaseModel):
 
 class RentFlatRequest(BaseModel):
     tier: int
+
+class EnrollCourseRequest(BaseModel):
+    course_id: str
+
+class ApplyJobRequest(BaseModel):
+    job_title: str
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -333,6 +341,97 @@ async def handle_rent_flat(data: RentFlatRequest, username: str = Depends(get_cu
         raise HTTPException(status_code=400, detail=message)
 
     # Use GameState class to handle turn increment and per-turn updates
+    game_state_obj = GameState(updated_state)
+    game_state_obj.increment_turn()
+    updated_state = game_state_obj.to_dict()
+
+    # Save updated state
+    game_states[username] = updated_state
+    save_game_states(game_states)
+
+    return {'success': True, 'state': updated_state, 'message': message}
+
+@app.get('/api/university/catalogue')
+async def get_courses_catalogue(username: str = Depends(get_current_user)):
+    """Get available courses based on player's education"""
+    game_states = load_game_states()
+    state = game_states[username]
+
+    completed_courses = state.get('completed_courses', [])
+    enrolled_course = state.get('enrolled_course', None)
+    lectures_completed = state.get('lectures_completed', 0)
+
+    # Get courses with eligibility info
+    courses = get_available_courses(completed_courses)
+
+    # Add current enrollment info
+    enrolled_info = None
+    if enrolled_course:
+        course = get_course_by_id(enrolled_course)
+        if course:
+            enrolled_info = {
+                'id': course['id'],
+                'name': course['name'],
+                'lectures_completed': lectures_completed,
+                'lectures_required': course['lectures_required'],
+                'cost_per_lecture': course['cost_per_lecture']
+            }
+
+    return {
+        'success': True,
+        'courses': courses,
+        'completed_courses': completed_courses,
+        'enrolled_course': enrolled_info
+    }
+
+@app.post('/api/university/enroll')
+async def handle_enroll_course(data: EnrollCourseRequest, username: str = Depends(get_current_user)):
+    """Enroll in a course"""
+    game_states = load_game_states()
+    state = game_states[username]
+
+    # Enroll in the course (no turn increment for enrollment)
+    updated_state, message, success = enroll_course(state, data.course_id)
+
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+
+    # Save updated state (no turn increment for enrollment)
+    game_state_obj = GameState(updated_state)
+    game_states[username] = game_state_obj.to_dict()
+    save_game_states(game_states)
+
+    return {'success': True, 'state': game_state_obj.to_dict(), 'message': message}
+
+@app.get('/api/job_office/jobs')
+async def get_jobs_list(username: str = Depends(get_current_user)):
+    """Get available jobs based on player's education"""
+    game_states = load_game_states()
+    state = game_states[username]
+
+    completed_courses = state.get('completed_courses', [])
+    jobs = get_available_jobs(completed_courses)
+
+    return {
+        'success': True,
+        'jobs': jobs,
+        'current_job': state.get('current_job', 'Unemployed'),
+        'current_wage': state.get('job_wage', 0)
+    }
+
+@app.post('/api/job_office/apply')
+async def handle_apply_job(data: ApplyJobRequest, username: str = Depends(get_current_user)):
+    """Apply for a specific job"""
+    game_states = load_game_states()
+    state = game_states[username]
+
+    # Apply for the job
+    updated_state, message, success = apply_for_job(state, data.job_title)
+
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+
+    # Use GameState class to handle turn increment
     game_state_obj = GameState(updated_state)
     game_state_obj.increment_turn()
     updated_state = game_state_obj.to_dict()
