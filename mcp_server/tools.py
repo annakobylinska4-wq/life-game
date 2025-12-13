@@ -37,7 +37,7 @@ TOOLS = [
     },
     {
         "name": "buy_item",
-        "description": "Buy an item from the shop. Items include: Food ($10), Clothes ($25), Phone ($100), Laptop ($300), Car ($1000). Buys a random affordable item.",
+        "description": "Buy an item from the food shop. Multiple items are available",
         "inputSchema": {
             "type": "object",
             "properties": {},

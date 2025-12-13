@@ -1,27 +1,28 @@
 """
 Module for loading and managing NPC system prompts
 """
-import json
 import os
+
+import yaml
 
 
 def load_npc_prompts():
     """
-    Load NPC system prompts from JSON file
+    Load NPC system prompts from YAML file
 
     Returns:
         dict: Dictionary mapping NPC types to their system prompts
     """
-    prompts_file = os.path.join(os.path.dirname(__file__), 'npc_prompts.json')
+    prompts_file = os.path.join(os.path.dirname(__file__), 'npc_prompts.yaml')
 
     try:
         with open(prompts_file, 'r') as f:
-            return json.load(f)
+            return yaml.safe_load(f)
     except FileNotFoundError:
         print(f"Warning: NPC prompts file not found at {prompts_file}")
         return {}
-    except json.JSONDecodeError as e:
-        print(f"Warning: Error parsing NPC prompts JSON: {e}")
+    except yaml.YAMLError as e:
+        print(f"Warning: Error parsing NPC prompts YAML: {e}")
         return {}
 
 

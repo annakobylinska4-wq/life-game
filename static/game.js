@@ -220,11 +220,11 @@ const locationDetails = {
         npcName: 'Manager'
     },
     shop: {
-        title: 'Oxford Street Shopping',
+        title: 'Borough Food Market',
         icon: '🛒',
-        description: 'Shop at London\'s premier shopping destination. Purchase items to improve your lifestyle and show your success.',
+        description: 'Visit London\'s famous food market. Purchase fresh food to keep your hunger at bay.',
         cost: 'Prices vary by item',
-        npcName: 'Shop Assistant'
+        npcName: 'Vendor'
     }
 };
 

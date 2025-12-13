@@ -52,7 +52,7 @@ def visit_shop(state):
 
     item = random.choice(affordable)
     state['money'] -= item['cost']
-    state['items'].append(item['name'])
+    #state['items'].append(item['name'])
 
     # Reduce hunger based on calories (higher calories = more hunger reduction)
     hunger_reduction = item['calories'] // 10  # Each 10 calories reduces 1 hunger point
