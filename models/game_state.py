@@ -4,6 +4,24 @@ GameState class for managing player game state
 from config.config import config
 
 
+# Look level labels (1-5 scale)
+LOOK_LABELS = {
+    1: 'Shabby',
+    2: 'Scruffy',
+    3: 'Presentable',
+    4: 'Smart',
+    5: 'Very well groomed'
+}
+
+# Clothing items that improve look (from John Lewis)
+CLOTHING_ITEMS = [
+    'Formal Suit', 'Blazer', 'Dress Shirt', 'Oxford Shirt', 'Dress Trousers',
+    'Chinos', 'Oxford Shoes', 'Brogues', 'Silk Tie', 'Leather Belt',
+    'Waistcoat', 'Cufflinks', 'Winter Coat', 'Polo Shirt', 'Trainers',
+    'Leather Boots', 'Cashmere Jumper', 'Jeans', 'Wool Scarf'
+]
+
+
 class GameState:
     """
     Represents a player's game state with all tracked features.
@@ -28,6 +46,7 @@ class GameState:
             self.happiness = state_dict.get('happiness', config.INITIAL_HAPPINESS)
             self.tiredness = state_dict.get('tiredness', config.INITIAL_TIREDNESS)
             self.hunger = state_dict.get('hunger', config.INITIAL_HUNGER)
+            self.look = state_dict.get('look', 1)
         else:
             # Create new game state with initial values
             self.money = config.INITIAL_MONEY
@@ -39,6 +58,7 @@ class GameState:
             self.happiness = config.INITIAL_HAPPINESS
             self.tiredness = config.INITIAL_TIREDNESS
             self.hunger = config.INITIAL_HUNGER
+            self.look = 1  # Start at level 1 (Shabby)
 
     def to_dict(self):
         """
@@ -56,7 +76,9 @@ class GameState:
             'turn': self.turn,
             'happiness': self.happiness,
             'tiredness': self.tiredness,
-            'hunger': self.hunger
+            'hunger': self.hunger,
+            'look': self.look,
+            'look_label': LOOK_LABELS.get(self.look, 'Shabby')
         }
 
     @classmethod
@@ -143,6 +165,31 @@ class GameState:
         """
         self.hunger = max(0, min(100, self.hunger + amount))
 
+    def update_look(self):
+        """
+        Update look level based on clothing items in inventory.
+        Look improves as the player acquires more clothing items.
+        Scale: 1 (Shabby) to 5 (Very well groomed)
+        """
+        clothing_count = sum(1 for item in self.items if item in CLOTHING_ITEMS)
+
+        # Calculate look level based on clothing count
+        # 0 items = level 1, 2-3 items = level 2, 4-5 items = level 3, etc.
+        if clothing_count == 0:
+            self.look = 1
+        elif clothing_count <= 2:
+            self.look = 2
+        elif clothing_count <= 4:
+            self.look = 3
+        elif clothing_count <= 7:
+            self.look = 4
+        else:
+            self.look = 5
+
+    def get_look_label(self):
+        """Get the human-readable label for current look level"""
+        return LOOK_LABELS.get(self.look, 'Shabby')
+
     def __repr__(self):
         """String representation for debugging"""
-        return f"GameState(turn={self.turn}, money={self.money}, job={self.current_job}, happiness={self.happiness}, tiredness={self.tiredness}, hunger={self.hunger})"
+        return f"GameState(turn={self.turn}, money={self.money}, job={self.current_job}, happiness={self.happiness}, tiredness={self.tiredness}, hunger={self.hunger}, look={self.look})"

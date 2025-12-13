@@ -206,6 +206,7 @@ function updateGameUI(state) {
     document.getElementById('top-money').textContent = '$' + state.money;
     document.getElementById('top-job').textContent = state.current_job;
     document.getElementById('top-qualification').textContent = state.qualification;
+    document.getElementById('top-look').textContent = state.look_label || 'Shabby';
 
     // Update top bar progress bars
     document.getElementById('top-happiness-value').textContent = happiness;

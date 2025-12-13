@@ -196,7 +196,12 @@ async def get_game_state(username: str = Depends(get_current_user)):
         game_states[username] = create_new_game_state()
         save_game_states(game_states)
 
-    return {'success': True, 'state': game_states[username]}
+    # Ensure look is calculated (for existing players without look attribute)
+    game_state_obj = GameState(game_states[username])
+    game_state_obj.update_look()
+    state_with_look = game_state_obj.to_dict()
+
+    return {'success': True, 'state': state_with_look}
 
 @app.post('/api/action')
 async def handle_action(data: ActionRequest, username: str = Depends(get_current_user)):
@@ -268,6 +273,7 @@ async def handle_john_lewis_purchase(data: PurchaseRequest, username: str = Depe
 
     # Use GameState class to handle turn increment and per-turn updates
     game_state_obj = GameState(updated_state)
+    game_state_obj.update_look()  # Update look based on clothing items
     game_state_obj.increment_turn()
     updated_state = game_state_obj.to_dict()
 
