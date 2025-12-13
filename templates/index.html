@@ -45,76 +45,63 @@
                     </div>
                 </div>
 
+                <!-- Top Stats Bar -->
+                <div class="top-stats-bar">
+                    <div class="top-stat-item turn-stat">
+                        <span class="top-stat-label">Turn</span>
+                        <span id="top-turn" class="top-stat-value">1</span>
+                    </div>
+                    <div class="top-stat-item money-stat">
+                        <span class="top-stat-label">Money</span>
+                        <span id="top-money" class="top-stat-value">$100</span>
+                    </div>
+                    <div class="top-stat-item job-stat">
+                        <span class="top-stat-label">Job</span>
+                        <span id="top-job" class="top-stat-value">Unemployed</span>
+                    </div>
+                    <div class="top-stat-item qualification-stat">
+                        <span class="top-stat-label">Qualification</span>
+                        <span id="top-qualification" class="top-stat-value">None</span>
+                    </div>
+                    <div class="top-stat-item happiness-stat">
+                        <span class="top-stat-label">Happiness</span>
+                        <div class="top-stat-bar-container">
+                            <div id="top-happiness-bar" class="top-stat-bar happiness-bar" style="width: 50%"></div>
+                        </div>
+                        <span id="top-happiness-value" class="top-stat-value-small">50</span>
+                    </div>
+                    <div class="top-stat-item tiredness-stat">
+                        <span class="top-stat-label">Tiredness</span>
+                        <div class="top-stat-bar-container">
+                            <div id="top-tiredness-bar" class="top-stat-bar tiredness-bar" style="width: 0%"></div>
+                        </div>
+                        <span id="top-tiredness-value" class="top-stat-value-small">0</span>
+                    </div>
+                    <div class="top-stat-item hunger-stat">
+                        <span class="top-stat-label">Hunger</span>
+                        <div class="top-stat-bar-container">
+                            <div id="top-hunger-bar" class="top-stat-bar hunger-bar" style="width: 0%"></div>
+                        </div>
+                        <span id="top-hunger-value" class="top-stat-value-small">0</span>
+                    </div>
+                </div>
+
                 <!-- Status Popup Panel -->
                 <div id="status-popup" class="status-popup" style="display: none;">
                     <div class="status-popup-content">
                         <div class="status-popup-header">
-                            <h2>📊 Player Status</h2>
+                            <h2>📊 Details</h2>
                             <span class="close-status" onclick="toggleStatusPanel()">&times;</span>
                         </div>
 
                         <div class="status-sections">
-                            <!-- Turn Info -->
-                            <div class="status-section turn-section">
-                                <div class="status-item-inline">
-                                    <span class="label">Turn:</span>
-                                    <span id="turn" class="value">1</span>
-                                </div>
-                            </div>
-
-                            <!-- Economy Section -->
+                            <!-- Wage Section -->
                             <div class="status-section">
-                                <h3 class="section-title">💰 Economy</h3>
+                                <h3 class="section-title">💵 Income</h3>
                                 <div class="status-group">
-                                    <div class="status-item-inline">
-                                        <span class="label">Money:</span>
-                                        <span id="money" class="value">$100</span>
-                                    </div>
-                                    <div class="status-item-inline">
-                                        <span class="label">Job:</span>
-                                        <span id="job" class="value">Unemployed</span>
-                                    </div>
                                     <div class="status-item-inline">
                                         <span class="label">Wage:</span>
-                                        <span id="wage" class="value">$0</span>
-                                    </div>
-                                    <div class="status-item-inline">
-                                        <span class="label">Qualification:</span>
-                                        <span id="qualification" class="value">None</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Wellbeing Section -->
-                            <div class="status-section">
-                                <h3 class="section-title">❤️ Wellbeing</h3>
-                                <div class="status-group">
-                                    <div class="status-item-bar">
-                                        <div class="bar-label">
-                                            <span class="label">😊 Happiness</span>
-                                            <span id="happiness-value" class="value">50</span>
-                                        </div>
-                                        <div class="progress-bar">
-                                            <div id="happiness-bar" class="progress-fill happiness-bar" style="width: 50%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="status-item-bar">
-                                        <div class="bar-label">
-                                            <span class="label">😴 Tiredness</span>
-                                            <span id="tiredness-value" class="value">0</span>
-                                        </div>
-                                        <div class="progress-bar">
-                                            <div id="tiredness-bar" class="progress-fill tiredness-bar" style="width: 0%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="status-item-bar">
-                                        <div class="bar-label">
-                                            <span class="label">🍔 Hunger</span>
-                                            <span id="hunger-value" class="value">0</span>
-                                        </div>
-                                        <div class="progress-bar">
-                                            <div id="hunger-bar" class="progress-fill hunger-bar" style="width: 0%"></div>
-                                        </div>
+                                        <span id="wage" class="value">$0/turn</span>
                                     </div>
                                 </div>
                             </div>

@@ -165,32 +165,32 @@ window.addEventListener('click', function(event) {
 
 // Update game UI with current state
 function updateGameUI(state) {
-    // Basic stats
-    document.getElementById('turn').textContent = state.turn;
-    document.getElementById('money').textContent = '$' + state.money;
-    document.getElementById('job').textContent = state.current_job;
-    document.getElementById('wage').textContent = '$' + state.job_wage + '/turn';
-    document.getElementById('qualification').textContent = state.qualification;
-    document.getElementById('items').textContent = state.items.length > 0
-        ? state.items.join(', ')
-        : 'None';
-
     // Wellbeing stats (default to initial values if not present)
     const happiness = state.happiness !== undefined ? state.happiness : 50;
     const tiredness = state.tiredness !== undefined ? state.tiredness : 0;
     const hunger = state.hunger !== undefined ? state.hunger : 0;
 
-    // Update happiness
-    document.getElementById('happiness-value').textContent = happiness;
-    document.getElementById('happiness-bar').style.width = happiness + '%';
+    // Update top stats bar
+    document.getElementById('top-turn').textContent = state.turn;
+    document.getElementById('top-money').textContent = '$' + state.money;
+    document.getElementById('top-job').textContent = state.current_job;
+    document.getElementById('top-qualification').textContent = state.qualification;
 
-    // Update tiredness
-    document.getElementById('tiredness-value').textContent = tiredness;
-    document.getElementById('tiredness-bar').style.width = tiredness + '%';
+    // Update top bar progress bars
+    document.getElementById('top-happiness-value').textContent = happiness;
+    document.getElementById('top-happiness-bar').style.width = happiness + '%';
 
-    // Update hunger
-    document.getElementById('hunger-value').textContent = hunger;
-    document.getElementById('hunger-bar').style.width = hunger + '%';
+    document.getElementById('top-tiredness-value').textContent = tiredness;
+    document.getElementById('top-tiredness-bar').style.width = tiredness + '%';
+
+    document.getElementById('top-hunger-value').textContent = hunger;
+    document.getElementById('top-hunger-bar').style.width = hunger + '%';
+
+    // Update popup panel (wage and inventory only)
+    document.getElementById('wage').textContent = '$' + state.job_wage + '/turn';
+    document.getElementById('items').textContent = state.items.length > 0
+        ? state.items.join(', ')
+        : 'None';
 }
 
 // Store selected action for confirmation
