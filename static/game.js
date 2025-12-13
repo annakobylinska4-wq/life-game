@@ -261,6 +261,22 @@ const locationDetails = {
         cost: 'Prices vary by item',
         npcName: 'Vendor',
         confirmButtonLabel: 'Buy some food'
+    },
+    home: {
+        title: 'Your London Flat',
+        icon: '🏠',
+        description: 'Head home to your cosy London flat. Rest up to reduce tiredness and recover your energy.',
+        cost: 'Free',
+        npcName: 'Flatmate',
+        confirmButtonLabel: 'Rest at home'
+    },
+    john_lewis: {
+        title: 'John Lewis Oxford Street',
+        icon: '🏬',
+        description: 'Browse the iconic department store for quality clothes and furniture. Items purchased here are kept in your inventory.',
+        cost: 'Prices vary by item',
+        npcName: 'Sales Assistant',
+        confirmButtonLabel: 'Browse products'
     }
 };
 
@@ -286,13 +302,20 @@ function showLocationModal(action) {
     npcName.textContent = details.npcName;
     confirmBtn.textContent = details.confirmButtonLabel;
 
-    // Show "Browse the aisles" button only for shop, hide confirm button for shop
+    // Show browse buttons for shop and john_lewis, hide confirm button for these
     const browseBtn = document.getElementById('browse-btn');
+    const browseJLBtn = document.getElementById('browse-jl-btn');
     if (action === 'shop') {
         browseBtn.style.display = 'inline-block';
+        browseJLBtn.style.display = 'none';
+        confirmBtn.style.display = 'none';
+    } else if (action === 'john_lewis') {
+        browseBtn.style.display = 'none';
+        browseJLBtn.style.display = 'inline-block';
         confirmBtn.style.display = 'none';
     } else {
         browseBtn.style.display = 'none';
+        browseJLBtn.style.display = 'none';
         confirmBtn.style.display = 'inline-block';
     }
 
@@ -527,6 +550,77 @@ async function purchaseShopItem(itemName) {
             });
         } else {
             // Handle error response
+            const errorMsg = data.detail || data.message || 'Purchase failed';
+            showActionMessage(errorMsg, true);
+        }
+    } catch (error) {
+        showActionMessage('Error purchasing item', true);
+        console.error(error);
+    }
+}
+
+// Browse John Lewis catalogue
+async function browseJohnLewis() {
+    try {
+        const response = await fetch('/api/john_lewis/catalogue');
+        const data = await response.json();
+
+        if (data.success) {
+            displayJohnLewisCatalogue(data.items);
+        } else {
+            showActionMessage('Error loading John Lewis catalogue', true);
+        }
+    } catch (error) {
+        showActionMessage('Error loading John Lewis catalogue', true);
+        console.error(error);
+    }
+}
+
+// Display John Lewis catalogue
+function displayJohnLewisCatalogue(items) {
+    const catalogueContainer = document.getElementById('catalogue-items');
+    catalogueContainer.innerHTML = '';
+
+    items.forEach(item => {
+        const itemCard = document.createElement('div');
+        itemCard.className = 'catalogue-item';
+        itemCard.innerHTML = `
+            <div class="item-emoji">${item.emoji}</div>
+            <div class="item-details">
+                <div class="item-name">${item.name}</div>
+                <div class="item-info">
+                    <span class="item-cost">£${item.cost}</span>
+                    <span class="item-category">${item.category}</span>
+                </div>
+            </div>
+        `;
+        itemCard.onclick = () => purchaseJohnLewisItem(item.name);
+        catalogueContainer.appendChild(itemCard);
+    });
+
+    // Hide default buttons and show catalogue
+    document.querySelector('.modal-buttons').style.display = 'none';
+    document.getElementById('shop-catalogue').style.display = 'block';
+}
+
+// Purchase a specific John Lewis item
+async function purchaseJohnLewisItem(itemName) {
+    try {
+        const response = await fetch('/api/john_lewis/purchase', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ item_name: itemName })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            updateGameUI(data.state);
+            closeLocationModal();
+            showActionMessage(data.message, false);
+        } else {
             const errorMsg = data.detail || data.message || 'Purchase failed';
             showActionMessage(errorMsg, true);
         }

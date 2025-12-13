@@ -16,6 +16,7 @@ from typing import Optional
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from actions import perform_action
 from actions.shop import get_shop_catalogue, purchase_item
+from actions.john_lewis import get_john_lewis_catalogue, purchase_john_lewis_item
 from config.config import config
 from chat_service import get_llm_response
 from models import GameState
@@ -233,6 +234,34 @@ async def handle_purchase(data: PurchaseRequest, username: str = Depends(get_cur
 
     # Purchase the item
     updated_state, message, success = purchase_item(state, data.item_name)
+
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+
+    # Use GameState class to handle turn increment and per-turn updates
+    game_state_obj = GameState(updated_state)
+    game_state_obj.increment_turn()
+    updated_state = game_state_obj.to_dict()
+
+    # Save updated state
+    game_states[username] = updated_state
+    save_game_states(game_states)
+
+    return {'success': True, 'state': updated_state, 'message': message}
+
+@app.get('/api/john_lewis/catalogue')
+async def get_john_lewis_cat(username: str = Depends(get_current_user)):
+    """Get John Lewis catalogue"""
+    return {'success': True, 'items': get_john_lewis_catalogue()}
+
+@app.post('/api/john_lewis/purchase')
+async def handle_john_lewis_purchase(data: PurchaseRequest, username: str = Depends(get_current_user)):
+    """Purchase a specific item from John Lewis"""
+    game_states = load_game_states()
+    state = game_states[username]
+
+    # Purchase the item
+    updated_state, message, success = purchase_john_lewis_item(state, data.item_name)
 
     if not success:
         raise HTTPException(status_code=400, detail=message)

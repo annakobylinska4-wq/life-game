@@ -189,7 +189,7 @@
                                 </div>
                             </div>
 
-                            <!-- Food Market (right) -->
+                            <!-- Food Market -->
                             <div class="building-wrapper building-right">
                                 <div class="map-location shop" onclick="showLocationModal('shop')" title="Food Market">
                                     <div class="building-structure short">
@@ -201,6 +201,40 @@
                                         <div class="building-door"></div>
                                     </div>
                                     <div class="building-label">Food Market</div>
+                                </div>
+                            </div>
+
+                            <!-- Home -->
+                            <div class="building-wrapper building-far-left">
+                                <div class="map-location home" onclick="showLocationModal('home')" title="Your Flat">
+                                    <div class="building-structure short">
+                                        <div class="building-top">🏠</div>
+                                        <div class="building-body">
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                        </div>
+                                        <div class="building-door"></div>
+                                    </div>
+                                    <div class="building-label">Home</div>
+                                </div>
+                            </div>
+
+                            <!-- John Lewis -->
+                            <div class="building-wrapper building-far-right">
+                                <div class="map-location john-lewis" onclick="showLocationModal('john_lewis')" title="John Lewis">
+                                    <div class="building-structure tall">
+                                        <div class="building-top">🏬</div>
+                                        <div class="building-body">
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                        </div>
+                                        <div class="building-door"></div>
+                                    </div>
+                                    <div class="building-label">John Lewis</div>
                                 </div>
                             </div>
                         </div>
@@ -235,6 +269,7 @@
                     <div class="modal-buttons">
                         <button class="confirm-btn" onclick="confirmAction()">Confirm</button>
                         <button id="browse-btn" class="browse-btn" onclick="browseShopAisles()" style="display: none;">🛒 Browse the aisles</button>
+                        <button id="browse-jl-btn" class="browse-btn" onclick="browseJohnLewis()" style="display: none;">🏬 Browse products</button>
                         <button class="cancel-btn" onclick="closeLocationModal()">Cancel</button>
                     </div>
 

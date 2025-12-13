@@ -717,29 +717,41 @@ h2 {
     align-items: center;
 }
 
-/* London positioning */
+/* London positioning - 6 buildings in 2 rows */
+.building-far-left {
+    /* Home - Residential area (top row, far left) */
+    left: 8%;
+    top: 30%;
+}
+
 .building-left {
-    /* King's College - Central London (Strand) */
-    left: 40%;
-    top: 45%;
-}
-
-.building-center-left {
-    /* Canary Wharf - East London */
-    left: 70%;
-    top: 55%;
-}
-
-.building-center-right {
-    /* The City/Bank - Central business */
-    left: 55%;
+    /* King's College - University (top row, center-left) */
+    left: 28%;
     top: 35%;
 }
 
+.building-center-left {
+    /* Job Office - Canary Wharf (top row, center-right) */
+    left: 48%;
+    top: 30%;
+}
+
+.building-center-right {
+    /* Workplace - The City (bottom row, center-left) */
+    left: 28%;
+    top: 60%;
+}
+
 .building-right {
-    /* Oxford Street/Covent Garden - West End */
-    left: 25%;
-    top: 40%;
+    /* Borough Market - Food (bottom row, center-right) */
+    left: 48%;
+    top: 65%;
+}
+
+.building-far-right {
+    /* John Lewis - Oxford Street (bottom row, far right) */
+    left: 68%;
+    top: 60%;
 }
 
 .map-location {
@@ -929,6 +941,14 @@ h2 {
 
 .modal-image.shop {
     background: url('https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800&h=600&fit=crop') center/cover;
+}
+
+.modal-image.home {
+    background: url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop') center/cover;
+}
+
+.modal-image.john_lewis {
+    background: url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600&fit=crop') center/cover;
 }
 
 .modal-cost {
