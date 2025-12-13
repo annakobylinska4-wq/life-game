@@ -248,6 +248,17 @@ function showLocationModal(action) {
     modalCost.textContent = details.cost;
     npcName.textContent = details.npcName;
 
+    // Show "Browse the aisles" button only for shop
+    const browseBtn = document.getElementById('browse-btn');
+    if (action === 'shop') {
+        browseBtn.style.display = 'inline-block';
+    } else {
+        browseBtn.style.display = 'none';
+    }
+
+    // Hide shop catalogue by default
+    document.getElementById('shop-catalogue').style.display = 'none';
+
     // Reset to action tab
     showTab('action');
 
@@ -270,6 +281,10 @@ function showLocationModal(action) {
 function closeLocationModal() {
     document.getElementById('location-modal').style.display = 'none';
     selectedAction = null;
+
+    // Reset modal buttons visibility
+    document.querySelector('.modal-buttons').style.display = 'flex';
+    document.getElementById('shop-catalogue').style.display = 'none';
 }
 
 // Confirm action
@@ -396,6 +411,84 @@ async function sendChatMessage() {
 function handleChatKeyPress(event) {
     if (event.key === 'Enter') {
         sendChatMessage();
+    }
+}
+
+// Browse shop aisles
+async function browseShopAisles() {
+    try {
+        const response = await fetch('/api/shop/catalogue');
+        const data = await response.json();
+
+        if (data.success) {
+            displayShopCatalogue(data.items);
+        } else {
+            showActionMessage('Error loading shop catalogue', true);
+        }
+    } catch (error) {
+        showActionMessage('Error loading shop catalogue', true);
+        console.error(error);
+    }
+}
+
+// Display shop catalogue
+function displayShopCatalogue(items) {
+    const catalogueContainer = document.getElementById('catalogue-items');
+    catalogueContainer.innerHTML = '';
+
+    items.forEach(item => {
+        const itemCard = document.createElement('div');
+        itemCard.className = 'catalogue-item';
+        itemCard.innerHTML = `
+            <div class="item-emoji">${item.emoji}</div>
+            <div class="item-details">
+                <div class="item-name">${item.name}</div>
+                <div class="item-info">
+                    <span class="item-cost">$${item.cost}</span>
+                    <span class="item-calories">${item.calories} cal</span>
+                </div>
+            </div>
+        `;
+        itemCard.onclick = () => purchaseShopItem(item.name);
+        catalogueContainer.appendChild(itemCard);
+    });
+
+    // Hide default buttons and show catalogue
+    document.querySelector('.modal-buttons').style.display = 'none';
+    document.getElementById('shop-catalogue').style.display = 'block';
+}
+
+// Hide shop catalogue and show default buttons
+function hideShopCatalogue() {
+    document.getElementById('shop-catalogue').style.display = 'none';
+    document.querySelector('.modal-buttons').style.display = 'flex';
+}
+
+// Purchase a specific shop item
+async function purchaseShopItem(itemName) {
+    try {
+        const response = await fetch('/api/shop/purchase', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ item_name: itemName })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            updateGameUI(data.state);
+            showActionMessage(data.message, false);
+            closeLocationModal();
+        } else {
+            // Handle error response
+            const errorMsg = data.detail || data.message || 'Purchase failed';
+            showActionMessage(errorMsg, true);
+        }
+    } catch (error) {
+        showActionMessage('Error purchasing item', true);
+        console.error(error);
     }
 }
 

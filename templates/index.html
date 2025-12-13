@@ -247,7 +247,15 @@
                 <div id="action-tab" class="tab-content active">
                     <div class="modal-buttons">
                         <button class="confirm-btn" onclick="confirmAction()">Confirm</button>
+                        <button id="browse-btn" class="browse-btn" onclick="browseShopAisles()" style="display: none;">🛒 Browse the aisles</button>
                         <button class="cancel-btn" onclick="closeLocationModal()">Cancel</button>
+                    </div>
+
+                    <!-- Shop Catalogue (hidden by default) -->
+                    <div id="shop-catalogue" class="shop-catalogue" style="display: none;">
+                        <h3>Available Items</h3>
+                        <div id="catalogue-items" class="catalogue-items"></div>
+                        <button class="back-btn" onclick="hideShopCatalogue()">← Back</button>
                     </div>
                 </div>
 
