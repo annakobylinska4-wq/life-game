@@ -17,6 +17,7 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from actions import perform_action
 from actions.shop import get_shop_catalogue, purchase_item
 from actions.john_lewis import get_john_lewis_catalogue, purchase_john_lewis_item
+from actions.estate_agent import get_flat_catalogue, rent_flat
 from config.config import config
 from chat_service import get_llm_response
 from models import GameState
@@ -66,6 +67,9 @@ class ChatRequest(BaseModel):
 
 class PurchaseRequest(BaseModel):
     item_name: str
+
+class RentFlatRequest(BaseModel):
+    tier: int
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -310,6 +314,34 @@ async def handle_chat(data: ChatRequest, username: str = Depends(get_current_use
         'tool_calls': result.get('tool_calls', []),
         'state': result.get('updated_state') or state
     }
+
+@app.get('/api/estate_agent/catalogue')
+async def get_flats_catalogue(username: str = Depends(get_current_user)):
+    """Get available flats for rent"""
+    return {'success': True, 'flats': get_flat_catalogue()}
+
+@app.post('/api/estate_agent/rent')
+async def handle_rent_flat(data: RentFlatRequest, username: str = Depends(get_current_user)):
+    """Rent a flat of the specified tier"""
+    game_states = load_game_states()
+    state = game_states[username]
+
+    # Rent the flat
+    updated_state, message, success = rent_flat(state, data.tier)
+
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+
+    # Use GameState class to handle turn increment and per-turn updates
+    game_state_obj = GameState(updated_state)
+    game_state_obj.increment_turn()
+    updated_state = game_state_obj.to_dict()
+
+    # Save updated state
+    game_states[username] = updated_state
+    save_game_states(game_states)
+
+    return {'success': True, 'state': updated_state, 'message': message}
 
 if __name__ == '__main__':
     import uvicorn

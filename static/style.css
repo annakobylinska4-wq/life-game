@@ -796,6 +796,12 @@ h2 {
     top: 60%;
 }
 
+.building-bottom-left {
+    /* Estate Agent - London Property Partners */
+    left: 8%;
+    top: 60%;
+}
+
 .map-location {
     background: transparent;
     border: none;
@@ -991,6 +997,10 @@ h2 {
 
 .modal-image.john_lewis {
     background: url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600&fit=crop') center/cover;
+}
+
+.modal-image.estate_agent {
+    background: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop') center/cover;
 }
 
 .modal-cost {
@@ -1327,6 +1337,38 @@ h2 {
 .item-calories {
     color: #666;
     font-size: 0.85em;
+}
+
+.item-category {
+    color: #666;
+    font-size: 0.85em;
+    text-transform: capitalize;
+}
+
+/* Flat items in catalogue */
+.flat-item {
+    text-align: left;
+    min-height: 120px;
+}
+
+.flat-item .item-details {
+    text-align: left;
+}
+
+.flat-item .item-description {
+    font-size: 0.8em;
+    color: #666;
+    margin: 8px 0;
+    line-height: 1.4;
+}
+
+.rent-cost {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.rent-value {
+    color: #dc3545;
 }
 
 .browse-btn {

@@ -4,6 +4,30 @@ GameState class for managing player game state
 from config.config import config
 
 
+# Flat tier labels (0-5 scale, 0 = homeless)
+FLAT_TIER_LABELS = {
+    0: 'Homeless',
+    1: 'Dingy Bedsit',
+    2: 'Basic Studio',
+    3: 'Comfortable Flat',
+    4: 'Stylish Apartment',
+    5: 'Luxury Penthouse'
+}
+
+
+def get_flat_label(flat_tier):
+    """
+    Get human-readable label for flat tier.
+
+    Args:
+        flat_tier: Flat tier value (0-5)
+
+    Returns:
+        str: Human-readable flat tier label
+    """
+    return FLAT_TIER_LABELS.get(flat_tier, 'Homeless')
+
+
 # Look level labels (1-5 scale)
 LOOK_LABELS = {
     1: 'Shabby',
@@ -125,6 +149,8 @@ class GameState:
             self.tiredness = state_dict.get('tiredness', config.INITIAL_TIREDNESS)
             self.hunger = state_dict.get('hunger', config.INITIAL_HUNGER)
             self.look = state_dict.get('look', 1)
+            self.flat_tier = state_dict.get('flat_tier', 0)  # 0 = homeless
+            self.rent = state_dict.get('rent', 0)
         else:
             # Create new game state with initial values
             self.money = config.INITIAL_MONEY
@@ -137,6 +163,8 @@ class GameState:
             self.tiredness = config.INITIAL_TIREDNESS
             self.hunger = config.INITIAL_HUNGER
             self.look = 1  # Start at level 1 (Shabby)
+            self.flat_tier = 0  # Start homeless
+            self.rent = 0  # No rent when homeless
 
     def to_dict(self):
         """
@@ -159,7 +187,10 @@ class GameState:
             'hunger': self.hunger,
             'hunger_label': get_hunger_label(self.hunger),
             'look': self.look,
-            'look_label': LOOK_LABELS.get(self.look, 'Shabby')
+            'look_label': LOOK_LABELS.get(self.look, 'Shabby'),
+            'flat_tier': self.flat_tier,
+            'flat_label': get_flat_label(self.flat_tier),
+            'rent': self.rent
         }
 
     @classmethod
@@ -181,9 +212,13 @@ class GameState:
         """
         Apply automatic updates that occur each turn.
         Currently includes:
-        - Hunger increases by x (uncapped, can go arbitrarily high)
+        - Hunger increases by 25 (uncapped, can go arbitrarily high)
+        - Rent is deducted from money
         """
         self.hunger += 25
+        # Deduct rent each turn
+        if self.rent > 0:
+            self.money -= self.rent
 
     def add_money(self, amount):
         """Add money to the player's balance"""
@@ -273,4 +308,4 @@ class GameState:
 
     def __repr__(self):
         """String representation for debugging"""
-        return f"GameState(turn={self.turn}, money={self.money}, job={self.current_job}, happiness={self.happiness}, tiredness={self.tiredness}, hunger={self.hunger}, look={self.look})"
+        return f"GameState(turn={self.turn}, money={self.money}, job={self.current_job}, happiness={self.happiness}, tiredness={self.tiredness}, hunger={self.hunger}, look={self.look}, flat_tier={self.flat_tier}, rent={self.rent})"

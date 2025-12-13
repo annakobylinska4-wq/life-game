@@ -7,6 +7,7 @@ from .workplace import visit_workplace, BUTTON_LABEL as WORKPLACE_BUTTON_LABEL
 from .shop import visit_shop, BUTTON_LABEL as SHOP_BUTTON_LABEL
 from .home import visit_home, BUTTON_LABEL as HOME_BUTTON_LABEL
 from .john_lewis import visit_john_lewis, BUTTON_LABEL as JOHN_LEWIS_BUTTON_LABEL
+from .estate_agent import visit_estate_agent, BUTTON_LABEL as ESTATE_AGENT_BUTTON_LABEL
 
 
 # Action registry - maps action names to their handler functions
@@ -16,7 +17,8 @@ ACTION_HANDLERS = {
     'workplace': visit_workplace,
     'shop': visit_shop,
     'home': visit_home,
-    'john_lewis': visit_john_lewis
+    'john_lewis': visit_john_lewis,
+    'estate_agent': visit_estate_agent
 }
 
 # Button labels for each action - used by frontend to display context-specific labels
@@ -26,7 +28,8 @@ ACTION_BUTTON_LABELS = {
     'workplace': WORKPLACE_BUTTON_LABEL,
     'shop': SHOP_BUTTON_LABEL,
     'home': HOME_BUTTON_LABEL,
-    'john_lewis': JOHN_LEWIS_BUTTON_LABEL
+    'john_lewis': JOHN_LEWIS_BUTTON_LABEL,
+    'estate_agent': ESTATE_AGENT_BUTTON_LABEL
 }
 
 
@@ -56,6 +59,7 @@ __all__ = [
     'visit_shop',
     'visit_home',
     'visit_john_lewis',
+    'visit_estate_agent',
     'perform_action',
     'ACTION_HANDLERS',
     'ACTION_BUTTON_LABELS'

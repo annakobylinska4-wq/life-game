@@ -128,11 +128,26 @@
 
                             <!-- Wage Section -->
                             <div class="status-section">
-                                <h3 class="section-title">💵 Income</h3>
+                                <h3 class="section-title">💵 Income & Expenses</h3>
                                 <div class="status-group">
                                     <div class="status-item-inline">
                                         <span class="label">Wage:</span>
                                         <span id="wage" class="value">$0/turn</span>
+                                    </div>
+                                    <div class="status-item-inline">
+                                        <span class="label">Rent:</span>
+                                        <span id="rent" class="value rent-value">$0/turn</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Housing Section -->
+                            <div class="status-section">
+                                <h3 class="section-title">🏠 Housing</h3>
+                                <div class="status-group">
+                                    <div class="status-item-inline">
+                                        <span class="label">Current Home:</span>
+                                        <span id="flat-label" class="value">Homeless</span>
                                     </div>
                                 </div>
                             </div>
@@ -268,6 +283,21 @@
                                     <div class="building-label">John Lewis</div>
                                 </div>
                             </div>
+
+                            <!-- Estate Agent -->
+                            <div class="building-wrapper building-bottom-left">
+                                <div class="map-location estate-agent" onclick="showLocationModal('estate_agent')" title="Estate Agent">
+                                    <div class="building-structure">
+                                        <div class="building-top">🏘️</div>
+                                        <div class="building-body">
+                                            <div class="window"></div>
+                                            <div class="window"></div>
+                                        </div>
+                                        <div class="building-door"></div>
+                                    </div>
+                                    <div class="building-label">Estate Agent</div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Ground/Street -->
@@ -301,6 +331,7 @@
                         <button class="confirm-btn" onclick="confirmAction()">Confirm</button>
                         <button id="browse-btn" class="browse-btn" onclick="browseShopAisles()" style="display: none;">🛒 Browse the aisles</button>
                         <button id="browse-jl-btn" class="browse-btn" onclick="browseJohnLewis()" style="display: none;">🏬 Browse products</button>
+                        <button id="browse-flats-btn" class="browse-btn" onclick="browseFlats()" style="display: none;">🏘️ Browse flats</button>
                         <button class="cancel-btn" onclick="closeLocationModal()">Cancel</button>
                     </div>
 

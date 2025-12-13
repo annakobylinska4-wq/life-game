@@ -8,6 +8,20 @@ const LOOK_AVATARS = {
     5: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop&crop=face'  // Very well groomed - business suit
 };
 
+// Home images based on flat tier (0-5)
+// Different home appearances based on what flat the player is renting
+const HOME_IMAGES = {
+    0: 'https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=800&h=600&fit=crop', // Homeless - abandoned ruined building interior
+    1: 'https://images.unsplash.com/photo-1597047084993-bf36ace2a68d?w=800&h=600&fit=crop', // Dingy bedsit - decrepit dirty room
+    2: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop', // Basic studio - simple but clean
+    3: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop', // Comfortable flat - nice living room
+    4: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop', // Stylish apartment - modern interior
+    5: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop'  // Luxury penthouse - stunning views
+};
+
+// Store current flat tier for home display
+let currentFlatTier = 0;
+
 function getLookAvatarUrl(lookLevel) {
     return LOOK_AVATARS[lookLevel] || LOOK_AVATARS[1];
 }
@@ -270,11 +284,16 @@ function updateGameUI(state) {
     document.getElementById('panel-hunger-value').textContent = hunger;
     document.getElementById('panel-hunger-label').textContent = hungerLabel;
 
-    // Update popup panel (wage and inventory)
+    // Update popup panel (wage, rent, housing, and inventory)
     document.getElementById('wage').textContent = '$' + state.job_wage + '/turn';
+    document.getElementById('rent').textContent = '$' + (state.rent || 0) + '/turn';
+    document.getElementById('flat-label').textContent = state.flat_label || 'Homeless';
     document.getElementById('items').textContent = state.items.length > 0
         ? state.items.join(', ')
         : 'None';
+
+    // Track current flat tier for home display
+    currentFlatTier = state.flat_tier || 0;
 }
 
 // Store selected action for confirmation
@@ -330,6 +349,14 @@ const locationDetails = {
         cost: 'Prices vary by item',
         npcName: 'Sales Assistant',
         confirmButtonLabel: 'Browse products'
+    },
+    estate_agent: {
+        title: 'London Property Partners',
+        icon: '🏘️',
+        description: 'Find your perfect London home! From budget bedsits to luxury penthouses. Rent is deducted from your money each turn.',
+        cost: 'Rent: £10 - £200/turn',
+        npcName: 'Estate Agent',
+        confirmButtonLabel: 'Browse flats'
     }
 };
 
@@ -349,26 +376,44 @@ function showLocationModal(action) {
     // Set content
     modalImage.className = 'modal-image ' + action;
     modalImage.textContent = ''; // No text content for background images
+
+    // For home action, set dynamic background based on flat tier
+    if (action === 'home') {
+        const homeImageUrl = HOME_IMAGES[currentFlatTier] || HOME_IMAGES[0];
+        modalImage.style.backgroundImage = `url('${homeImageUrl}')`;
+    } else {
+        modalImage.style.backgroundImage = ''; // Clear inline style, use CSS class
+    }
+
     modalTitle.textContent = details.title;
     modalDescription.textContent = details.description;
     modalCost.textContent = details.cost;
     npcName.textContent = details.npcName;
     confirmBtn.textContent = details.confirmButtonLabel;
 
-    // Show browse buttons for shop and john_lewis, hide confirm button for these
+    // Show browse buttons for shop, john_lewis and estate_agent, hide confirm button for these
     const browseBtn = document.getElementById('browse-btn');
     const browseJLBtn = document.getElementById('browse-jl-btn');
+    const browseFlatsBtn = document.getElementById('browse-flats-btn');
     if (action === 'shop') {
         browseBtn.style.display = 'inline-block';
         browseJLBtn.style.display = 'none';
+        browseFlatsBtn.style.display = 'none';
         confirmBtn.style.display = 'none';
     } else if (action === 'john_lewis') {
         browseBtn.style.display = 'none';
         browseJLBtn.style.display = 'inline-block';
+        browseFlatsBtn.style.display = 'none';
+        confirmBtn.style.display = 'none';
+    } else if (action === 'estate_agent') {
+        browseBtn.style.display = 'none';
+        browseJLBtn.style.display = 'none';
+        browseFlatsBtn.style.display = 'inline-block';
         confirmBtn.style.display = 'none';
     } else {
         browseBtn.style.display = 'none';
         browseJLBtn.style.display = 'none';
+        browseFlatsBtn.style.display = 'none';
         confirmBtn.style.display = 'inline-block';
     }
 
@@ -679,6 +724,77 @@ async function purchaseJohnLewisItem(itemName) {
         }
     } catch (error) {
         showActionMessage('Error purchasing item', true);
+        console.error(error);
+    }
+}
+
+// Browse flats at estate agent
+async function browseFlats() {
+    try {
+        const response = await fetch('/api/estate_agent/catalogue');
+        const data = await response.json();
+
+        if (data.success) {
+            displayFlatsCatalogue(data.flats);
+        } else {
+            showActionMessage('Error loading flats catalogue', true);
+        }
+    } catch (error) {
+        showActionMessage('Error loading flats catalogue', true);
+        console.error(error);
+    }
+}
+
+// Display flats catalogue
+function displayFlatsCatalogue(flats) {
+    const catalogueContainer = document.getElementById('catalogue-items');
+    catalogueContainer.innerHTML = '';
+
+    flats.forEach(flat => {
+        const flatCard = document.createElement('div');
+        flatCard.className = 'catalogue-item flat-item';
+        flatCard.innerHTML = `
+            <div class="item-emoji">${flat.emoji}</div>
+            <div class="item-details">
+                <div class="item-name">${flat.name}</div>
+                <div class="item-description">${flat.description}</div>
+                <div class="item-info">
+                    <span class="item-cost rent-cost">£${flat.rent}/turn</span>
+                </div>
+            </div>
+        `;
+        flatCard.onclick = () => rentFlat(flat.tier);
+        catalogueContainer.appendChild(flatCard);
+    });
+
+    // Hide default buttons and show catalogue
+    document.querySelector('.modal-buttons').style.display = 'none';
+    document.getElementById('shop-catalogue').style.display = 'block';
+}
+
+// Rent a specific flat
+async function rentFlat(tier) {
+    try {
+        const response = await fetch('/api/estate_agent/rent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ tier: tier })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            updateGameUI(data.state);
+            closeLocationModal();
+            showActionMessage(data.message, false);
+        } else {
+            const errorMsg = data.detail || data.message || 'Rental failed';
+            showActionMessage(errorMsg, true);
+        }
+    } catch (error) {
+        showActionMessage('Error renting flat', true);
         console.error(error);
     }
 }
