@@ -197,34 +197,39 @@ function updateGameUI(state) {
 let selectedAction = null;
 
 // Location details
+// Note: confirmButtonLabel values correspond to BUTTON_LABEL constants in actions/*.py
 const locationDetails = {
     university: {
         title: "King's College London",
         icon: '🎓',
         description: 'Study at one of London\'s most prestigious universities. Improve your qualifications to unlock better career opportunities in the city.',
         cost: 'Cost: £50 per level',
-        npcName: 'Professor'
+        npcName: 'Professor',
+        confirmButtonLabel: 'Attend lecture'
     },
     job_office: {
         title: 'Canary Wharf Recruitment',
         icon: '💼',
         description: 'Find your perfect role in London\'s financial district. Better qualifications lead to higher-paying positions in the City.',
         cost: 'Free',
-        npcName: 'Recruiter'
+        npcName: 'Recruiter',
+        confirmButtonLabel: 'Get a new job'
     },
     workplace: {
         title: 'The City Office',
         icon: '🏢',
         description: 'Work in the heart of London\'s business district. Earn your salary based on your current position.',
         cost: 'Earns money based on your job',
-        npcName: 'Manager'
+        npcName: 'Manager',
+        confirmButtonLabel: 'Work'
     },
     shop: {
         title: 'Borough Food Market',
         icon: '🛒',
         description: 'Visit London\'s famous food market. Purchase fresh food to keep your hunger at bay.',
         cost: 'Prices vary by item',
-        npcName: 'Vendor'
+        npcName: 'Vendor',
+        confirmButtonLabel: 'Buy some food'
     }
 };
 
@@ -239,6 +244,7 @@ function showLocationModal(action) {
     const modalDescription = document.getElementById('modal-description');
     const modalCost = document.getElementById('modal-cost');
     const npcName = document.getElementById('npc-name');
+    const confirmBtn = document.querySelector('.confirm-btn');
 
     // Set content
     modalImage.className = 'modal-image ' + action;
@@ -247,6 +253,7 @@ function showLocationModal(action) {
     modalDescription.textContent = details.description;
     modalCost.textContent = details.cost;
     npcName.textContent = details.npcName;
+    confirmBtn.textContent = details.confirmButtonLabel;
 
     // Show "Browse the aisles" button only for shop
     const browseBtn = document.getElementById('browse-btn');

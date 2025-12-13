@@ -2,6 +2,9 @@
 Workplace action - handles player work and earnings
 """
 
+# Button label for this action
+BUTTON_LABEL = 'Work'
+
 
 def visit_workplace(state):
     """

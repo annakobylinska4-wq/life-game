@@ -3,6 +3,9 @@ University action - handles player education
 """
 from config import config
 
+# Button label for this action
+BUTTON_LABEL = 'Attend lecture'
+
 
 def visit_university(state):
     """

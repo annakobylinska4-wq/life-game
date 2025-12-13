@@ -2,6 +2,9 @@
 Job office action - handles player employment
 """
 
+# Button label for this action
+BUTTON_LABEL = 'Get a new job'
+
 
 def visit_job_office(state):
     """

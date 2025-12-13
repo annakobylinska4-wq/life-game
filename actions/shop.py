@@ -3,6 +3,9 @@ Shop action - handles player purchases
 """
 import random
 
+# Button label for this action
+BUTTON_LABEL = 'Buy some food'
+
 
 # Food items catalogue with emoji icons
 SHOP_ITEMS = [
