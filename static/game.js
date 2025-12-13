@@ -962,18 +962,31 @@ function displayJobsCatalogue(jobs, currentJob) {
         if (job.title === currentJob) {
             jobCard.classList.add('current-job');
         }
+        // Check if player doesn't meet look requirement
+        const meetsLook = job.meets_look_requirement !== false;
+        if (!meetsLook && job.title !== currentJob) {
+            jobCard.classList.add('locked');
+        }
+
+        // Build look requirement text
+        let lookReqText = '';
+        if (job.required_look && job.required_look > 1) {
+            const lockIcon = meetsLook ? '✓' : '🔒';
+            lookReqText = `<div class="job-look-req ${meetsLook ? 'met' : 'unmet'}">${lockIcon} Requires: ${job.required_look_label}</div>`;
+        }
 
         jobCard.innerHTML = `
             <div class="item-emoji">💼</div>
             <div class="item-details">
                 <div class="item-name">${job.title}${job.title === currentJob ? ' (Current)' : ''}</div>
+                ${lookReqText}
                 <div class="item-info">
                     <span class="item-cost job-wage">£${job.wage}/turn</span>
                 </div>
             </div>
         `;
 
-        if (job.title !== currentJob && job.title !== 'Unemployed') {
+        if (job.title !== currentJob && job.title !== 'Unemployed' && meetsLook) {
             jobCard.onclick = () => applyForJob(job.title);
         }
 

@@ -1443,6 +1443,32 @@ h2 {
     cursor: default;
 }
 
+.job-item.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+}
+
+.job-item.locked:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+.job-look-req {
+    font-size: 0.75em;
+    margin: 5px 0;
+}
+
+.job-look-req.met {
+    color: #28a745;
+}
+
+.job-look-req.unmet {
+    color: #dc3545;
+    font-style: italic;
+}
+
 .browse-btn {
     flex: 1;
     padding: 12px;

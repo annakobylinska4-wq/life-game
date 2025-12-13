@@ -405,12 +405,13 @@ async def handle_enroll_course(data: EnrollCourseRequest, username: str = Depend
 
 @app.get('/api/job_office/jobs')
 async def get_jobs_list(username: str = Depends(get_current_user)):
-    """Get available jobs based on player's education"""
+    """Get available jobs based on player's education and appearance"""
     game_states = load_game_states()
     state = game_states[username]
 
     completed_courses = state.get('completed_courses', [])
-    jobs = get_available_jobs(completed_courses)
+    current_look = state.get('look', 1)
+    jobs = get_available_jobs(completed_courses, current_look)
 
     return {
         'success': True,
