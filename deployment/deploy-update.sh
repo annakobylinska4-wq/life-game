@@ -12,6 +12,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Navigate to the life_game directory (parent of deployment)
 APP_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Load deployment configuration
+source "$SCRIPT_DIR/deploy-config.sh"
+
 echo "📁 Working directory: $APP_DIR"
 
 # Check if Docker is running
@@ -39,7 +42,12 @@ echo "🔢 Account ID: $AWS_ACCOUNT_ID"
 
 # Step 1: Build new Docker image
 echo "🐳 Building Docker image..."
-docker build -t $ECR_REPO_NAME "$APP_DIR"
+if [ -n "$DOCKER_PLATFORM" ]; then
+    echo "   Platform: $DOCKER_PLATFORM"
+    docker build --platform $DOCKER_PLATFORM -t $ECR_REPO_NAME "$APP_DIR"
+else
+    docker build -t $ECR_REPO_NAME "$APP_DIR"
+fi
 
 # Step 2: Login to ECR
 echo "🔐 Logging into ECR..."

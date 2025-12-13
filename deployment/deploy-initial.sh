@@ -6,6 +6,10 @@ set -e
 
 echo "🚀 Starting initial deployment to AWS Fargate..."
 
+# Load deployment configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/deploy-config.sh"
+
 # Configuration
 export AWS_REGION=${AWS_REGION:-eu-north-1}
 export APP_NAME=life-game
@@ -25,7 +29,12 @@ aws ecr create-repository \
 
 # Step 2: Build and push Docker image
 echo "🐳 Building Docker image..."
-docker build -t $ECR_REPO_NAME .
+if [ -n "$DOCKER_PLATFORM" ]; then
+    echo "   Platform: $DOCKER_PLATFORM"
+    docker build --platform $DOCKER_PLATFORM -t $ECR_REPO_NAME .
+else
+    docker build -t $ECR_REPO_NAME .
+fi
 
 echo "🔐 Logging into ECR..."
 aws ecr get-login-password --region $AWS_REGION | \
