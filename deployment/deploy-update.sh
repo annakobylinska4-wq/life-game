@@ -3,8 +3,28 @@ set -e
 
 # Update deployment script for Life Game
 # Run this when you make code changes and want to deploy updates
+# Works from local terminal (VS Code) or AWS CloudShell
 
 echo "🔄 Updating Life Game deployment..."
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Navigate to the life_game directory (parent of deployment)
+APP_DIR="$(dirname "$SCRIPT_DIR")"
+
+echo "📁 Working directory: $APP_DIR"
+
+# Check if Docker is running
+if ! docker info > /dev/null 2>&1; then
+    echo "❌ Error: Docker is not running. Please start Docker Desktop and try again."
+    exit 1
+fi
+
+# Check if AWS CLI is configured
+if ! aws sts get-caller-identity > /dev/null 2>&1; then
+    echo "❌ Error: AWS CLI is not configured. Run 'aws configure' first."
+    exit 1
+fi
 
 # Configuration
 export AWS_REGION=${AWS_REGION:-eu-north-1}
@@ -12,14 +32,14 @@ export APP_NAME=life-game
 export ECR_REPO_NAME=life-game
 
 # Get AWS account ID
-export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text --region $AWS_REGION)
 
 echo "📍 Region: $AWS_REGION"
 echo "🔢 Account ID: $AWS_ACCOUNT_ID"
 
 # Step 1: Build new Docker image
 echo "🐳 Building Docker image..."
-docker build -t $ECR_REPO_NAME .
+docker build -t $ECR_REPO_NAME "$APP_DIR"
 
 # Step 2: Login to ECR
 echo "🔐 Logging into ECR..."
@@ -28,10 +48,10 @@ aws ecr get-login-password --region $AWS_REGION | \
 
 # Step 3: Tag and push
 echo "🏷️  Tagging image..."
-docker tag $ECR_REPO_NAME:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:latest
+docker tag ${ECR_REPO_NAME}:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/${ECR_REPO_NAME}:latest
 
 echo "⬆️  Pushing to ECR..."
-docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:latest
+docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/${ECR_REPO_NAME}:latest
 
 # Step 4: Update task definition
 echo "📋 Registering new task definition..."
