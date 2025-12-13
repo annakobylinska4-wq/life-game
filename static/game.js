@@ -1,7 +1,7 @@
 // Look avatar URLs for each level (1-5)
 // Middle-aged man going from very dishevelled/scruffy to well-groomed businessman
 const LOOK_AVATARS = {
-    1: 'https://images.unsplash.com/photo-1499996860823-5f5d3a85ef7f?w=300&h=300&fit=crop&crop=face', // Shabby - tired, dishevelled man
+    1: 'https://images.unsplash.com/photo-1518806118471-f28b20a1d79d?w=300&h=300&fit=crop&crop=face', // Shabby - dishevelled, almost homeless man
     2: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop&crop=face', // Scruffy - unshaven, messy
     3: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face', // Presentable - normal casual
     4: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face', // Smart - professional look
@@ -246,17 +246,31 @@ function updateGameUI(state) {
         lookLabelEl.textContent = lookLabel;
     }
 
-    // Update top bar progress bars
-    document.getElementById('top-happiness-value').textContent = happiness;
+    // Get labels for display
+    const happinessLabel = state.happiness_label || 'Content';
+    const tirednessLabel = state.tiredness_label || 'Well rested';
+    const hungerLabel = state.hunger_label || 'Full';
+
+    // Update top bar progress bars with labels (not numbers)
+    document.getElementById('top-happiness-value').textContent = happinessLabel;
     document.getElementById('top-happiness-bar').style.width = happiness + '%';
 
-    document.getElementById('top-tiredness-value').textContent = tiredness;
+    document.getElementById('top-tiredness-value').textContent = tirednessLabel;
     document.getElementById('top-tiredness-bar').style.width = tiredness + '%';
 
-    document.getElementById('top-hunger-value').textContent = hunger;
+    document.getElementById('top-hunger-value').textContent = hungerLabel;
     document.getElementById('top-hunger-bar').style.width = hunger + '%';
 
-    // Update popup panel (wage and inventory only)
+    document.getElementById('panel-happiness-value').textContent = happiness;
+    document.getElementById('panel-happiness-label').textContent = happinessLabel;
+
+    document.getElementById('panel-tiredness-value').textContent = tiredness;
+    document.getElementById('panel-tiredness-label').textContent = tirednessLabel;
+
+    document.getElementById('panel-hunger-value').textContent = hunger;
+    document.getElementById('panel-hunger-label').textContent = hungerLabel;
+
+    // Update popup panel (wage and inventory)
     document.getElementById('wage').textContent = '$' + state.job_wage + '/turn';
     document.getElementById('items').textContent = state.items.length > 0
         ? state.items.join(', ')

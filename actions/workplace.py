@@ -6,6 +6,9 @@ from utils.function_logger import log_function_call
 # Button label for this action
 BUTTON_LABEL = 'Work'
 
+# Working increases tiredness
+WORK_TIREDNESS_INCREASE = 20
+
 
 @log_function_call
 def visit_workplace(state):
@@ -24,5 +27,10 @@ def visit_workplace(state):
     earnings = state['job_wage']
     state['money'] += earnings
 
-    message = "You worked as {} and earned ${}!".format(state['current_job'], earnings)
+    # Increase tiredness from working
+    old_tiredness = state.get('tiredness', 0)
+    new_tiredness = min(100, old_tiredness + WORK_TIREDNESS_INCREASE)
+    state['tiredness'] = new_tiredness
+
+    message = "You worked as {} and earned ${}. You feel a bit more tired.".format(state['current_job'], earnings)
     return state, message, True

@@ -13,6 +13,84 @@ LOOK_LABELS = {
     5: 'Very well groomed'
 }
 
+# Tiredness level labels (based on 0-100 scale)
+# Lower values = well rested, higher values = exhausted
+TIREDNESS_LABELS = [
+    (0, 20, 'Well rested'),
+    (21, 40, 'Slightly tired'),
+    (41, 60, 'Tired'),
+    (61, 80, 'Very tired'),
+    (81, 100, 'Exhausted')
+]
+
+# Happiness level labels (based on 0-100 scale)
+# Higher values = happier
+HAPPINESS_LABELS = [
+    (0, 20, 'Miserable'),
+    (21, 40, 'Unhappy'),
+    (41, 60, 'Content'),
+    (61, 80, 'Happy'),
+    (81, 100, 'Ecstatic')
+]
+
+# Hunger level labels (based on 0-100 scale)
+# Lower values = well fed, higher values = starving
+HUNGER_LABELS = [
+    (0, 20, 'Full'),
+    (21, 40, 'Satisfied'),
+    (41, 60, 'Peckish'),
+    (61, 80, 'Hungry'),
+    (81, 100, 'Starving')
+]
+
+
+def get_tiredness_label(tiredness_value):
+    """
+    Get human-readable label for tiredness level.
+
+    Args:
+        tiredness_value: Tiredness value (0-100)
+
+    Returns:
+        str: Human-readable tiredness label
+    """
+    for min_val, max_val, label in TIREDNESS_LABELS:
+        if min_val <= tiredness_value <= max_val:
+            return label
+    return 'Exhausted'  # Default for values > 100
+
+
+def get_happiness_label(happiness_value):
+    """
+    Get human-readable label for happiness level.
+
+    Args:
+        happiness_value: Happiness value (0-100)
+
+    Returns:
+        str: Human-readable happiness label
+    """
+    for min_val, max_val, label in HAPPINESS_LABELS:
+        if min_val <= happiness_value <= max_val:
+            return label
+    return 'Miserable'  # Default for values < 0
+
+
+def get_hunger_label(hunger_value):
+    """
+    Get human-readable label for hunger level.
+
+    Args:
+        hunger_value: Hunger value (0-100)
+
+    Returns:
+        str: Human-readable hunger label
+    """
+    for min_val, max_val, label in HUNGER_LABELS:
+        if min_val <= hunger_value <= max_val:
+            return label
+    return 'Starving'  # Default for values > 100
+
 # Clothing items that improve look (from John Lewis)
 CLOTHING_ITEMS = [
     'Formal Suit', 'Blazer', 'Dress Shirt', 'Oxford Shirt', 'Dress Trousers',
@@ -75,8 +153,11 @@ class GameState:
             'job_wage': self.job_wage,
             'turn': self.turn,
             'happiness': self.happiness,
+            'happiness_label': get_happiness_label(self.happiness),
             'tiredness': self.tiredness,
+            'tiredness_label': get_tiredness_label(self.tiredness),
             'hunger': self.hunger,
+            'hunger_label': get_hunger_label(self.hunger),
             'look': self.look,
             'look_label': LOOK_LABELS.get(self.look, 'Shabby')
         }
