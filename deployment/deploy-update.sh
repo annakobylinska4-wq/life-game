@@ -5,6 +5,8 @@ set -e
 # Run this when you make code changes and want to deploy updates
 # Works from local terminal (VS Code) or AWS CloudShell
 
+export AWS_PAGER="" #to surpress pager display
+
 echo "🔄 Updating Life Game deployment..."
 
 # Get the directory where this script is located

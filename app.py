@@ -35,11 +35,6 @@ if os.path.exists(static_dir):
 serializer = URLSafeTimedSerializer(config.SECRET_KEY)
 
 DATA_DIR = config.DATA_DIR
-print('*****')
-print('im tryting to access the file:')
-print(DATA_DIR)
-print(config.USERS_FILE)
-print('*****')
 USERS_FILE = os.path.join(DATA_DIR, config.USERS_FILE)
 GAME_STATES_FILE = os.path.join(DATA_DIR, config.GAME_STATES_FILE)
 
