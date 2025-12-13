@@ -5,8 +5,10 @@ Supports tool calling via MCP
 from config.config import config
 from mcp_server.tools import get_tools_for_context, execute_tool
 from .prompts import get_npc_prompt
+from utils.function_logger import log_function_call
 
 
+@log_function_call
 def get_llm_response(action, user_message, game_state=None):
     """
     Get a response from the LLM based on the action and user message
@@ -36,6 +38,7 @@ def get_llm_response(action, user_message, game_state=None):
         }
 
 
+@log_function_call
 def get_openai_response_with_tools(system_prompt, user_message, context, game_state):
     """Get response from OpenAI API with MCP tool support"""
     try:
@@ -150,6 +153,7 @@ def get_openai_response_with_tools(system_prompt, user_message, context, game_st
         }
 
 
+@log_function_call
 def get_anthropic_response_with_tools(system_prompt, user_message, context, game_state):
     """Get response from Anthropic API with MCP tool support"""
     try:

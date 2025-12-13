@@ -2,6 +2,7 @@
 Shop action - handles player purchases
 """
 import random
+from utils.function_logger import log_function_call
 
 # Button label for this action
 BUTTON_LABEL = 'Buy some food'
@@ -27,6 +28,7 @@ SHOP_ITEMS = [
 ]
 
 
+@log_function_call
 def get_shop_catalogue():
     """
     Get the full shop catalogue
@@ -37,6 +39,7 @@ def get_shop_catalogue():
     return SHOP_ITEMS
 
 
+@log_function_call
 def visit_shop(state):
     """
     Player visits shop to buy items (random mode for backward compatibility)
@@ -67,6 +70,7 @@ def visit_shop(state):
     return state, message, True
 
 
+@log_function_call
 def purchase_item(state, item_name):
     """
     Purchase a specific item from the shop
@@ -87,9 +91,8 @@ def purchase_item(state, item_name):
     if state['money'] < item['cost']:
         return state, 'Not enough money to buy {}!'.format(item['name']), False
 
-    # Purchase the item
+    # Purchase the item (food is consumed immediately, not stored in inventory)
     state['money'] -= item['cost']
-    state['items'].append(item['name'])
 
     # Reduce hunger based on calories
     hunger_reduction = item['calories'] // 10

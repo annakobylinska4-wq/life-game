@@ -1,11 +1,13 @@
 """
 Job office action - handles player employment
 """
+from utils.function_logger import log_function_call
 
 # Button label for this action
 BUTTON_LABEL = 'Get a new job'
 
 
+@log_function_call
 def visit_job_office(state):
     """
     Player visits job office to find employment based on qualifications

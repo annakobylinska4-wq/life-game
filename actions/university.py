@@ -2,11 +2,13 @@
 University action - handles player education
 """
 from config import config
+from utils.function_logger import log_function_call
 
 # Button label for this action
 BUTTON_LABEL = 'Attend lecture'
 
 
+@log_function_call
 def visit_university(state):
     """
     Player visits university to improve qualifications

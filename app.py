@@ -19,12 +19,9 @@ from actions.shop import get_shop_catalogue, purchase_item
 from config.config import config
 from chat_service import get_llm_response
 from models import GameState
-from utils.game_logger import GameLogger
+from utils.function_logger import set_current_user
 
 app = FastAPI()
-
-# Initialize game logger
-game_logger = GameLogger()
 
 # Mount static files
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -114,6 +111,9 @@ async def get_current_user(request: Request) -> str:
     if not username:
         raise HTTPException(status_code=401, detail='Invalid or expired session')
 
+    # Set user context for function logging
+    set_current_user(username)
+
     return username
 
 # Setup templates (if you have HTML templates)
@@ -152,9 +152,6 @@ async def register(data: RegisterRequest):
     game_states[data.username] = create_new_game_state()
     save_game_states(game_states)
 
-    # Log registration
-    game_logger.log_session(data.username, 'registration', {'created_at': users[data.username]['created_at']})
-
     return {'success': True, 'message': 'Registration successful'}
 
 @app.post('/api/login')
@@ -171,9 +168,6 @@ async def login(data: LoginRequest):
     # Create session token
     session_token = create_session_token(data.username)
 
-    # Log login
-    game_logger.log_session(data.username, 'login')
-
     response = JSONResponse(content={'success': True, 'message': 'Login successful'})
     response.set_cookie(
         key='session',
@@ -188,9 +182,6 @@ async def login(data: LoginRequest):
 @app.post('/api/logout')
 async def logout(username: str = Depends(get_current_user)):
     """Logout user by clearing session cookie"""
-    # Log logout
-    game_logger.log_session(username, 'logout')
-
     response = JSONResponse(content={'success': True})
     response.delete_cookie(key='session')
     return response
@@ -211,23 +202,17 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
     """Handle game action"""
     game_states = load_game_states()
     state = game_states[username]
-    state_before = state.copy()
 
     # Perform the action using the actions module
     updated_state, message, success = perform_action(data.action, state)
 
     if not success:
-        # Log failed action
-        game_logger.log_action(username, data.action, state_before, state, message, False)
         raise HTTPException(status_code=400, detail=message)
 
     # Use GameState class to handle turn increment and per-turn updates
     game_state_obj = GameState(updated_state)
     game_state_obj.increment_turn()
     updated_state = game_state_obj.to_dict()
-
-    # Log successful action
-    game_logger.log_action(username, data.action, state_before, updated_state, message, True)
 
     # Save updated state
     game_states[username] = updated_state
@@ -246,37 +231,16 @@ async def handle_purchase(data: PurchaseRequest, username: str = Depends(get_cur
     game_states = load_game_states()
     state = game_states[username]
 
-    # Store state before purchase for logging
-    money_before = state['money']
-    hunger_before = state['hunger']
-
     # Purchase the item
     updated_state, message, success = purchase_item(state, data.item_name)
 
     if not success:
         raise HTTPException(status_code=400, detail=message)
 
-    # Get item details for logging
-    from actions.shop import SHOP_ITEMS
-    item = next((i for i in SHOP_ITEMS if i['name'] == data.item_name), None)
-
     # Use GameState class to handle turn increment and per-turn updates
     game_state_obj = GameState(updated_state)
     game_state_obj.increment_turn()
     updated_state = game_state_obj.to_dict()
-
-    # Log purchase
-    if item:
-        game_logger.log_purchase(
-            username,
-            item['name'],
-            item['cost'],
-            item['calories'],
-            hunger_before,
-            updated_state['hunger'],
-            money_before,
-            updated_state['money']
-        )
 
     # Save updated state
     game_states[username] = updated_state
@@ -297,7 +261,6 @@ async def handle_chat(data: ChatRequest, username: str = Depends(get_current_use
     # Get LLM response with potential tool calls
     result = get_llm_response(data.action, data.message, state)
 
-    state_changed = False
     # If tools were called and state was updated, save the new state
     if result.get('updated_state'):
         # Use GameState class to handle turn increment and per-turn updates
@@ -305,17 +268,6 @@ async def handle_chat(data: ChatRequest, username: str = Depends(get_current_use
         game_state_obj.increment_turn()
         game_states[username] = game_state_obj.to_dict()
         save_game_states(game_states)
-        state_changed = True
-
-    # Log chat interaction
-    game_logger.log_chat(
-        username,
-        data.action,
-        data.message,
-        result['response'],
-        result.get('tool_calls', []),
-        state_changed
-    )
 
     return {
         'success': True,

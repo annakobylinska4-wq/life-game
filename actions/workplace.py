@@ -1,11 +1,13 @@
 """
 Workplace action - handles player work and earnings
 """
+from utils.function_logger import log_function_call
 
 # Button label for this action
 BUTTON_LABEL = 'Work'
 
 
+@log_function_call
 def visit_workplace(state):
     """
     Player goes to work and earns money

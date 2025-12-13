@@ -44,6 +44,37 @@ function showActionMessage(message, isError = false) {
     }, 3000);
 }
 
+// Eating animation popup
+let eatingPopupCallback = null;
+
+function showEatingPopup(callback) {
+    const popup = document.getElementById('eating-popup');
+    const okBtn = popup.querySelector('.eating-ok-btn');
+
+    // Store callback to execute after user acknowledges
+    eatingPopupCallback = callback;
+
+    // Reset button animation by removing and re-adding it
+    okBtn.style.animation = 'none';
+    popup.style.display = 'flex';
+
+    // Trigger reflow and restart animation
+    setTimeout(() => {
+        okBtn.style.animation = 'fadeIn 0.3s ease 2s forwards';
+    }, 10);
+}
+
+function closeEatingPopup() {
+    const popup = document.getElementById('eating-popup');
+    popup.style.display = 'none';
+
+    // Execute the callback to continue the turn
+    if (eatingPopupCallback) {
+        eatingPopupCallback();
+        eatingPopupCallback = null;
+    }
+}
+
 // Register new user
 async function register() {
     const username = document.getElementById('register-username').value;
@@ -255,12 +286,14 @@ function showLocationModal(action) {
     npcName.textContent = details.npcName;
     confirmBtn.textContent = details.confirmButtonLabel;
 
-    // Show "Browse the aisles" button only for shop
+    // Show "Browse the aisles" button only for shop, hide confirm button for shop
     const browseBtn = document.getElementById('browse-btn');
     if (action === 'shop') {
         browseBtn.style.display = 'inline-block';
+        confirmBtn.style.display = 'none';
     } else {
         browseBtn.style.display = 'none';
+        confirmBtn.style.display = 'inline-block';
     }
 
     // Hide shop catalogue by default
@@ -486,8 +519,12 @@ async function purchaseShopItem(itemName) {
 
         if (response.ok && data.success) {
             updateGameUI(data.state);
-            showActionMessage(data.message, false);
             closeLocationModal();
+
+            // Show eating animation popup, then show success message after user acknowledges
+            showEatingPopup(() => {
+                showActionMessage(data.message, false);
+            });
         } else {
             // Handle error response
             const errorMsg = data.detail || data.message || 'Purchase failed';
