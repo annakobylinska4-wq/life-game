@@ -14,18 +14,38 @@ source "$SCRIPT_DIR/deploy-config.sh"
 export AWS_REGION=${AWS_REGION:-eu-north-1}
 export APP_NAME=life-game
 export ECR_REPO_NAME=life-game
+export S3_BUCKET_NAME=${APP_NAME}-data-$(echo $AWS_REGION | tr -d '-')
 
 # Get AWS account ID
 export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 
 echo "📍 Region: $AWS_REGION"
 echo "🔢 Account ID: $AWS_ACCOUNT_ID"
+echo "🪣 S3 Bucket: $S3_BUCKET_NAME"
 
 # Step 1: Create ECR Repository
 echo "📦 Creating ECR repository..."
 aws ecr create-repository \
     --repository-name $ECR_REPO_NAME \
     --region $AWS_REGION 2>/dev/null || echo "ECR repository already exists"
+
+# Step 1b: Create S3 Bucket for game data
+echo "🪣 Creating S3 bucket for game data..."
+if [ "$AWS_REGION" = "us-east-1" ]; then
+    aws s3api create-bucket \
+        --bucket $S3_BUCKET_NAME \
+        --region $AWS_REGION 2>/dev/null || echo "S3 bucket already exists"
+else
+    aws s3api create-bucket \
+        --bucket $S3_BUCKET_NAME \
+        --region $AWS_REGION \
+        --create-bucket-configuration LocationConstraint=$AWS_REGION 2>/dev/null || echo "S3 bucket already exists"
+fi
+
+# Block public access to S3 bucket
+aws s3api put-public-access-block \
+    --bucket $S3_BUCKET_NAME \
+    --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true" 2>/dev/null || echo "Public access block already set"
 
 # Step 2: Build and push Docker image
 echo "🐳 Building Docker image..."
@@ -88,6 +108,31 @@ aws iam put-role-policy \
     --policy-name SecretsManagerAccess \
     --policy-document file:///tmp/secrets-policy.json
 
+# Add S3 access policy for game data
+cat > /tmp/s3-policy.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "s3:ListBucket"
+    ],
+    "Resource": [
+      "arn:aws:s3:::${S3_BUCKET_NAME}",
+      "arn:aws:s3:::${S3_BUCKET_NAME}/*"
+    ]
+  }]
+}
+EOF
+
+aws iam put-role-policy \
+    --role-name ecsTaskRole \
+    --policy-name S3GameDataAccess \
+    --policy-document file:///tmp/s3-policy.json
+
 echo "⏳ Waiting 10 seconds for IAM roles to propagate..."
 sleep 10
 
@@ -118,6 +163,10 @@ cat > /tmp/task-definition.json <<EOF
       "protocol": "tcp"
     }],
     "essential": true,
+    "environment": [
+      {"name": "S3_BUCKET_NAME", "value": "${S3_BUCKET_NAME}"},
+      {"name": "AWS_REGION", "value": "${AWS_REGION}"}
+    ],
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {

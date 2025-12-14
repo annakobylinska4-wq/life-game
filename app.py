@@ -25,8 +25,12 @@ from config.config import config
 from chat_service import get_llm_response
 from models import GameState
 from utils.function_logger import set_current_user
+from utils.s3_storage import init_storage, get_storage
 
 app = FastAPI()
+
+# Initialize S3 storage (uses env var S3_BUCKET_NAME if set, otherwise local storage)
+storage = init_storage()
 
 # Mount static files
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -40,17 +44,18 @@ DATA_DIR = config.DATA_DIR
 USERS_FILE = os.path.join(DATA_DIR, config.USERS_FILE)
 GAME_STATES_FILE = os.path.join(DATA_DIR, config.GAME_STATES_FILE)
 
-# Ensure data directory exists
+# Ensure data directory exists (for local fallback)
 os.makedirs(DATA_DIR, exist_ok=True)
 
-# Initialize data files if they don't exist
-if not os.path.exists(USERS_FILE):
-    with open(USERS_FILE, 'w') as f:
-        json.dump({}, f)
+# Initialize local data files if not using S3 and they don't exist
+if not storage.is_using_s3():
+    if not os.path.exists(USERS_FILE):
+        with open(USERS_FILE, 'w') as f:
+            json.dump({}, f)
 
-if not os.path.exists(GAME_STATES_FILE):
-    with open(GAME_STATES_FILE, 'w') as f:
-        json.dump({}, f)
+    if not os.path.exists(GAME_STATES_FILE):
+        with open(GAME_STATES_FILE, 'w') as f:
+            json.dump({}, f)
 
 # Pydantic models for request/response validation
 class RegisterRequest(BaseModel):
@@ -84,20 +89,20 @@ def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 def load_users():
-    with open(USERS_FILE, 'r') as f:
-        return json.load(f)
+    """Load users from S3 or local storage"""
+    return storage.read_json(config.USERS_FILE, USERS_FILE)
 
 def save_users(users):
-    with open(USERS_FILE, 'w') as f:
-        json.dump(users, f, indent=2)
+    """Save users to S3 or local storage"""
+    storage.write_json(config.USERS_FILE, users, USERS_FILE)
 
 def load_game_states():
-    with open(GAME_STATES_FILE, 'r') as f:
-        return json.load(f)
+    """Load game states from S3 or local storage"""
+    return storage.read_json(config.GAME_STATES_FILE, GAME_STATES_FILE)
 
 def save_game_states(states):
-    with open(GAME_STATES_FILE, 'w') as f:
-        json.dump(states, f, indent=2)
+    """Save game states to S3 or local storage"""
+    storage.write_json(config.GAME_STATES_FILE, states, GAME_STATES_FILE)
 
 def create_new_game_state():
     """Create a new game state using the GameState class"""

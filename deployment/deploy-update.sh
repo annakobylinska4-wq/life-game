@@ -35,12 +35,14 @@ fi
 export AWS_REGION=${AWS_REGION:-eu-north-1}
 export APP_NAME=life-game
 export ECR_REPO_NAME=life-game
+export S3_BUCKET_NAME=${APP_NAME}-data-$(echo $AWS_REGION | tr -d '-')
 
 # Get AWS account ID
 export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text --region $AWS_REGION)
 
 echo "📍 Region: $AWS_REGION"
 echo "🔢 Account ID: $AWS_ACCOUNT_ID"
+echo "🪣 S3 Bucket: $S3_BUCKET_NAME"
 
 # Step 1: Build new Docker image
 echo "🐳 Building Docker image..."
@@ -63,6 +65,44 @@ docker tag ${ECR_REPO_NAME}:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws
 echo "⬆️  Pushing to ECR..."
 docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/${ECR_REPO_NAME}:latest
 
+# Step 3b: Ensure S3 bucket exists and IAM policy is set
+echo "🪣 Ensuring S3 bucket and IAM policy..."
+if [ "$AWS_REGION" = "us-east-1" ]; then
+    aws s3api create-bucket \
+        --bucket $S3_BUCKET_NAME \
+        --region $AWS_REGION 2>/dev/null || true
+else
+    aws s3api create-bucket \
+        --bucket $S3_BUCKET_NAME \
+        --region $AWS_REGION \
+        --create-bucket-configuration LocationConstraint=$AWS_REGION 2>/dev/null || true
+fi
+
+# Ensure S3 IAM policy is attached
+cat > /tmp/s3-policy.json <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "s3:ListBucket"
+    ],
+    "Resource": [
+      "arn:aws:s3:::${S3_BUCKET_NAME}",
+      "arn:aws:s3:::${S3_BUCKET_NAME}/*"
+    ]
+  }]
+}
+EOF
+
+aws iam put-role-policy \
+    --role-name ecsTaskRole \
+    --policy-name S3GameDataAccess \
+    --policy-document file:///tmp/s3-policy.json 2>/dev/null || echo "S3 IAM policy update skipped"
+
 # Step 4: Update task definition
 echo "📋 Registering new task definition..."
 cat > /tmp/task-definition.json <<EOF
@@ -82,6 +122,10 @@ cat > /tmp/task-definition.json <<EOF
       "protocol": "tcp"
     }],
     "essential": true,
+    "environment": [
+      {"name": "S3_BUCKET_NAME", "value": "${S3_BUCKET_NAME}"},
+      {"name": "AWS_REGION", "value": "${AWS_REGION}"}
+    ],
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
