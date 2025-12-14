@@ -20,6 +20,7 @@ from actions.john_lewis import get_john_lewis_catalogue, purchase_john_lewis_ite
 from actions.estate_agent import get_flat_catalogue, rent_flat
 from actions.university import get_course_catalogue, get_available_courses, enroll_course, get_course_by_id
 from actions.job_office import get_available_jobs, apply_for_job
+from models.game_state import ACTION_TIME_COSTS, LOCATION_COORDS, format_time
 from config.config import config
 from chat_service import get_llm_response
 from models import GameState
@@ -215,11 +216,73 @@ async def get_game_state(username: str = Depends(get_current_user)):
 
     return {'success': True, 'state': state_with_look}
 
+
+@app.get('/api/time_info/{location}')
+async def get_time_info(location: str, username: str = Depends(get_current_user)):
+    """Get time cost info for visiting a location"""
+    game_states = load_game_states()
+    state = game_states[username]
+    game_state_obj = GameState(state)
+
+    # Map location to action type
+    action_type_map = {
+        'home': 'rest',
+        'workplace': 'work',
+        'university': 'university',
+        'shop': 'shop_purchase',
+        'john_lewis': 'john_lewis',
+        'job_office': 'job_office',
+        'estate_agent': 'estate_agent'
+    }
+
+    action_type = action_type_map.get(location, 'shop_purchase')
+    travel_time, action_time, total_time = game_state_obj.get_total_time_cost(location, action_type)
+    has_time = game_state_obj.has_enough_time(location, action_type)
+
+    return {
+        'success': True,
+        'location': location,
+        'travel_time': travel_time,
+        'action_time': action_time,
+        'total_time': total_time,
+        'has_enough_time': has_time,
+        'time_remaining': game_state_obj.time_remaining,
+        'current_time': format_time(game_state_obj.time_remaining),
+        'arrival_time': format_time(game_state_obj.time_remaining - travel_time) if travel_time <= game_state_obj.time_remaining else None,
+        'finish_time': format_time(game_state_obj.time_remaining - total_time) if total_time <= game_state_obj.time_remaining else None
+    }
+
 @app.post('/api/action')
 async def handle_action(data: ActionRequest, username: str = Depends(get_current_user)):
     """Handle game action"""
     game_states = load_game_states()
     state = game_states[username]
+
+    # Map action to location and action type
+    action_location_map = {
+        'home': ('home', 'rest'),
+        'workplace': ('workplace', 'work'),
+        'university': ('university', 'university'),
+        'shop': ('shop', 'shop_purchase'),
+        'john_lewis': ('john_lewis', 'john_lewis'),
+        'job_office': ('job_office', 'job_office'),
+        'estate_agent': ('estate_agent', 'estate_agent')
+    }
+
+    location, action_type = action_location_map.get(data.action, (data.action, data.action))
+
+    # Check if player has enough time
+    game_state_obj = GameState(state)
+    if not game_state_obj.has_enough_time(location, action_type):
+        travel_time, action_time, total_time = game_state_obj.get_total_time_cost(location, action_type)
+        hours = total_time // 60
+        mins = total_time % 60
+        time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
+        raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str} but you only have {game_state_obj.time_remaining // 60}h {game_state_obj.time_remaining % 60}m left.")
+
+    # Spend time for travel and action
+    travel_time, action_time, time_success = game_state_obj.spend_time(location, action_type)
+    state = game_state_obj.to_dict()
 
     # Perform the action using the actions module
     updated_state, message, success = perform_action(data.action, state)
@@ -227,9 +290,8 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
     if not success:
         raise HTTPException(status_code=400, detail=message)
 
-    # Use GameState class to handle turn increment and per-turn updates
+    # Use GameState class to handle state (don't increment turn - spend_time handles day rollover)
     game_state_obj = GameState(updated_state)
-    game_state_obj.increment_turn()
 
     # Check for burnout (exhausted AND starving)
     burnout = game_state_obj.check_burnout()
@@ -242,6 +304,13 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
     # Save updated state
     game_states[username] = updated_state
     save_game_states(game_states)
+
+    # Add time info to message
+    if not burnout:
+        travel_str = f"{travel_time}min travel" if travel_time > 0 else ""
+        action_str = f"{action_time // 60}h {action_time % 60}m" if action_time % 60 > 0 else f"{action_time // 60}h"
+        time_info = f" (⏱ {travel_str}{' + ' if travel_str else ''}{action_str})"
+        message = message + time_info
 
     return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout}
 
@@ -256,15 +325,27 @@ async def handle_purchase(data: PurchaseRequest, username: str = Depends(get_cur
     game_states = load_game_states()
     state = game_states[username]
 
+    # Check if player has enough time
+    game_state_obj = GameState(state)
+    if not game_state_obj.has_enough_time('shop', 'shop_purchase'):
+        travel_time, action_time, total_time = game_state_obj.get_total_time_cost('shop', 'shop_purchase')
+        hours = total_time // 60
+        mins = total_time % 60
+        time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
+        raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
+
+    # Spend time for travel and action
+    travel_time, action_time, _ = game_state_obj.spend_time('shop', 'shop_purchase')
+    state = game_state_obj.to_dict()
+
     # Purchase the item
     updated_state, message, success = purchase_item(state, data.item_name)
 
     if not success:
         raise HTTPException(status_code=400, detail=message)
 
-    # Use GameState class to handle turn increment and per-turn updates
+    # Use GameState class to handle state
     game_state_obj = GameState(updated_state)
-    game_state_obj.increment_turn()
 
     # Check for burnout (exhausted AND starving)
     burnout = game_state_obj.check_burnout()
@@ -291,16 +372,28 @@ async def handle_john_lewis_purchase(data: PurchaseRequest, username: str = Depe
     game_states = load_game_states()
     state = game_states[username]
 
+    # Check if player has enough time
+    game_state_obj = GameState(state)
+    if not game_state_obj.has_enough_time('john_lewis', 'john_lewis'):
+        travel_time, action_time, total_time = game_state_obj.get_total_time_cost('john_lewis', 'john_lewis')
+        hours = total_time // 60
+        mins = total_time % 60
+        time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
+        raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
+
+    # Spend time for travel and action
+    travel_time, action_time, _ = game_state_obj.spend_time('john_lewis', 'john_lewis')
+    state = game_state_obj.to_dict()
+
     # Purchase the item
     updated_state, message, success = purchase_john_lewis_item(state, data.item_name)
 
     if not success:
         raise HTTPException(status_code=400, detail=message)
 
-    # Use GameState class to handle turn increment and per-turn updates
+    # Use GameState class to handle state
     game_state_obj = GameState(updated_state)
     game_state_obj.update_look()  # Update look based on clothing items
-    game_state_obj.increment_turn()
 
     # Check for burnout (exhausted AND starving)
     burnout = game_state_obj.check_burnout()
@@ -355,15 +448,27 @@ async def handle_rent_flat(data: RentFlatRequest, username: str = Depends(get_cu
     game_states = load_game_states()
     state = game_states[username]
 
+    # Check if player has enough time
+    game_state_obj = GameState(state)
+    if not game_state_obj.has_enough_time('estate_agent', 'estate_agent'):
+        travel_time, action_time, total_time = game_state_obj.get_total_time_cost('estate_agent', 'estate_agent')
+        hours = total_time // 60
+        mins = total_time % 60
+        time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
+        raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
+
+    # Spend time for travel and action
+    travel_time, action_time, _ = game_state_obj.spend_time('estate_agent', 'estate_agent')
+    state = game_state_obj.to_dict()
+
     # Rent the flat
     updated_state, message, success = rent_flat(state, data.tier)
 
     if not success:
         raise HTTPException(status_code=400, detail=message)
 
-    # Use GameState class to handle turn increment and per-turn updates
+    # Use GameState class to handle state
     game_state_obj = GameState(updated_state)
-    game_state_obj.increment_turn()
 
     # Check for burnout (exhausted AND starving)
     burnout = game_state_obj.check_burnout()
@@ -454,15 +559,27 @@ async def handle_apply_job(data: ApplyJobRequest, username: str = Depends(get_cu
     game_states = load_game_states()
     state = game_states[username]
 
+    # Check if player has enough time
+    game_state_obj = GameState(state)
+    if not game_state_obj.has_enough_time('job_office', 'job_office'):
+        travel_time, action_time, total_time = game_state_obj.get_total_time_cost('job_office', 'job_office')
+        hours = total_time // 60
+        mins = total_time % 60
+        time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
+        raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
+
+    # Spend time for travel and action
+    travel_time, action_time, _ = game_state_obj.spend_time('job_office', 'job_office')
+    state = game_state_obj.to_dict()
+
     # Apply for the job
     updated_state, message, success = apply_for_job(state, data.job_title)
 
     if not success:
         raise HTTPException(status_code=400, detail=message)
 
-    # Use GameState class to handle turn increment
+    # Use GameState class to handle state
     game_state_obj = GameState(updated_state)
-    game_state_obj.increment_turn()
 
     # Check for burnout (exhausted AND starving)
     burnout = game_state_obj.check_burnout()

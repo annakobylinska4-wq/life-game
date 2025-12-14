@@ -4,6 +4,108 @@ GameState class for managing player game state
 from config.config import config
 
 
+# Time constants (in minutes)
+MINUTES_PER_DAY = 1440  # 24 hours
+DAY_START_HOUR = 6  # Day starts at 6:00 AM
+
+# Action time costs (in minutes)
+ACTION_TIME_COSTS = {
+    'work': 480,           # 8 hours
+    'rest': 480,           # 8 hours (sleep)
+    'shop_purchase': 60,   # 1 hour to shop and eat
+    'john_lewis': 120,     # 2 hours shopping
+    'university': 120,     # 2 hour lecture
+    'job_office': 60,      # 1 hour for job application
+    'estate_agent': 90,    # 1.5 hours to view and sign for flat
+}
+
+# Location coordinates for travel time calculation
+# Using approximate London coordinates (simplified grid)
+LOCATION_COORDS = {
+    'home': (0, 0),            # Player's home (reference point)
+    'workplace': (3, 2),       # Canary Wharf area
+    'university': (2, 1),      # King's College
+    'shop': (1, 0),            # Borough Market
+    'john_lewis': (2, 3),      # Oxford Street
+    'job_office': (3, 2),      # Canary Wharf (near workplace)
+    'estate_agent': (1, 2),    # Central London
+}
+
+# Travel time per grid unit (in minutes)
+TRAVEL_TIME_PER_UNIT = 20  # ~20 min per unit distance (tube/walking)
+MIN_TRAVEL_TIME = 15  # Minimum 15 minutes even for same location
+
+
+def calculate_travel_time(from_location, to_location):
+    """
+    Calculate travel time between two locations.
+
+    Args:
+        from_location: Starting location name
+        to_location: Destination location name
+
+    Returns:
+        int: Travel time in minutes
+    """
+    if from_location == to_location:
+        return 0
+
+    from_coords = LOCATION_COORDS.get(from_location, (0, 0))
+    to_coords = LOCATION_COORDS.get(to_location, (0, 0))
+
+    # Manhattan distance (more realistic for city travel)
+    distance = abs(from_coords[0] - to_coords[0]) + abs(from_coords[1] - to_coords[1])
+
+    travel_time = max(MIN_TRAVEL_TIME, distance * TRAVEL_TIME_PER_UNIT)
+    return travel_time
+
+
+def format_time(minutes_remaining):
+    """
+    Convert minutes remaining in day to 24-hour clock time.
+    Day starts at 6:00 AM (360 minutes into midnight).
+
+    Args:
+        minutes_remaining: Minutes left in the day
+
+    Returns:
+        str: Time in HH:MM format
+    """
+    # Minutes used = total - remaining
+    minutes_used = MINUTES_PER_DAY - minutes_remaining
+
+    # Add to 6:00 AM start
+    total_minutes = (DAY_START_HOUR * 60) + minutes_used
+
+    # Wrap around midnight if needed
+    total_minutes = total_minutes % 1440
+
+    hours = total_minutes // 60
+    mins = total_minutes % 60
+
+    return f"{hours:02d}:{mins:02d}"
+
+
+def get_time_period(minutes_remaining):
+    """
+    Get the period of day based on time.
+
+    Returns:
+        str: 'morning', 'afternoon', 'evening', or 'night'
+    """
+    time_str = format_time(minutes_remaining)
+    hour = int(time_str.split(':')[0])
+
+    if 6 <= hour < 12:
+        return 'morning'
+    elif 12 <= hour < 17:
+        return 'afternoon'
+    elif 17 <= hour < 21:
+        return 'evening'
+    else:
+        return 'night'
+
+
 # Flat tier labels (0-5 scale, 0 = homeless)
 FLAT_TIER_LABELS = {
     0: 'Homeless',
@@ -155,6 +257,9 @@ class GameState:
             self.completed_courses = state_dict.get('completed_courses', [])
             self.enrolled_course = state_dict.get('enrolled_course', None)
             self.lectures_completed = state_dict.get('lectures_completed', 0)
+            # Time tracking
+            self.time_remaining = state_dict.get('time_remaining', MINUTES_PER_DAY)
+            self.current_location = state_dict.get('current_location', 'home')
         else:
             # Create new game state with initial values
             self.money = config.INITIAL_MONEY
@@ -173,6 +278,9 @@ class GameState:
             self.completed_courses = []
             self.enrolled_course = None
             self.lectures_completed = 0
+            # Time tracking
+            self.time_remaining = MINUTES_PER_DAY  # Start with full day
+            self.current_location = 'home'  # Start at home
 
     def to_dict(self):
         """
@@ -201,7 +309,12 @@ class GameState:
             'rent': self.rent,
             'completed_courses': self.completed_courses,
             'enrolled_course': self.enrolled_course,
-            'lectures_completed': self.lectures_completed
+            'lectures_completed': self.lectures_completed,
+            # Time tracking
+            'time_remaining': self.time_remaining,
+            'current_time': format_time(self.time_remaining),
+            'time_period': get_time_period(self.time_remaining),
+            'current_location': self.current_location
         }
 
     @classmethod
@@ -218,6 +331,9 @@ class GameState:
         """Increment the turn counter and apply per-turn updates"""
         self.turn += 1
         self._apply_turn_updates()
+        # Reset time for new day
+        self.time_remaining = MINUTES_PER_DAY
+        self.current_location = 'home'  # Wake up at home
 
     def _apply_turn_updates(self):
         """
@@ -230,6 +346,84 @@ class GameState:
         # Deduct rent each turn
         if self.rent > 0:
             self.money -= self.rent
+
+    def get_travel_time_to(self, destination):
+        """
+        Get travel time from current location to destination.
+
+        Args:
+            destination: Target location name
+
+        Returns:
+            int: Travel time in minutes
+        """
+        return calculate_travel_time(self.current_location, destination)
+
+    def get_action_time(self, action_type):
+        """
+        Get time cost for an action.
+
+        Args:
+            action_type: Type of action (e.g., 'work', 'rest', 'shop_purchase')
+
+        Returns:
+            int: Time cost in minutes
+        """
+        return ACTION_TIME_COSTS.get(action_type, 60)  # Default 1 hour
+
+    def get_total_time_cost(self, destination, action_type):
+        """
+        Get total time cost including travel and action.
+
+        Args:
+            destination: Target location
+            action_type: Type of action to perform
+
+        Returns:
+            tuple: (travel_time, action_time, total_time)
+        """
+        travel_time = self.get_travel_time_to(destination)
+        action_time = self.get_action_time(action_type)
+        return (travel_time, action_time, travel_time + action_time)
+
+    def has_enough_time(self, destination, action_type):
+        """
+        Check if there's enough time remaining for travel + action.
+
+        Args:
+            destination: Target location
+            action_type: Type of action to perform
+
+        Returns:
+            bool: True if enough time, False otherwise
+        """
+        _, _, total_time = self.get_total_time_cost(destination, action_type)
+        return self.time_remaining >= total_time
+
+    def spend_time(self, destination, action_type):
+        """
+        Spend time for travel and action, update location.
+
+        Args:
+            destination: Target location
+            action_type: Type of action to perform
+
+        Returns:
+            tuple: (travel_time, action_time, success)
+        """
+        travel_time, action_time, total_time = self.get_total_time_cost(destination, action_type)
+
+        if self.time_remaining < total_time:
+            return (travel_time, action_time, False)
+
+        self.time_remaining -= total_time
+        self.current_location = destination
+
+        # Check if day is over (less than 15 minutes remaining)
+        if self.time_remaining < 15:
+            self.increment_turn()
+
+        return (travel_time, action_time, True)
 
     def add_money(self, amount):
         """Add money to the player's balance"""
@@ -355,6 +549,9 @@ class GameState:
         self.completed_courses = []
         self.enrolled_course = None
         self.lectures_completed = 0
+        # Reset time tracking
+        self.time_remaining = MINUTES_PER_DAY
+        self.current_location = 'home'
 
     def __repr__(self):
         """String representation for debugging"""

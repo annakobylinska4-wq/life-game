@@ -272,6 +272,26 @@ h2 {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+/* Time stat styling */
+.top-stat-item.time-stat {
+    background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+    min-width: 90px;
+}
+
+.time-value {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 1.3em !important;
+}
+
+.top-stat-period {
+    font-size: 0.65em;
+    text-transform: uppercase;
+    opacity: 0.8;
+    letter-spacing: 0.5px;
+    display: block;
+}
+
 .top-stat-item.money-stat .top-stat-value {
     color: #00cec9;
 }
@@ -1008,6 +1028,28 @@ h2 {
     font-weight: bold;
     color: #667eea;
     margin: 15px 0;
+}
+
+.time-cost {
+    color: #f39c12;
+    font-family: 'Courier New', monospace;
+}
+
+.time-cost.no-time {
+    color: #e74c3c;
+}
+
+.modal-time-info {
+    font-size: 0.9em;
+    color: #888;
+    margin: 5px 0 10px 0;
+    font-style: italic;
+}
+
+.modal-time-info.no-time {
+    color: #e74c3c;
+    font-weight: bold;
+    font-style: normal;
 }
 
 .modal-buttons {

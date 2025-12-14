@@ -251,6 +251,12 @@ function updateGameUI(state) {
     const tiredness = state.tiredness !== undefined ? state.tiredness : 0;
     const hunger = state.hunger !== undefined ? state.hunger : 0;
 
+    // Update time display
+    const currentTime = state.current_time || '06:00';
+    const timePeriod = state.time_period || 'morning';
+    document.getElementById('top-time').textContent = currentTime;
+    document.getElementById('top-time-period').textContent = timePeriod;
+
     // Update top stats bar
     document.getElementById('top-turn').textContent = state.turn;
     document.getElementById('top-money').textContent = '$' + state.money;
@@ -343,6 +349,31 @@ function updateGameUI(state) {
 // Store selected action for confirmation
 let selectedAction = null;
 
+// Format minutes as time string
+function formatMinutesAsTime(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0 && mins > 0) {
+        return `${hours}h ${mins}m`;
+    } else if (hours > 0) {
+        return `${hours}h`;
+    } else {
+        return `${mins}m`;
+    }
+}
+
+// Fetch time info for a location
+async function getTimeInfo(location) {
+    try {
+        const response = await fetch(`/api/time_info/${location}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching time info:', error);
+        return null;
+    }
+}
+
 // Location details
 // Note: confirmButtonLabel values correspond to BUTTON_LABEL constants in actions/*.py
 const locationDetails = {
@@ -405,7 +436,7 @@ const locationDetails = {
 };
 
 // Show location modal with animation
-function showLocationModal(action) {
+async function showLocationModal(action) {
     selectedAction = action;
     const details = locationDetails[action];
 
@@ -431,9 +462,32 @@ function showLocationModal(action) {
 
     modalTitle.textContent = details.title;
     modalDescription.textContent = details.description;
-    modalCost.textContent = details.cost;
     npcName.textContent = details.npcName;
     confirmBtn.textContent = details.confirmButtonLabel;
+
+    // Fetch and display time info
+    const timeInfo = await getTimeInfo(action);
+    if (timeInfo && timeInfo.success) {
+        const travelStr = timeInfo.travel_time > 0 ? `${timeInfo.travel_time}min travel + ` : '';
+        const actionStr = formatMinutesAsTime(timeInfo.action_time);
+        const timeDisplay = document.getElementById('modal-time-info');
+
+        if (timeInfo.has_enough_time) {
+            modalCost.innerHTML = `<span class="time-cost">⏱ ${travelStr}${actionStr}</span> · ${details.cost}`;
+            if (timeDisplay) {
+                timeDisplay.textContent = `Arrive: ${timeInfo.arrival_time} → Finish: ${timeInfo.finish_time}`;
+                timeDisplay.className = 'modal-time-info';
+            }
+        } else {
+            modalCost.innerHTML = `<span class="time-cost no-time">⏱ Not enough time!</span> · ${details.cost}`;
+            if (timeDisplay) {
+                timeDisplay.textContent = `Need ${formatMinutesAsTime(timeInfo.total_time)}, only ${formatMinutesAsTime(timeInfo.time_remaining)} left`;
+                timeDisplay.className = 'modal-time-info no-time';
+            }
+        }
+    } else {
+        modalCost.textContent = details.cost;
+    }
 
     // Show browse buttons for various locations
     const browseBtn = document.getElementById('browse-btn');
