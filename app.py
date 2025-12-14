@@ -560,25 +560,25 @@ async def get_jobs_list(username: str = Depends(get_current_user)):
 
 @app.post('/api/pass_time')
 async def handle_pass_time(username: str = Depends(get_current_user)):
-    """Pass 30 minutes of time doing nothing (or remaining time if less)"""
+    """Pass enough time to start the next turn"""
     game_states = load_game_states()
     state = game_states[username]
 
     game_state_obj = GameState(state)
 
-    # Pass 30 minutes or whatever time remains
-    time_to_pass = min(30, game_state_obj.time_remaining)
+    # Calculate time needed to reach next turn (time_remaining < 15 triggers new turn)
+    # Pass enough time to bring time_remaining to 14
+    time_to_pass = game_state_obj.time_remaining - 14
 
     if time_to_pass <= 0:
-        raise HTTPException(status_code=400, detail="No time left today!")
+        # Already at or below threshold, just need to trigger the turn
+        time_to_pass = game_state_obj.time_remaining
 
     # Deduct time
     game_state_obj.time_remaining -= time_to_pass
 
-    # Check if day is over (less than 15 minutes remaining)
-    turn_summary = None
-    if game_state_obj.time_remaining < 15:
-        turn_summary = game_state_obj.increment_turn()
+    # Increment turn (will always happen since we passed enough time)
+    turn_summary = game_state_obj.increment_turn()
 
     # Check for burnout
     burnout = game_state_obj.check_burnout()
@@ -591,7 +591,12 @@ async def handle_pass_time(username: str = Depends(get_current_user)):
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    message = f"You passed {time_to_pass} minutes watching the world go by..."
+    hours_passed = time_to_pass // 60
+    minutes_passed = time_to_pass % 60
+    if hours_passed > 0:
+        message = f"You passed {hours_passed}h {minutes_passed}m and the day ended..."
+    else:
+        message = f"You passed {minutes_passed} minutes and the day ended..."
 
     return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
 

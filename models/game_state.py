@@ -369,15 +369,6 @@ class GameState:
                 'class': 'change-negative'
             })
 
-        # Wage earned (if employed)
-        if self.job_wage > 0:
-            changes.append({
-                'type': 'wage',
-                'icon': '💰',
-                'text': f'Earned £{self.job_wage} from work',
-                'class': 'change-positive'
-            })
-
         return {
             'new_day': self.turn,
             'changes': changes,
