@@ -94,34 +94,81 @@ function closeBurnoutPopup() {
     document.getElementById('burnout-popup').style.display = 'none';
 }
 
-// Eating animation popup
-let eatingPopupCallback = null;
+// New Day Summary popup
+function showNewDayPopup(turnSummary) {
+    if (!turnSummary) return;
 
-function showEatingPopup(callback) {
-    const popup = document.getElementById('eating-popup');
-    const okBtn = popup.querySelector('.eating-ok-btn');
+    const popup = document.getElementById('new-day-popup');
+    const dayNumber = document.getElementById('new-day-number');
+    const changesList = document.getElementById('new-day-changes');
+    const statusDiv = document.getElementById('new-day-status');
 
-    // Store callback to execute after user acknowledges
-    eatingPopupCallback = callback;
+    // Set day number
+    dayNumber.textContent = `Day ${turnSummary.new_day}`;
 
-    // Reset button animation by removing and re-adding it
-    okBtn.style.animation = 'none';
+    // Clear and populate changes list
+    changesList.innerHTML = '';
+    turnSummary.changes.forEach(change => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="change-icon">${change.icon}</span><span class="${change.class}">${change.text}</span>`;
+        changesList.appendChild(li);
+    });
+
+    // Populate current status
+    const status = turnSummary.current_status;
+    statusDiv.innerHTML = `
+        <div class="status-item money">
+            <div class="status-label">Money</div>
+            <div class="status-value">£${status.money}</div>
+        </div>
+        <div class="status-item hunger">
+            <div class="status-label">Hunger</div>
+            <div class="status-value">${status.hunger_label}</div>
+        </div>
+        <div class="status-item tiredness">
+            <div class="status-label">Energy</div>
+            <div class="status-value">${status.tiredness_label}</div>
+        </div>
+    `;
+
     popup.style.display = 'flex';
-
-    // Trigger reflow and restart animation
-    setTimeout(() => {
-        okBtn.style.animation = 'fadeIn 0.3s ease 2s forwards';
-    }, 10);
 }
 
-function closeEatingPopup() {
-    const popup = document.getElementById('eating-popup');
-    popup.style.display = 'none';
+function closeNewDayPopup() {
+    document.getElementById('new-day-popup').style.display = 'none';
+}
 
-    // Execute the callback to continue the turn
-    if (eatingPopupCallback) {
-        eatingPopupCallback();
-        eatingPopupCallback = null;
+// Pass time action
+async function passTime() {
+    try {
+        const response = await fetch('/api/pass_time', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            updateGameUI(data.state);
+
+            // Check for burnout
+            if (data.burnout) {
+                showBurnoutPopup();
+            } else if (data.turn_summary) {
+                // New day started - show summary popup
+                showNewDayPopup(data.turn_summary);
+            } else {
+                showActionMessage(data.message, false);
+            }
+        } else {
+            const errorMsg = data.detail || data.message || 'Failed to pass time';
+            showActionMessage(errorMsg, true);
+        }
+    } catch (error) {
+        showActionMessage('Error passing time', true);
+        console.error(error);
     }
 }
 
@@ -576,6 +623,9 @@ async function confirmAction() {
             // Check for burnout
             if (data.burnout) {
                 showBurnoutPopup();
+            } else if (data.turn_summary) {
+                // New day started - show summary popup
+                showNewDayPopup(data.turn_summary);
             } else {
                 showActionMessage(data.message, false);
             }
@@ -755,11 +805,11 @@ async function purchaseShopItem(itemName) {
             // Check for burnout
             if (data.burnout) {
                 showBurnoutPopup();
+            } else if (data.turn_summary) {
+                // New day started - show summary popup
+                showNewDayPopup(data.turn_summary);
             } else {
-                // Show eating animation popup, then show success message after user acknowledges
-                showEatingPopup(() => {
-                    showActionMessage(data.message, false);
-                });
+                showActionMessage(data.message, false);
             }
         } else {
             // Handle error response
@@ -835,6 +885,9 @@ async function purchaseJohnLewisItem(itemName) {
             // Check for burnout
             if (data.burnout) {
                 showBurnoutPopup();
+            } else if (data.turn_summary) {
+                // New day started - show summary popup
+                showNewDayPopup(data.turn_summary);
             } else {
                 showActionMessage(data.message, false);
             }
@@ -911,6 +964,9 @@ async function rentFlat(tier) {
             // Check for burnout
             if (data.burnout) {
                 showBurnoutPopup();
+            } else if (data.turn_summary) {
+                // New day started - show summary popup
+                showNewDayPopup(data.turn_summary);
             } else {
                 showActionMessage(data.message, false);
             }
@@ -1100,6 +1156,9 @@ async function applyForJob(jobTitle) {
             // Check for burnout
             if (data.burnout) {
                 showBurnoutPopup();
+            } else if (data.turn_summary) {
+                // New day started - show summary popup
+                showNewDayPopup(data.turn_summary);
             } else {
                 showActionMessage(data.message, false);
             }

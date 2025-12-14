@@ -281,7 +281,7 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
         raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str} but you only have {game_state_obj.time_remaining // 60}h {game_state_obj.time_remaining % 60}m left.")
 
     # Spend time for travel and action
-    travel_time, action_time, time_success = game_state_obj.spend_time(location, action_type)
+    travel_time, action_time, time_success, turn_summary = game_state_obj.spend_time(location, action_type)
     state = game_state_obj.to_dict()
 
     # Perform the action using the actions module
@@ -312,7 +312,7 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
         time_info = f" (⏱ {travel_str}{' + ' if travel_str else ''}{action_str})"
         message = message + time_info
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
 
 @app.get('/api/shop/catalogue')
 async def get_catalogue(username: str = Depends(get_current_user)):
@@ -335,7 +335,7 @@ async def handle_purchase(data: PurchaseRequest, username: str = Depends(get_cur
         raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
 
     # Spend time for travel and action
-    travel_time, action_time, _ = game_state_obj.spend_time('shop', 'shop_purchase')
+    travel_time, action_time, _, turn_summary = game_state_obj.spend_time('shop', 'shop_purchase')
     state = game_state_obj.to_dict()
 
     # Purchase the item
@@ -359,7 +359,7 @@ async def handle_purchase(data: PurchaseRequest, username: str = Depends(get_cur
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
 
 @app.get('/api/john_lewis/catalogue')
 async def get_john_lewis_cat(username: str = Depends(get_current_user)):
@@ -382,7 +382,7 @@ async def handle_john_lewis_purchase(data: PurchaseRequest, username: str = Depe
         raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
 
     # Spend time for travel and action
-    travel_time, action_time, _ = game_state_obj.spend_time('john_lewis', 'john_lewis')
+    travel_time, action_time, _, turn_summary = game_state_obj.spend_time('john_lewis', 'john_lewis')
     state = game_state_obj.to_dict()
 
     # Purchase the item
@@ -407,7 +407,7 @@ async def handle_john_lewis_purchase(data: PurchaseRequest, username: str = Depe
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
 
 @app.post('/api/chat')
 async def handle_chat(data: ChatRequest, username: str = Depends(get_current_user)):
@@ -458,7 +458,7 @@ async def handle_rent_flat(data: RentFlatRequest, username: str = Depends(get_cu
         raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
 
     # Spend time for travel and action
-    travel_time, action_time, _ = game_state_obj.spend_time('estate_agent', 'estate_agent')
+    travel_time, action_time, _, turn_summary = game_state_obj.spend_time('estate_agent', 'estate_agent')
     state = game_state_obj.to_dict()
 
     # Rent the flat
@@ -482,7 +482,7 @@ async def handle_rent_flat(data: RentFlatRequest, username: str = Depends(get_cu
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
 
 @app.get('/api/university/catalogue')
 async def get_courses_catalogue(username: str = Depends(get_current_user)):
@@ -553,6 +553,44 @@ async def get_jobs_list(username: str = Depends(get_current_user)):
         'current_wage': state.get('job_wage', 0)
     }
 
+@app.post('/api/pass_time')
+async def handle_pass_time(username: str = Depends(get_current_user)):
+    """Pass 30 minutes of time doing nothing (or remaining time if less)"""
+    game_states = load_game_states()
+    state = game_states[username]
+
+    game_state_obj = GameState(state)
+
+    # Pass 30 minutes or whatever time remains
+    time_to_pass = min(30, game_state_obj.time_remaining)
+
+    if time_to_pass <= 0:
+        raise HTTPException(status_code=400, detail="No time left today!")
+
+    # Deduct time
+    game_state_obj.time_remaining -= time_to_pass
+
+    # Check if day is over (less than 15 minutes remaining)
+    turn_summary = None
+    if game_state_obj.time_remaining < 15:
+        turn_summary = game_state_obj.increment_turn()
+
+    # Check for burnout
+    burnout = game_state_obj.check_burnout()
+    if burnout:
+        game_state_obj.reset()
+
+    updated_state = game_state_obj.to_dict()
+
+    # Save updated state
+    game_states[username] = updated_state
+    save_game_states(game_states)
+
+    message = f"You passed {time_to_pass} minutes watching the world go by..."
+
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
+
+
 @app.post('/api/job_office/apply')
 async def handle_apply_job(data: ApplyJobRequest, username: str = Depends(get_current_user)):
     """Apply for a specific job"""
@@ -569,7 +607,7 @@ async def handle_apply_job(data: ApplyJobRequest, username: str = Depends(get_cu
         raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
 
     # Spend time for travel and action
-    travel_time, action_time, _ = game_state_obj.spend_time('job_office', 'job_office')
+    travel_time, action_time, _, turn_summary = game_state_obj.spend_time('job_office', 'job_office')
     state = game_state_obj.to_dict()
 
     # Apply for the job
@@ -593,7 +631,7 @@ async def handle_apply_job(data: ApplyJobRequest, username: str = Depends(get_cu
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
 
 if __name__ == '__main__':
     import uvicorn

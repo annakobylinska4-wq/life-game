@@ -334,6 +334,15 @@
                             <div class="street-line"></div>
                         </div>
                     </div>
+
+                    <!-- Pass Time Button -->
+                    <div class="pass-time-container">
+                        <button class="pass-time-btn" onclick="passTime()">
+                            <span class="pass-time-icon">⏳</span>
+                            <span class="pass-time-text">Pass Time</span>
+                            <span class="pass-time-duration">(30 min)</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -386,17 +395,6 @@
         </div>
     </div>
 
-    <!-- Eating Animation Popup -->
-    <div id="eating-popup" class="eating-popup" style="display: none;">
-        <div class="eating-popup-content">
-            <div class="eating-animation">
-                <span class="eating-emoji">😋</span>
-            </div>
-            <p class="eating-message">This is delicious!</p>
-            <button class="eating-ok-btn" onclick="closeEatingPopup()">OK</button>
-        </div>
-    </div>
-
     <!-- Action Result Popup -->
     <div id="action-result-popup" class="action-result-popup" style="display: none;">
         <div class="action-result-content">
@@ -417,6 +415,27 @@
             </p>
             <p class="burnout-submessage">Time to start fresh...</p>
             <button class="burnout-ok-btn" onclick="closeBurnoutPopup()">Start Again</button>
+        </div>
+    </div>
+
+    <!-- New Day Summary Popup -->
+    <div id="new-day-popup" class="new-day-popup" style="display: none;">
+        <div class="new-day-popup-content">
+            <div class="new-day-header">
+                <span class="new-day-icon">🌅</span>
+                <h2 class="new-day-title">A New Day Begins</h2>
+                <span id="new-day-number" class="new-day-number">Day 2</span>
+            </div>
+            <div class="new-day-summary">
+                <p class="summary-intro">While you slept...</p>
+                <ul id="new-day-changes" class="new-day-changes">
+                    <!-- Changes will be populated by JavaScript -->
+                </ul>
+            </div>
+            <div id="new-day-status" class="new-day-status">
+                <!-- Current status will be populated by JavaScript -->
+            </div>
+            <button class="new-day-ok-btn" onclick="closeNewDayPopup()">Start the Day</button>
         </div>
     </div>
 

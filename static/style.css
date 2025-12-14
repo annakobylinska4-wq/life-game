@@ -779,47 +779,57 @@ h2 {
     align-items: center;
 }
 
-/* London positioning - 6 buildings in 2 rows */
+/* London positioning - 7 buildings in 2 rows (evenly spread) */
+/* Row 1: Home, University, Job Office, John Lewis (4 items) */
+/* Row 2: Estate Agent, Workplace, Food Market (3 items) */
+
 .building-far-left {
-    /* Home - Residential area (top row, far left) */
-    left: 8%;
-    top: 30%;
+    /* Home - top row, position 1 */
+    left: 10%;
+    top: 20%;
+    transform: translateX(-50%);
 }
 
 .building-left {
-    /* King's College - University (top row, right side) */
-    left: 68%;
-    top: 25%;
+    /* University - top row, position 2 */
+    left: 36%;
+    top: 20%;
+    transform: translateX(-50%);
 }
 
 .building-center-left {
-    /* Job Office - Canary Wharf (top row, center-right) */
-    left: 48%;
-    top: 30%;
-}
-
-.building-center-right {
-    /* Workplace - The City (bottom row, center-left) */
-    left: 28%;
-    top: 60%;
-}
-
-.building-right {
-    /* Borough Market - Food (bottom row, center-right) */
-    left: 48%;
-    top: 65%;
+    /* Job Office - top row, position 3 */
+    left: 62%;
+    top: 20%;
+    transform: translateX(-50%);
 }
 
 .building-far-right {
-    /* John Lewis - Oxford Street (bottom row, far right) */
-    left: 68%;
-    top: 60%;
+    /* John Lewis - top row, position 4 */
+    left: 88%;
+    top: 20%;
+    transform: translateX(-50%);
 }
 
 .building-bottom-left {
-    /* Estate Agent - London Property Partners */
-    left: 8%;
+    /* Estate Agent - bottom row, position 1 */
+    left: 20%;
     top: 60%;
+    transform: translateX(-50%);
+}
+
+.building-center-right {
+    /* Workplace - bottom row, position 2 */
+    left: 50%;
+    top: 60%;
+    transform: translateX(-50%);
+}
+
+.building-right {
+    /* Food Market - bottom row, position 3 */
+    left: 80%;
+    top: 60%;
+    transform: translateX(-50%);
 }
 
 .map-location {
@@ -1547,82 +1557,6 @@ h2 {
     transform: translateY(-2px);
 }
 
-/* Eating Animation Popup */
-.eating-popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-    animation: fadeIn 0.3s ease;
-}
-
-.eating-popup-content {
-    background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
-    padding: 40px 60px;
-    border-radius: 20px;
-    text-align: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.3s ease;
-}
-
-.eating-animation {
-    margin-bottom: 20px;
-}
-
-.eating-emoji {
-    font-size: 100px;
-    display: inline-block;
-    animation: eating 0.5s ease-in-out infinite;
-}
-
-@keyframes eating {
-    0%, 100% {
-        transform: scale(1) rotate(0deg);
-    }
-    25% {
-        transform: scale(1.1) rotate(-5deg);
-    }
-    50% {
-        transform: scale(0.95) rotate(0deg);
-    }
-    75% {
-        transform: scale(1.1) rotate(5deg);
-    }
-}
-
-.eating-message {
-    font-size: 24px;
-    font-weight: bold;
-    color: #856404;
-    margin-bottom: 25px;
-    animation: fadeIn 0.5s ease 0.3s both;
-}
-
-.eating-ok-btn {
-    padding: 12px 40px;
-    font-size: 18px;
-    font-weight: bold;
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    opacity: 0;
-    animation: fadeIn 0.3s ease 2s forwards;
-}
-
-.eating-ok-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
-}
-
 /* Look Section in Status Panel */
 .look-section {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -1828,4 +1762,221 @@ h2 {
 .burnout-ok-btn:hover {
     transform: scale(1.05);
     box-shadow: 0 5px 20px rgba(220, 53, 69, 0.5);
+}
+
+
+/* New Day Summary Popup */
+.new-day-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
+}
+
+.new-day-popup-content {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 20px;
+    padding: 30px 40px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 183, 77, 0.2);
+    border: 2px solid rgba(255, 183, 77, 0.3);
+    animation: slideUp 0.4s ease;
+}
+
+.new-day-header {
+    margin-bottom: 25px;
+}
+
+.new-day-icon {
+    font-size: 4em;
+    display: block;
+    margin-bottom: 10px;
+    animation: sunRise 1s ease;
+}
+
+@keyframes sunRise {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.new-day-title {
+    font-size: 1.8em;
+    color: #ffb74d;
+    margin: 10px 0;
+    text-shadow: 0 0 20px rgba(255, 183, 77, 0.4);
+}
+
+.new-day-number {
+    font-size: 1.2em;
+    color: #90caf9;
+    font-weight: bold;
+    background: rgba(144, 202, 249, 0.1);
+    padding: 5px 15px;
+    border-radius: 15px;
+    display: inline-block;
+}
+
+.new-day-summary {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.summary-intro {
+    color: #aaa;
+    font-style: italic;
+    margin-bottom: 15px;
+    font-size: 0.95em;
+}
+
+.new-day-changes {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.new-day-changes li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.new-day-changes li:last-child {
+    border-bottom: none;
+}
+
+.new-day-changes .change-icon {
+    font-size: 1.2em;
+    width: 30px;
+    text-align: center;
+}
+
+.new-day-changes .change-negative {
+    color: #ef5350;
+}
+
+.new-day-changes .change-positive {
+    color: #66bb6a;
+}
+
+.new-day-changes .change-neutral {
+    color: #90caf9;
+}
+
+.new-day-status {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.status-item {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 12px 8px;
+}
+
+.status-item .status-label {
+    font-size: 0.75em;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-item .status-value {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.status-item.money .status-value {
+    color: #66bb6a;
+}
+
+.status-item.hunger .status-value {
+    color: #ffb74d;
+}
+
+.status-item.tiredness .status-value {
+    color: #90caf9;
+}
+
+.new-day-ok-btn {
+    padding: 15px 40px;
+    font-size: 16px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+    color: #1a1a2e;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 10px;
+}
+
+.new-day-ok-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 20px rgba(255, 183, 77, 0.5);
+}
+
+/* Pass Time Button */
+.pass-time-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    padding: 10px 0;
+}
+
+.pass-time-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.pass-time-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #7c858d 0%, #596067 100%);
+}
+
+.pass-time-btn:active {
+    transform: translateY(0);
+}
+
+.pass-time-icon {
+    font-size: 1.3em;
+}
+
+.pass-time-text {
+    font-weight: bold;
+}
+
+.pass-time-duration {
+    font-size: 0.85em;
+    opacity: 0.8;
 }

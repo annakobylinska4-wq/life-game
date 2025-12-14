@@ -20,20 +20,22 @@ ACTION_TIME_COSTS = {
 }
 
 # Location coordinates for travel time calculation
-# Using approximate London coordinates (simplified grid)
+# Grid matches visual layout: X = horizontal position, Y = row (top=2, bottom=6)
+# Top row (Y=2): Home(10%), University(36%), Job Office(62%), John Lewis(88%)
+# Bottom row (Y=6): Estate Agent(20%), Workplace(50%), Food Market(80%)
 LOCATION_COORDS = {
-    'home': (0, 0),            # Player's home (reference point)
-    'workplace': (3, 2),       # Canary Wharf area
-    'university': (2, 1),      # King's College
-    'shop': (1, 0),            # Borough Market
-    'john_lewis': (2, 3),      # Oxford Street
-    'job_office': (3, 2),      # Canary Wharf (near workplace)
-    'estate_agent': (1, 2),    # Central London
+    'home': (1, 2),            # Top row, far left (10%)
+    'university': (4, 2),      # Top row, center-left (36%)
+    'job_office': (6, 2),      # Top row, center-right (62%)
+    'john_lewis': (9, 2),      # Top row, far right (88%)
+    'estate_agent': (2, 6),    # Bottom row, left (20%)
+    'workplace': (5, 6),       # Bottom row, center (50%)
+    'shop': (8, 6),            # Bottom row, right (80%)
 }
 
 # Travel time per grid unit (in minutes)
-TRAVEL_TIME_PER_UNIT = 20  # ~20 min per unit distance (tube/walking)
-MIN_TRAVEL_TIME = 15  # Minimum 15 minutes even for same location
+TRAVEL_TIME_PER_UNIT = 10  # ~10 min per unit distance (tube/walking)
+MIN_TRAVEL_TIME = 10  # Minimum 10 minutes for nearby locations
 
 
 def calculate_travel_time(from_location, to_location):
@@ -328,12 +330,65 @@ class GameState:
         return cls()
 
     def increment_turn(self):
-        """Increment the turn counter and apply per-turn updates"""
+        """
+        Increment the turn counter and apply per-turn updates.
+
+        Returns:
+            dict: Summary of changes that occurred during turn increment
+        """
+        old_turn = self.turn
+        old_hunger = self.hunger
+        old_money = self.money
+
         self.turn += 1
         self._apply_turn_updates()
+
         # Reset time for new day
         self.time_remaining = MINUTES_PER_DAY
         self.current_location = 'home'  # Wake up at home
+
+        # Build turn summary
+        changes = []
+
+        # Hunger change
+        hunger_increase = self.hunger - old_hunger
+        if hunger_increase > 0:
+            changes.append({
+                'type': 'hunger',
+                'icon': '🍽️',
+                'text': f'You got hungrier (+{hunger_increase} hunger)',
+                'class': 'change-negative'
+            })
+
+        # Rent deduction
+        if self.rent > 0:
+            changes.append({
+                'type': 'rent',
+                'icon': '🏠',
+                'text': f'Rent due: -£{self.rent}',
+                'class': 'change-negative'
+            })
+
+        # Wage earned (if employed)
+        if self.job_wage > 0:
+            changes.append({
+                'type': 'wage',
+                'icon': '💰',
+                'text': f'Earned £{self.job_wage} from work',
+                'class': 'change-positive'
+            })
+
+        return {
+            'new_day': self.turn,
+            'changes': changes,
+            'current_status': {
+                'money': self.money,
+                'hunger': self.hunger,
+                'hunger_label': get_hunger_label(self.hunger),
+                'tiredness': self.tiredness,
+                'tiredness_label': get_tiredness_label(self.tiredness)
+            }
+        }
 
     def _apply_turn_updates(self):
         """
@@ -409,21 +464,23 @@ class GameState:
             action_type: Type of action to perform
 
         Returns:
-            tuple: (travel_time, action_time, success)
+            tuple: (travel_time, action_time, success, turn_summary)
+            turn_summary is None if day didn't end, otherwise contains turn change info
         """
         travel_time, action_time, total_time = self.get_total_time_cost(destination, action_type)
 
         if self.time_remaining < total_time:
-            return (travel_time, action_time, False)
+            return (travel_time, action_time, False, None)
 
         self.time_remaining -= total_time
         self.current_location = destination
 
         # Check if day is over (less than 15 minutes remaining)
+        turn_summary = None
         if self.time_remaining < 15:
-            self.increment_turn()
+            turn_summary = self.increment_turn()
 
-        return (travel_time, action_time, True)
+        return (travel_time, action_time, True, turn_summary)
 
     def add_money(self, amount):
         """Add money to the player's balance"""
