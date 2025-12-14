@@ -168,6 +168,16 @@ h2 {
     align-items: center;
     margin-bottom: 10px;
     flex-shrink: 0;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.game-goal {
+    font-size: 12px;
+    color: #888;
+    margin: 0;
+    flex-basis: 100%;
+    order: 3;
 }
 
 .header-buttons {
