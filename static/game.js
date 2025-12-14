@@ -94,6 +94,15 @@ function closeBurnoutPopup() {
     document.getElementById('burnout-popup').style.display = 'none';
 }
 
+// Bankruptcy popup
+function showBankruptcyPopup() {
+    document.getElementById('bankruptcy-popup').style.display = 'flex';
+}
+
+function closeBankruptcyPopup() {
+    document.getElementById('bankruptcy-popup').style.display = 'none';
+}
+
 // New Day Summary popup
 function showNewDayPopup(turnSummary) {
     if (!turnSummary) return;
@@ -153,9 +162,11 @@ async function passTime() {
         if (response.ok && data.success) {
             updateGameUI(data.state);
 
-            // Check for burnout
+            // Check for burnout or bankruptcy
             if (data.burnout) {
                 showBurnoutPopup();
+            } else if (data.bankruptcy) {
+                showBankruptcyPopup();
             } else if (data.turn_summary) {
                 // New day started - show summary popup
                 showNewDayPopup(data.turn_summary);
@@ -620,9 +631,11 @@ async function confirmAction() {
 
         if (data.success) {
             updateGameUI(data.state);
-            // Check for burnout
+            // Check for burnout or bankruptcy
             if (data.burnout) {
                 showBurnoutPopup();
+            } else if (data.bankruptcy) {
+                showBankruptcyPopup();
             } else if (data.turn_summary) {
                 // New day started - show summary popup
                 showNewDayPopup(data.turn_summary);
@@ -802,9 +815,11 @@ async function purchaseShopItem(itemName) {
             updateGameUI(data.state);
             closeLocationModal();
 
-            // Check for burnout
+            // Check for burnout or bankruptcy
             if (data.burnout) {
                 showBurnoutPopup();
+            } else if (data.bankruptcy) {
+                showBankruptcyPopup();
             } else if (data.turn_summary) {
                 // New day started - show summary popup
                 showNewDayPopup(data.turn_summary);
@@ -882,9 +897,11 @@ async function purchaseJohnLewisItem(itemName) {
         if (response.ok && data.success) {
             updateGameUI(data.state);
             closeLocationModal();
-            // Check for burnout
+            // Check for burnout or bankruptcy
             if (data.burnout) {
                 showBurnoutPopup();
+            } else if (data.bankruptcy) {
+                showBankruptcyPopup();
             } else if (data.turn_summary) {
                 // New day started - show summary popup
                 showNewDayPopup(data.turn_summary);
@@ -961,9 +978,11 @@ async function rentFlat(tier) {
         if (response.ok && data.success) {
             updateGameUI(data.state);
             closeLocationModal();
-            // Check for burnout
+            // Check for burnout or bankruptcy
             if (data.burnout) {
                 showBurnoutPopup();
+            } else if (data.bankruptcy) {
+                showBankruptcyPopup();
             } else if (data.turn_summary) {
                 // New day started - show summary popup
                 showNewDayPopup(data.turn_summary);
@@ -1153,9 +1172,11 @@ async function applyForJob(jobTitle) {
         if (response.ok && data.success) {
             updateGameUI(data.state);
             closeLocationModal();
-            // Check for burnout
+            // Check for burnout or bankruptcy
             if (data.burnout) {
                 showBurnoutPopup();
+            } else if (data.bankruptcy) {
+                showBankruptcyPopup();
             } else if (data.turn_summary) {
                 // New day started - show summary popup
                 showNewDayPopup(data.turn_summary);

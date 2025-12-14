@@ -304,6 +304,12 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
         game_state_obj.reset()
         message = "BURNOUT"  # Special message to trigger frontend popup
 
+    # Check for bankruptcy (money below 0)
+    bankruptcy = game_state_obj.check_bankruptcy()
+    if bankruptcy:
+        game_state_obj.reset()
+        message = "BANKRUPTCY"
+
     updated_state = game_state_obj.to_dict()
 
     # Save updated state
@@ -311,13 +317,13 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
     save_game_states(game_states)
 
     # Add time info to message
-    if not burnout:
+    if not burnout and not bankruptcy:
         travel_str = f"{travel_time}min travel" if travel_time > 0 else ""
         action_str = f"{action_time // 60}h {action_time % 60}m" if action_time % 60 > 0 else f"{action_time // 60}h"
         time_info = f" (⏱ {travel_str}{' + ' if travel_str else ''}{action_str})"
         message = message + time_info
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
 
 @app.get('/api/shop/catalogue')
 async def get_catalogue(username: str = Depends(get_current_user)):
@@ -358,13 +364,19 @@ async def handle_purchase(data: PurchaseRequest, username: str = Depends(get_cur
         game_state_obj.reset()
         message = "BURNOUT"
 
+    # Check for bankruptcy (money below 0)
+    bankruptcy = game_state_obj.check_bankruptcy()
+    if bankruptcy:
+        game_state_obj.reset()
+        message = "BANKRUPTCY"
+
     updated_state = game_state_obj.to_dict()
 
     # Save updated state
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
 
 @app.get('/api/john_lewis/catalogue')
 async def get_john_lewis_cat(username: str = Depends(get_current_user)):
@@ -406,13 +418,19 @@ async def handle_john_lewis_purchase(data: PurchaseRequest, username: str = Depe
         game_state_obj.reset()
         message = "BURNOUT"
 
+    # Check for bankruptcy (money below 0)
+    bankruptcy = game_state_obj.check_bankruptcy()
+    if bankruptcy:
+        game_state_obj.reset()
+        message = "BANKRUPTCY"
+
     updated_state = game_state_obj.to_dict()
 
     # Save updated state
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
 
 @app.post('/api/chat')
 async def handle_chat(data: ChatRequest, username: str = Depends(get_current_user)):
@@ -481,13 +499,19 @@ async def handle_rent_flat(data: RentFlatRequest, username: str = Depends(get_cu
         game_state_obj.reset()
         message = "BURNOUT"
 
+    # Check for bankruptcy (money below 0)
+    bankruptcy = game_state_obj.check_bankruptcy()
+    if bankruptcy:
+        game_state_obj.reset()
+        message = "BANKRUPTCY"
+
     updated_state = game_state_obj.to_dict()
 
     # Save updated state
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
 
 @app.get('/api/university/catalogue')
 async def get_courses_catalogue(username: str = Depends(get_current_user)):
@@ -585,6 +609,11 @@ async def handle_pass_time(username: str = Depends(get_current_user)):
     if burnout:
         game_state_obj.reset()
 
+    # Check for bankruptcy (money below 0)
+    bankruptcy = game_state_obj.check_bankruptcy()
+    if bankruptcy:
+        game_state_obj.reset()
+
     updated_state = game_state_obj.to_dict()
 
     # Save updated state
@@ -598,7 +627,7 @@ async def handle_pass_time(username: str = Depends(get_current_user)):
     else:
         message = f"You passed {minutes_passed} minutes and the day ended..."
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
 
 
 @app.post('/api/job_office/apply')
@@ -635,13 +664,19 @@ async def handle_apply_job(data: ApplyJobRequest, username: str = Depends(get_cu
         game_state_obj.reset()
         message = "BURNOUT"
 
+    # Check for bankruptcy (money below 0)
+    bankruptcy = game_state_obj.check_bankruptcy()
+    if bankruptcy:
+        game_state_obj.reset()
+        message = "BANKRUPTCY"
+
     updated_state = game_state_obj.to_dict()
 
     # Save updated state
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'turn_summary': turn_summary}
+    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
 
 if __name__ == '__main__':
     import uvicorn

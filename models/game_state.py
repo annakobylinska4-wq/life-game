@@ -572,6 +572,16 @@ class GameState:
         is_starving = self.hunger >= 81
         return is_exhausted and is_starving
 
+    def check_bankruptcy(self):
+        """
+        Check if player has gone bankrupt (money below 0).
+        This triggers a game reset.
+
+        Returns:
+            bool: True if player is bankrupt, False otherwise
+        """
+        return self.money < 0
+
     def reset(self):
         """
         Reset the game state to initial values.
