@@ -133,6 +133,27 @@ aws iam put-role-policy \
     --policy-name S3GameDataAccess \
     --policy-document file:///tmp/s3-policy.json
 
+# Step 3b: Create AWS Secret for LLM API keys (if it doesn't exist)
+echo "🔐 Setting up AWS Secrets Manager secret for LLM API keys..."
+echo "   Secret name: prod/MrJones/LLMOpenAI"
+
+# Check if secret exists
+if aws secretsmanager describe-secret --secret-id "prod/MrJones/LLMOpenAI" --region $AWS_REGION 2>/dev/null; then
+    echo "   Secret already exists"
+else
+    echo "   Creating new secret..."
+    echo "   ⚠️  IMPORTANT: You need to update this secret with your OpenAI API key!"
+    aws secretsmanager create-secret \
+        --name "prod/MrJones/LLMOpenAI" \
+        --description "LLM API keys for Life Game" \
+        --secret-string '{"openai_api_key":"YOUR_OPENAI_API_KEY_HERE","llm_provider":"openai"}' \
+        --region $AWS_REGION
+    echo ""
+    echo "   📝 To set your OpenAI API key, run:"
+    echo "   aws secretsmanager put-secret-value --secret-id prod/MrJones/LLMOpenAI --region $AWS_REGION --secret-string '{\"openai_api_key\":\"sk-your-key-here\",\"llm_provider\":\"openai\"}'"
+    echo ""
+fi
+
 echo "⏳ Waiting 10 seconds for IAM roles to propagate..."
 sleep 10
 

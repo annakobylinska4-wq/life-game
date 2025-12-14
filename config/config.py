@@ -16,11 +16,22 @@ def _load_llm_secrets(aws_config, local_secrets):
     """Load LLM secrets from AWS or local config"""
     if aws_config.get('use_aws_secrets'):
         try:
-            from ..utils.aws_secrets import get_llm_secrets
+            # Try absolute import first (works in Docker container)
+            from utils.aws_secrets import get_llm_secrets
             return get_llm_secrets(
                 aws_config['aws_secret_name'],
                 aws_config['aws_region']
             )
+        except ImportError:
+            # Try relative import as fallback (for running as package)
+            try:
+                from ..utils.aws_secrets import get_llm_secrets
+                return get_llm_secrets(
+                    aws_config['aws_secret_name'],
+                    aws_config['aws_region']
+                )
+            except Exception as e:
+                print(f"Warning: Could not load from AWS: {e}, using local config")
         except Exception as e:
             print(f"Warning: Could not load from AWS: {e}, using local config")
 
