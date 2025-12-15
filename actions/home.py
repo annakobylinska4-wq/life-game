@@ -8,13 +8,14 @@ BUTTON_LABEL = 'Rest at home'
 
 # Rest effects based on flat tier (0-5)
 # Better homes provide better rest and happiness bonuses
+# Values scaled for 2h rest period (1/4 of original 8h values)
 REST_BENEFITS = {
-    0: {'tiredness_reduction': 15, 'happiness_boost': 0, 'description': 'rough night on the streets'},
-    1: {'tiredness_reduction': 20, 'happiness_boost': 2, 'description': 'dingy bedsit'},
-    2: {'tiredness_reduction': 30, 'happiness_boost': 5, 'description': 'basic studio'},
-    3: {'tiredness_reduction': 40, 'happiness_boost': 10, 'description': 'comfortable flat'},
-    4: {'tiredness_reduction': 50, 'happiness_boost': 15, 'description': 'stylish apartment'},
-    5: {'tiredness_reduction': 60, 'happiness_boost': 20, 'description': 'luxury penthouse'},
+    0: {'tiredness_reduction': 4, 'happiness_boost': 0, 'description': 'rough night on the streets'},
+    1: {'tiredness_reduction': 5, 'happiness_boost': 1, 'description': 'dingy bedsit'},
+    2: {'tiredness_reduction': 8, 'happiness_boost': 1, 'description': 'basic studio'},
+    3: {'tiredness_reduction': 10, 'happiness_boost': 3, 'description': 'comfortable flat'},
+    4: {'tiredness_reduction': 13, 'happiness_boost': 4, 'description': 'stylish apartment'},
+    5: {'tiredness_reduction': 15, 'happiness_boost': 5, 'description': 'luxury penthouse'},
 }
 
 

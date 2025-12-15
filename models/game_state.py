@@ -10,8 +10,8 @@ DAY_START_HOUR = 6  # Day starts at 6:00 AM
 
 # Action time costs (in minutes)
 ACTION_TIME_COSTS = {
-    'work': 480,           # 8 hours
-    'rest': 480,           # 8 hours (sleep)
+    'work': 120,           # 2 hours
+    'rest': 120,           # 2 hours (sleep)
     'shop_purchase': 60,   # 1 hour to shop and eat
     'john_lewis': 120,     # 2 hours shopping
     'university': 120,     # 2 hour lecture
@@ -41,25 +41,16 @@ MIN_TRAVEL_TIME = 10  # Minimum 10 minutes for nearby locations
 def calculate_travel_time(from_location, to_location):
     """
     Calculate travel time between two locations.
+    Travel time has been removed from the game - always returns 0.
 
     Args:
         from_location: Starting location name
         to_location: Destination location name
 
     Returns:
-        int: Travel time in minutes
+        int: Travel time in minutes (always 0)
     """
-    if from_location == to_location:
-        return 0
-
-    from_coords = LOCATION_COORDS.get(from_location, (0, 0))
-    to_coords = LOCATION_COORDS.get(to_location, (0, 0))
-
-    # Manhattan distance (more realistic for city travel)
-    distance = abs(from_coords[0] - to_coords[0]) + abs(from_coords[1] - to_coords[1])
-
-    travel_time = max(MIN_TRAVEL_TIME, distance * TRAVEL_TIME_PER_UNIT)
-    return travel_time
+    return 0
 
 
 def format_time(minutes_remaining):

@@ -318,9 +318,8 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
 
     # Add time info to message
     if not burnout and not bankruptcy:
-        travel_str = f"{travel_time}min travel" if travel_time > 0 else ""
         action_str = f"{action_time // 60}h {action_time % 60}m" if action_time % 60 > 0 else f"{action_time // 60}h"
-        time_info = f" (⏱ {travel_str}{' + ' if travel_str else ''}{action_str})"
+        time_info = f" (⏱ {action_str})"
         message = message + time_info
 
     return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}

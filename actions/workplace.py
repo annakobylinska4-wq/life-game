@@ -6,14 +6,15 @@ from utils.function_logger import log_function_call
 # Button label for this action
 BUTTON_LABEL = 'Work'
 
-# Working increases tiredness
-WORK_TIREDNESS_INCREASE = 20
+# Working increases tiredness (scaled for 2h work period, 1/4 of original 8h value)
+WORK_TIREDNESS_INCREASE = 5
 
 
 @log_function_call
 def visit_workplace(state):
     """
-    Player goes to work and earns money
+    Player goes to work and earns money.
+    Earnings are scaled for 2h work period (1/4 of full day wage).
 
     Args:
         state: Current game state dictionary
@@ -24,7 +25,9 @@ def visit_workplace(state):
     if state['current_job'] == 'Unemployed':
         return state, 'You need to get a job first!', False
 
-    earnings = state['job_wage']
+    # Scale earnings for 2h work period (1/4 of full day wage)
+    full_wage = state['job_wage']
+    earnings = full_wage // 4
     state['money'] += earnings
 
     # Increase tiredness from working
@@ -32,5 +35,5 @@ def visit_workplace(state):
     new_tiredness = min(100, old_tiredness + WORK_TIREDNESS_INCREASE)
     state['tiredness'] = new_tiredness
 
-    message = "You worked as {} and earned ${}. You feel a bit more tired.".format(state['current_job'], earnings)
+    message = "You worked as {} and earned £{}. You feel a bit more tired.".format(state['current_job'], earnings)
     return state, message, True

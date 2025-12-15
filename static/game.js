@@ -526,14 +526,13 @@ async function showLocationModal(action) {
     // Fetch and display time info
     const timeInfo = await getTimeInfo(action);
     if (timeInfo && timeInfo.success) {
-        const travelStr = timeInfo.travel_time > 0 ? `${timeInfo.travel_time}min travel + ` : '';
         const actionStr = formatMinutesAsTime(timeInfo.action_time);
         const timeDisplay = document.getElementById('modal-time-info');
 
         if (timeInfo.has_enough_time) {
-            modalCost.innerHTML = `<span class="time-cost">⏱ ${travelStr}${actionStr}</span> · ${details.cost}`;
+            modalCost.innerHTML = `<span class="time-cost">⏱ ${actionStr}</span> · ${details.cost}`;
             if (timeDisplay) {
-                timeDisplay.textContent = `Arrive: ${timeInfo.arrival_time} → Finish: ${timeInfo.finish_time}`;
+                timeDisplay.textContent = `Finish: ${timeInfo.finish_time}`;
                 timeDisplay.className = 'modal-time-info';
             }
         } else {
