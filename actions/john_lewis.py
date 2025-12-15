@@ -9,38 +9,20 @@ from utils.function_logger import log_function_call
 BUTTON_LABEL = 'Browse products'
 
 
-# John Lewis catalogue - clothes and furniture (stored in inventory)
+# John Lewis catalogue - work clothes only (stored in inventory)
 JOHN_LEWIS_ITEMS = [
-    # Clothing - Workwear
-    {'name': 'Formal Suit', 'cost': 250, 'category': 'clothing', 'emoji': '🤵'},
-    {'name': 'Blazer', 'cost': 180, 'category': 'clothing', 'emoji': '🧥'},
-    {'name': 'Dress Shirt', 'cost': 65, 'category': 'clothing', 'emoji': '👔'},
-    {'name': 'Oxford Shirt', 'cost': 55, 'category': 'clothing', 'emoji': '👔'},
-    {'name': 'Dress Trousers', 'cost': 90, 'category': 'clothing', 'emoji': '👖'},
-    {'name': 'Chinos', 'cost': 70, 'category': 'clothing', 'emoji': '👖'},
-    {'name': 'Oxford Shoes', 'cost': 140, 'category': 'clothing', 'emoji': '👞'},
-    {'name': 'Brogues', 'cost': 160, 'category': 'clothing', 'emoji': '👞'},
-    {'name': 'Silk Tie', 'cost': 55, 'category': 'clothing', 'emoji': '👔'},
-    {'name': 'Leather Belt', 'cost': 45, 'category': 'clothing', 'emoji': '🩹'},
-    {'name': 'Waistcoat', 'cost': 95, 'category': 'clothing', 'emoji': '🦺'},
-    {'name': 'Cufflinks', 'cost': 40, 'category': 'clothing', 'emoji': '🔘'},
-    # Clothing - Casual
-    {'name': 'Winter Coat', 'cost': 120, 'category': 'clothing', 'emoji': '🧥'},
-    {'name': 'Polo Shirt', 'cost': 45, 'category': 'clothing', 'emoji': '👕'},
-    {'name': 'Trainers', 'cost': 95, 'category': 'clothing', 'emoji': '👟'},
-    {'name': 'Leather Boots', 'cost': 150, 'category': 'clothing', 'emoji': '👢'},
-    {'name': 'Cashmere Jumper', 'cost': 100, 'category': 'clothing', 'emoji': '🧶'},
-    {'name': 'Jeans', 'cost': 60, 'category': 'clothing', 'emoji': '👖'},
-    {'name': 'Wool Scarf', 'cost': 45, 'category': 'clothing', 'emoji': '🧣'},
-    # Furniture
-    {'name': 'Armchair', 'cost': 350, 'category': 'furniture', 'emoji': '🪑'},
-    {'name': 'Coffee Table', 'cost': 180, 'category': 'furniture', 'emoji': '🪵'},
-    {'name': 'Floor Lamp', 'cost': 90, 'category': 'furniture', 'emoji': '🪔'},
-    {'name': 'Bookshelf', 'cost': 220, 'category': 'furniture', 'emoji': '📚'},
-    {'name': 'Bedside Table', 'cost': 120, 'category': 'furniture', 'emoji': '🛏️'},
-    {'name': 'Desk', 'cost': 280, 'category': 'furniture', 'emoji': '🖥️'},
-    {'name': 'Rug', 'cost': 150, 'category': 'furniture', 'emoji': '🟫'},
-    {'name': 'Mirror', 'cost': 75, 'category': 'furniture', 'emoji': '🪞'},
+    {'name': 'Formal Suit', 'cost': 250, 'category': 'workwear', 'emoji': '🤵'},
+    {'name': 'Blazer', 'cost': 180, 'category': 'workwear', 'emoji': '🧥'},
+    {'name': 'Dress Shirt', 'cost': 65, 'category': 'workwear', 'emoji': '👔'},
+    {'name': 'Oxford Shirt', 'cost': 55, 'category': 'workwear', 'emoji': '👔'},
+    {'name': 'Dress Trousers', 'cost': 90, 'category': 'workwear', 'emoji': '👖'},
+    {'name': 'Chinos', 'cost': 70, 'category': 'workwear', 'emoji': '👖'},
+    {'name': 'Oxford Shoes', 'cost': 140, 'category': 'workwear', 'emoji': '👞'},
+    {'name': 'Brogues', 'cost': 160, 'category': 'workwear', 'emoji': '👞'},
+    {'name': 'Silk Tie', 'cost': 55, 'category': 'workwear', 'emoji': '👔'},
+    {'name': 'Leather Belt', 'cost': 45, 'category': 'workwear', 'emoji': '🩹'},
+    {'name': 'Waistcoat', 'cost': 95, 'category': 'workwear', 'emoji': '🦺'},
+    {'name': 'Cufflinks', 'cost': 40, 'category': 'workwear', 'emoji': '🔘'},
 ]
 
 

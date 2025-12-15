@@ -11,8 +11,8 @@ const LOOK_AVATARS = {
 // Home images based on flat tier (0-5)
 // Different home appearances based on what flat the player is renting
 const HOME_IMAGES = {
-    0: 'https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=800&h=600&fit=crop', // Homeless - abandoned ruined building interior
-    1: 'https://images.unsplash.com/photo-1597047084993-bf36ace2a68d?w=800&h=600&fit=crop', // Dingy bedsit - decrepit dirty room
+    0: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=800&h=600&fit=crop', // Homeless - rough sleeping by bins/alley
+    1: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&h=600&fit=crop', // Dingy bedsit - very shabby run-down room
     2: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop', // Basic studio - simple but clean
     3: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop', // Comfortable flat - nice living room
     4: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop', // Stylish apartment - modern interior
@@ -439,14 +439,14 @@ const locationDetails = {
         title: "King's College London",
         icon: '🎓',
         description: 'Study at one of London\'s most prestigious universities. Improve your qualifications to unlock better career opportunities in the city.',
-        cost: 'Cost: £50 per level',
+        cost: 'Free',
         npcName: 'Professor',
         confirmButtonLabel: 'Attend lecture'
     },
     job_office: {
         title: 'Canary Wharf Recruitment',
         icon: '💼',
-        description: 'Find your perfect role in London\'s financial district. Better qualifications lead to higher-paying positions in the City.',
+        description: 'Find your perfect role in London\'s financial district. Better qualifications lead to higher-paying positions. Higher paying jobs may require more respectable work clothes. Your wage represents earnings per full working day.',
         cost: 'Free',
         npcName: 'Recruiter',
         confirmButtonLabel: 'Get a new job'
@@ -486,7 +486,7 @@ const locationDetails = {
     estate_agent: {
         title: 'London Property Partners',
         icon: '🏘️',
-        description: 'Find your perfect London home! From budget bedsits to luxury penthouses. Rent is deducted from your money each turn.',
+        description: 'Find your perfect London home! From budget bedsits to luxury penthouses. Better properties help you rest more efficiently and recuperate faster. Rent is deducted from your money each turn.',
         cost: 'Rent: £10 - £200/turn',
         npcName: 'Estate Agent',
         confirmButtonLabel: 'Browse flats'

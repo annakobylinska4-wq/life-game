@@ -9,12 +9,13 @@ BUTTON_LABEL = 'Attend lecture'
 
 # Education Course Catalogue
 # Each course has: name, lectures_required, cost_per_lecture, prerequisites, jobs_unlocked, emoji
+# All courses are free (cost_per_lecture = 0)
 COURSE_CATALOGUE = [
     {
         'id': 'middle_school',
         'name': 'Middle School',
         'lectures_required': 3,
-        'cost_per_lecture': 20,
+        'cost_per_lecture': 0,
         'prerequisites': [],
         'jobs_unlocked': [('Newspaper Delivery', 10), ('Babysitter', 12)],
         'emoji': '📚',
@@ -24,7 +25,7 @@ COURSE_CATALOGUE = [
         'id': 'high_school',
         'name': 'High School',
         'lectures_required': 5,
-        'cost_per_lecture': 30,
+        'cost_per_lecture': 0,
         'prerequisites': ['middle_school'],
         'jobs_unlocked': [('Cashier', 18), ('Shop Assistant', 20), ('Warehouse Worker', 22)],
         'emoji': '🎒',
@@ -34,7 +35,7 @@ COURSE_CATALOGUE = [
         'id': 'vocational',
         'name': 'Vocational Training',
         'lectures_required': 4,
-        'cost_per_lecture': 40,
+        'cost_per_lecture': 0,
         'prerequisites': ['high_school'],
         'jobs_unlocked': [('Electrician', 45), ('Plumber', 45), ('Mechanic', 42)],
         'emoji': '🔧',
@@ -44,7 +45,7 @@ COURSE_CATALOGUE = [
         'id': 'bachelor_arts',
         'name': 'Bachelor of Arts',
         'lectures_required': 8,
-        'cost_per_lecture': 50,
+        'cost_per_lecture': 0,
         'prerequisites': ['high_school'],
         'jobs_unlocked': [('Marketing Assistant', 55), ('HR Coordinator', 52), ('Content Writer', 48)],
         'emoji': '🎨',
@@ -54,7 +55,7 @@ COURSE_CATALOGUE = [
         'id': 'bachelor_science',
         'name': 'Bachelor of Science',
         'lectures_required': 10,
-        'cost_per_lecture': 55,
+        'cost_per_lecture': 0,
         'prerequisites': ['high_school'],
         'jobs_unlocked': [('Junior Developer', 65), ('Lab Technician', 55), ('Data Analyst', 70)],
         'emoji': '🔬',
@@ -64,7 +65,7 @@ COURSE_CATALOGUE = [
         'id': 'bachelor_business',
         'name': 'Bachelor of Business',
         'lectures_required': 8,
-        'cost_per_lecture': 50,
+        'cost_per_lecture': 0,
         'prerequisites': ['high_school'],
         'jobs_unlocked': [('Junior Accountant', 55), ('Sales Executive', 60), ('Business Analyst', 65)],
         'emoji': '💼',
@@ -74,7 +75,7 @@ COURSE_CATALOGUE = [
         'id': 'master_arts',
         'name': 'Master of Arts',
         'lectures_required': 6,
-        'cost_per_lecture': 80,
+        'cost_per_lecture': 0,
         'prerequisites': ['bachelor_arts'],
         'jobs_unlocked': [('Marketing Manager', 95), ('HR Manager', 90), ('Senior Editor', 85)],
         'emoji': '📜',
@@ -84,7 +85,7 @@ COURSE_CATALOGUE = [
         'id': 'master_science',
         'name': 'Master of Science',
         'lectures_required': 8,
-        'cost_per_lecture': 90,
+        'cost_per_lecture': 0,
         'prerequisites': ['bachelor_science'],
         'jobs_unlocked': [('Senior Developer', 110), ('Research Scientist', 100), ('Data Science Lead', 115)],
         'emoji': '🧪',
@@ -94,7 +95,7 @@ COURSE_CATALOGUE = [
         'id': 'mba',
         'name': 'MBA',
         'lectures_required': 10,
-        'cost_per_lecture': 100,
+        'cost_per_lecture': 0,
         'prerequisites': ['bachelor_business', 'bachelor_arts', 'bachelor_science'],  # Any bachelor's
         'jobs_unlocked': [('Senior Manager', 140), ('Operations Director', 150), ('Strategy Consultant', 160)],
         'emoji': '📊',
@@ -104,7 +105,7 @@ COURSE_CATALOGUE = [
         'id': 'phd',
         'name': 'PhD',
         'lectures_required': 15,
-        'cost_per_lecture': 120,
+        'cost_per_lecture': 0,
         'prerequisites': ['master_science', 'master_arts'],  # Any master's
         'jobs_unlocked': [('Professor', 130), ('Chief Scientist', 180), ('Research Director', 170)],
         'emoji': '🎓',
@@ -114,7 +115,7 @@ COURSE_CATALOGUE = [
         'id': 'executive_mba',
         'name': 'Executive MBA',
         'lectures_required': 12,
-        'cost_per_lecture': 150,
+        'cost_per_lecture': 0,
         'prerequisites': ['mba'],
         'jobs_unlocked': [('Vice President', 220), ('Chief Operating Officer', 250), ('CEO', 300)],
         'emoji': '👔',
@@ -283,12 +284,6 @@ def visit_university(state):
         state['lectures_completed'] = 0
         return state, "Invalid course enrollment. Please enroll in a new course.", False
 
-    cost = course['cost_per_lecture']
-
-    if state['money'] < cost:
-        return state, f"Not enough money! Need £{cost} for this lecture.", False
-
-    state['money'] -= cost
     state['lectures_completed'] += 1
 
     lectures_remaining = course['lectures_required'] - state['lectures_completed']
@@ -306,7 +301,7 @@ def visit_university(state):
 
         message = f"Congratulations! You've completed {course_name}! New job opportunities await at the Job Office."
     else:
-        message = f"Lecture attended! {lectures_remaining} more to complete {course['name']}. (-£{cost})"
+        message = f"Lecture attended! {lectures_remaining} more to complete {course['name']}."
 
     return state, message, True
 

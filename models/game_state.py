@@ -210,12 +210,11 @@ def get_hunger_label(hunger_value):
             return label
     return 'Starving'  # Default for values > 100
 
-# Clothing items that improve look (from John Lewis)
+# Work clothes that improve look (from John Lewis)
 CLOTHING_ITEMS = [
     'Formal Suit', 'Blazer', 'Dress Shirt', 'Oxford Shirt', 'Dress Trousers',
     'Chinos', 'Oxford Shoes', 'Brogues', 'Silk Tie', 'Leather Belt',
-    'Waistcoat', 'Cufflinks', 'Winter Coat', 'Polo Shirt', 'Trainers',
-    'Leather Boots', 'Cashmere Jumper', 'Jeans', 'Wool Scarf'
+    'Waistcoat', 'Cufflinks'
 ]
 
 

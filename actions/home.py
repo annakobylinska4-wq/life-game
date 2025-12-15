@@ -41,7 +41,8 @@ def visit_home(state):
     happiness_boost = benefits['happiness_boost']
     description = benefits['description']
 
-    # Reduce tiredness
+    # Reduce tiredness (always reduce by at least 1)
+    tiredness_reduction = max(1, tiredness_reduction)
     new_tiredness = max(0, old_tiredness - tiredness_reduction)
     state['tiredness'] = new_tiredness
     tiredness_reduced = old_tiredness - new_tiredness
