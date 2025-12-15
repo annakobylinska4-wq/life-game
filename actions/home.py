@@ -52,8 +52,14 @@ def visit_home(state):
     state['happiness'] = new_happiness
     happiness_gained = new_happiness - old_happiness
 
-    # Build message based on flat tier
-    if flat_tier == 0:
+    # Build message based on flat tier and tiredness
+    if tiredness_reduced == 0:
+        # Already well rested
+        if flat_tier == 0:
+            message = "You found a spot to rest, but you were already well rested."
+        else:
+            message = f"You relaxed in your {description}, but you were already well rested."
+    elif flat_tier == 0:
         message = f"You found a spot to sleep rough. Tiredness reduced by {tiredness_reduced}."
     elif happiness_gained > 0:
         message = f"You rested in your {description}. Tiredness reduced by {tiredness_reduced}! Happiness +{happiness_gained}."

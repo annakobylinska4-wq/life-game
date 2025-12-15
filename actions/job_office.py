@@ -114,7 +114,7 @@ def visit_job_office(state):
     state['current_job'] = job_title
     state['job_wage'] = wage
 
-    message = f"You secured a job as {job_title} earning £{wage} per turn!"
+    message = f"You secured a job as {job_title} earning £{wage} per full working day!"
     return state, message, True
 
 
@@ -160,5 +160,5 @@ def apply_for_job(state, job_title):
     state['current_job'] = job['title']
     state['job_wage'] = job['wage']
 
-    message = f"Congratulations! You're now working as {job['title']} earning £{job['wage']} per turn!"
+    message = f"Congratulations! You're now working as {job['title']} earning £{job['wage']} per full working day!"
     return state, message, True

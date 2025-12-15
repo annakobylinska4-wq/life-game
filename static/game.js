@@ -1,7 +1,7 @@
 // Look avatar URLs for each level (1-5)
 // Middle-aged man going from very dishevelled/scruffy to well-groomed businessman
 const LOOK_AVATARS = {
-    1: 'https://images.unsplash.com/photo-1518806118471-f28b20a1d79d?w=300&h=300&fit=crop&crop=face', // Shabby - dishevelled, almost homeless man
+    1: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=300&h=300&fit=crop', // Shabby - person in a barrel (no clothes)
     2: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop&crop=face', // Scruffy - unshaven, messy
     3: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face', // Presentable - normal casual
     4: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face', // Smart - professional look
@@ -11,7 +11,7 @@ const LOOK_AVATARS = {
 // Home images based on flat tier (0-5)
 // Different home appearances based on what flat the player is renting
 const HOME_IMAGES = {
-    0: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=800&h=600&fit=crop', // Homeless - rough sleeping by bins/alley
+    0: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&h=600&fit=crop', // Homeless - rubbish bin
     1: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&h=600&fit=crop', // Dingy bedsit - very shabby run-down room
     2: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop', // Basic studio - simple but clean
     3: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop', // Comfortable flat - nice living room
@@ -438,7 +438,7 @@ const locationDetails = {
     university: {
         title: "King's College London",
         icon: '🎓',
-        description: 'Study at one of London\'s most prestigious universities. Improve your qualifications to unlock better career opportunities in the city.',
+        description: 'Study at one of London\'s most prestigious universities. Improve your qualifications to unlock better career opportunities in the city. Open 6am - 8pm.',
         cost: 'Free',
         npcName: 'Professor',
         confirmButtonLabel: 'Attend lecture'
@@ -446,7 +446,7 @@ const locationDetails = {
     job_office: {
         title: 'Canary Wharf Recruitment',
         icon: '💼',
-        description: 'Find your perfect role in London\'s financial district. Better qualifications lead to higher-paying positions. Higher paying jobs may require more respectable work clothes. Your wage represents earnings per full working day.',
+        description: 'Find your perfect role in London\'s financial district. Better qualifications lead to higher-paying positions. Higher paying jobs may require more respectable work clothes. Your wage represents earnings per full working day. Open 6am - 8pm.',
         cost: 'Free',
         npcName: 'Recruiter',
         confirmButtonLabel: 'Get a new job'
@@ -486,8 +486,8 @@ const locationDetails = {
     estate_agent: {
         title: 'London Property Partners',
         icon: '🏘️',
-        description: 'Find your perfect London home! From budget bedsits to luxury penthouses. Better properties help you rest more efficiently and recuperate faster. Rent is deducted from your money each turn.',
-        cost: 'Rent: £10 - £200/turn',
+        description: 'Find your perfect London home! From budget bedsits to luxury penthouses. Better properties help you rest more efficiently and recuperate faster. Rent is deducted from your money each turn. Open 6am - 8pm.',
+        cost: 'Rent: £0 - £200/turn',
         npcName: 'Estate Agent',
         confirmButtonLabel: 'Browse flats'
     }
@@ -628,7 +628,7 @@ async function confirmAction() {
 
         const data = await response.json();
 
-        if (data.success) {
+        if (response.ok && data.success) {
             updateGameUI(data.state);
             // Check for burnout or bankruptcy
             if (data.burnout) {
@@ -642,7 +642,9 @@ async function confirmAction() {
                 showActionMessage(data.message, false);
             }
         } else {
-            showActionMessage(data.message, true);
+            // Handle error response - get message from detail (HTTPException) or message field
+            const errorMsg = data.detail || data.message || 'Action failed';
+            showActionMessage(errorMsg, true);
         }
     } catch (error) {
         showActionMessage('Error performing action', true);

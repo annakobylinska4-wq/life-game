@@ -217,14 +217,14 @@ def get_jobs_for_education(completed_courses):
     Returns:
         list: List of (job_title, wage) tuples
     """
-    # Base jobs available to everyone (no education required)
+    # Base jobs available to everyone (no education required) - lower wages
     jobs = [
         ('Unemployed', 0),
-        ('Street Sweeper', 8),
-        ('Dishwasher', 10),
-        ('Cleaner', 12),
-        ('Fast Food Worker', 14),
-        ('Delivery Rider', 15),
+        ('Street Sweeper', 4),
+        ('Dishwasher', 5),
+        ('Cleaner', 6),
+        ('Fast Food Worker', 7),
+        ('Delivery Rider', 8),
     ]
 
     for course_id in completed_courses:

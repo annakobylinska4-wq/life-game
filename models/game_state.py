@@ -99,6 +99,36 @@ def get_time_period(minutes_remaining):
         return 'night'
 
 
+# Opening hours for locations (24-hour format)
+LOCATION_OPENING_HOURS = {
+    'university': (6, 20),      # 6am - 8pm (day starts at 6am)
+    'job_office': (6, 20),      # 6am - 8pm
+    'estate_agent': (6, 20),    # 6am - 8pm
+}
+
+
+def is_location_open(location, minutes_remaining):
+    """
+    Check if a location is open based on current time.
+
+    Args:
+        location: Location name
+        minutes_remaining: Minutes left in the day
+
+    Returns:
+        tuple: (is_open, opening_hour, closing_hour) or (True, None, None) if no hours
+    """
+    if location not in LOCATION_OPENING_HOURS:
+        return True, None, None
+
+    open_hour, close_hour = LOCATION_OPENING_HOURS[location]
+    time_str = format_time(minutes_remaining)
+    current_hour = int(time_str.split(':')[0])
+
+    is_open = open_hour <= current_hour < close_hour
+    return is_open, open_hour, close_hour
+
+
 # Flat tier labels (0-5 scale, 0 = homeless)
 FLAT_TIER_LABELS = {
     0: 'Homeless',

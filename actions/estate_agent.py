@@ -10,6 +10,13 @@ BUTTON_LABEL = 'Browse flats'
 # Tier 0 = homeless (no flat), Tier 1-5 = increasingly nicer flats
 FLAT_CATALOGUE = [
     {
+        'tier': 0,
+        'name': 'Homeless',
+        'rent': 0,
+        'description': 'Give up your flat and live on the streets. No rent to pay, but rest is much less effective.',
+        'emoji': '🗑️'
+    },
+    {
         'tier': 1,
         'name': 'Dingy Bedsit',
         'rent': 10,
@@ -72,7 +79,7 @@ def get_flat_by_tier(tier):
     Get flat details by tier number.
 
     Args:
-        tier: Flat tier (1-5)
+        tier: Flat tier (0-5)
 
     Returns:
         dict: Flat details or None if not found
@@ -124,11 +131,11 @@ def visit_estate_agent(state):
 @log_function_call
 def rent_flat(state, tier):
     """
-    Rent a flat of the specified tier.
+    Rent a flat of the specified tier, or become homeless (tier 0).
 
     Args:
         state: Current game state dictionary
-        tier: Flat tier to rent (1-5)
+        tier: Flat tier to rent (0-5), where 0 means homeless
 
     Returns:
         tuple: (updated_state, message, success)
@@ -140,15 +147,19 @@ def rent_flat(state, tier):
 
     current_tier = state.get('flat_tier', 0)
 
-    # Check if already renting the same flat
+    # Check if already in the same situation
     if current_tier == tier:
+        if tier == 0:
+            return state, "You're already homeless!", False
         return state, f"You're already renting a {flat['name']}!", False
 
-    # Update state with new flat
+    # Update state with new flat (or homeless)
     state['flat_tier'] = tier
     state['rent'] = flat['rent']
 
-    if current_tier == 0:
+    if tier == 0:
+        message = "You've given up your flat and are now homeless. No rent to pay, but sleeping rough is tough."
+    elif current_tier == 0:
         message = f"Congratulations! You've rented a {flat['name']} for £{flat['rent']}/turn. No more sleeping rough!"
     elif tier > current_tier:
         message = f"Moving up in the world! You've upgraded to a {flat['name']} for £{flat['rent']}/turn."
