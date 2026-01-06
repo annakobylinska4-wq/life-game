@@ -42,7 +42,7 @@ A turn-based life simulation game where you navigate through life decisions, man
 Run the application directly with uvicorn:
 
 ```bash
-python3 -m uvicorn life_game.app:app --host 0.0.0.0 --port 5001 --reload
+python3 -m uvicorn life-game.app:app --host 0.0.0.0 --port 5001 --reload
 ```
 
 Then open your browser and navigate to:
