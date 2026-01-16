@@ -1,6 +1,10 @@
-# Life Game
+# Life Game with a LLM twist
 
-A turn-based life simulation game where you navigate through life decisions, manage resources, and build your career. Built with FastAPI and vanilla JavaScript.
+A turn-based life simulation game where you navigate through life decisions, manage resources, and build your career. 
+Initial functionality allows the user to influence the game by chatting with other game personas (such as a shopkeeper, estate agent etc.) 
+through OpenAI function calling.
+Built with FastAPI and vanilla JavaScript.
+Game can be accessed at coolgaming.co.uk
 
 ## Features
 
