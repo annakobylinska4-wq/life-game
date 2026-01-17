@@ -6,3 +6,4 @@ anthropic
 boto3
 jinja2
 pyyaml
+loguru-0.7.3-py3

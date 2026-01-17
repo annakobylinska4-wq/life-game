@@ -4,7 +4,7 @@ Home action - handles player rest and recovery
 from utils.function_logger import log_function_call
 
 # Button label for this action
-BUTTON_LABEL = 'Rest at home'
+BUTTON_LABEL = 'Relax at home'
 
 # Rest effects based on flat tier (0-5)
 # Better homes provide better rest and happiness bonuses

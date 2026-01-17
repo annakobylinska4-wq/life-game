@@ -1,101 +1,53 @@
 """
-Function logger - logs function calls to YAML file
+Function logger - logs function calls to file
 Tracks timestamp, user_name, and function called
 """
 import os
-import logging
+import sys
 from datetime import datetime
 from functools import wraps
-import threading
+from loguru import logger
 
-# Thread-local storage for current user context
-_user_context = threading.local()
-
-
-def set_current_user(username):
-    """Set the current user for logging context"""
-    _user_context.username = username
-
-
-def get_current_user():
-    """Get the current user from logging context"""
-    return getattr(_user_context, 'username', 'unknown')
-
-
-class YAMLFormatter(logging.Formatter):
-    """Custom formatter that outputs log records in YAML format"""
-
-    def format(self, record):
-        timestamp = datetime.fromtimestamp(record.created).isoformat()
-        user_name = getattr(record, 'user_name', 'unknown')
-        function_called = getattr(record, 'function_called', record.funcName)
-
-        yaml_entry = (
-            f"- timestamp: \"{timestamp}\"\n"
-            f"  user_name: \"{user_name}\"\n"
-            f"  function_called: \"{function_called}\"\n"
-        )
-        return yaml_entry
+# Global variable for singleton instance
+_function_logger = None
 
 
 class FunctionLogger:
-    """Logger for tracking function calls in YAML format"""
-
-    _instance = None
-    _lock = threading.Lock()
-
-    def __new__(cls, log_dir='data/logs'):
-        if cls._instance is None:
-            with cls._lock:
-                if cls._instance is None:
-                    cls._instance = super().__new__(cls)
-                    cls._instance._initialized = False
-        return cls._instance
+    """Logging feature for function calls"""
+    _initialized = False  # Class variable for singleton pattern
 
     def __init__(self, log_dir='data/logs'):
-        if self._initialized:
+        if FunctionLogger._initialized:
             return
 
+        # Ensures the log directory exists
         self.log_dir = log_dir
         os.makedirs(log_dir, exist_ok=True)
 
-        self.log_file = os.path.join(log_dir, 'function_calls.yaml')
+        self.log_file = os.path.join(log_dir, 'detailed.log')
 
-        # Create logger
-        self.logger = logging.getLogger('function_logger')
-        self.logger.setLevel(logging.INFO)
+        # Console output - colorized
+        logger.add(sys.stderr,
+           format="<green>{time}</green> | <level>{message}</level>",
+           colorize=True)
+        # File output
+        logger.add(self.log_file,
+           format="{time} | {level} | {module}:{function}:{line} | {message}",
+           level="DEBUG")
+        # Finish initialization
+        FunctionLogger._initialized = True
 
-        # Prevent duplicate handlers
-        if not self.logger.handlers:
-            # Create file handler
-            file_handler = logging.FileHandler(self.log_file, encoding='utf-8')
-            file_handler.setLevel(logging.INFO)
+    def set_current_user(self, user_name):
+        """Set the current user name for logging purposes"""
+        self.current_user = user_name
 
-            # Set custom YAML formatter
-            formatter = YAMLFormatter()
-            file_handler.setFormatter(formatter)
+    def get_current_user(self):
+        """Get the current user name"""
+        return getattr(self, 'current_user', 'Unknown')
 
-            self.logger.addHandler(file_handler)
-
-        self._initialized = True
-
-    def log_function_call(self, function_name, user_name=None):
+    def log_function_call(self, function_name):
         """Log a function call"""
-        if user_name is None:
-            user_name = get_current_user()
-
-        self.logger.info(
-            'function_call',
-            extra={
-                'user_name': user_name,
-                'function_called': function_name
-            }
-        )
-
-
-# Global logger instance
-_function_logger = None
-
+        logger.info(f"User: {self.get_current_user()}; Function called: {function_name}")
 
 def get_function_logger():
     """Get the global function logger instance"""
@@ -113,3 +65,17 @@ def log_function_call(func):
         logger.log_function_call(func.__name__)
         return func(*args, **kwargs)
     return wrapper
+
+
+def set_current_user(user_name):
+    """Set the current user name for logging purposes"""
+    logger = get_function_logger()
+    logger.set_current_user(user_name)
+
+
+def get_current_user():
+    """Get the current user name"""
+    logger = get_function_logger()
+    return logger.get_current_user()
+
+

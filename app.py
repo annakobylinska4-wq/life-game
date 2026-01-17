@@ -24,8 +24,11 @@ from models.game_state import ACTION_TIME_COSTS, LOCATION_COORDS, format_time, i
 from config.config import config
 from chat_service import get_llm_response
 from models import GameState
-from utils.function_logger import set_current_user
+from utils.function_logger import set_current_user, get_function_logger
 from utils.s3_storage import init_storage, get_storage
+
+logger = get_function_logger()
+logger.log_function_call("app_startup")
 
 app = FastAPI()
 
