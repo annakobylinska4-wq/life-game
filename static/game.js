@@ -473,7 +473,7 @@ const locationDetails = {
         description: 'Head home to your cosy London flat. Rest up to reduce tiredness and recover your energy.',
         cost: 'Free',
         npcName: 'Flatmate',
-        confirmButtonLabel: 'Rest at home'
+        confirmButtonLabel: 'Destress at home'
     },
     john_lewis: {
         title: 'John Lewis Oxford Street',
