@@ -5,7 +5,7 @@ Retrieves secrets from AWS Secrets Manager for LLM API keys
 import json
 import boto3
 from botocore.exceptions import ClientError
-
+from loguru import logger
 
 class SecretsManager:
     """Handles retrieval of secrets from AWS Secrets Manager"""
@@ -142,12 +142,16 @@ def get_llm_secrets(secret_name='life-game/llm-api-keys', region_name=None):
     Returns:
         dict: Dictionary with 'openai_api_key', 'anthropic_api_key', 'llm_provider'
     """
+    
+    logger.debug(f"Retrieving LLM secrets from AWS Secrets Manager: {secret_name} in region {region_name}")
+
     try:
         secrets_manager = get_secrets_manager(region_name)
         secret = secrets_manager.get_secret(secret_name)
 
         # If secret is a dictionary, return it
         if isinstance(secret, dict):
+            logger.info(f"LLM secret retrieved successfully from AWS.")
             return {
                 'openai_api_key': secret.get('openai_api_key', ''),
                 'anthropic_api_key': secret.get('anthropic_api_key', ''),
@@ -156,17 +160,54 @@ def get_llm_secrets(secret_name='life-game/llm-api-keys', region_name=None):
 
         # If secret is a string, assume it's a single API key
         # Default to openai provider for string secrets
-        return {
-            'openai_api_key': secret,
-            'anthropic_api_key': '',
-            'llm_provider': 'openai'
-        }
+        if isinstance(secret, str):
+            logger.info(f"LLM secret retrieved successfully from AWS as string, assuming OpenAI API key.")
+            return {
+                'openai_api_key': secret,
+                'anthropic_api_key': '',
+                'llm_provider': 'openai'
+            }
 
     except Exception as e:
         # Log the error but don't crash - return empty keys
-        print(f"Warning: Could not retrieve secrets from AWS: {str(e)}")
+
+        logger.info(f"Warning: Could not retrieve LLM secrets from AWS: {str(e)}")
         return {
             'openai_api_key': '',
             'anthropic_api_key': '',
             'llm_provider': 'openai'
         }
+
+def get_sessionmng_secrets(secret_name='prod/MrJones/SessionMng', region_name=None):
+    """
+    Retrieve session mng keys from AWS Secrets Manager
+
+    Expected secret format (JSON):
+    {
+        "session_mng_key": "..."
+    }
+
+    Args:
+        secret_name: Name of the secret containing LLM API keys
+        region_name: AWS region (optional, uses default if not specified)
+
+    Returns:
+        str: session management key
+    """
+    logger.debug(f"Retrieving SessionMng secrets from AWS Secrets Manager: {secret_name} in region {region_name}")
+    try:
+        secrets_manager = get_secrets_manager(region_name)
+        secret = secrets_manager.get_secret(secret_name)
+
+        # If secret is a dictionary, return it
+        if isinstance(secret, dict):
+            logger.info(f"SessionMng secret retrieved successfully from AWS.")
+            return {'sessionmng_key': secret.get('session_mng_key', '')
+            }
+
+    except Exception as e:
+
+        # Log the error but don't crash - return empty keys
+        logger.info(f"Warning: Could not retrieve SessionMng secrets from AWS: {str(e)}")
+        return {'sessionmng_key': ''}
+        

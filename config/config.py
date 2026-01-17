@@ -41,6 +41,32 @@ def _load_llm_secrets(aws_config, local_secrets):
         'llm_provider': local_secrets.get('llm_provider', 'openai')
     }
 
+def _load_sessionmng_secrets(aws_config, local_secrets):
+    """Load session management secrets from AWS or local config"""
+    if aws_config.get('use_aws_secrets'):
+        try:
+            # Try absolute import first (works in Docker container)
+            from utils.aws_secrets import get_sessionmng_secrets
+            return get_sessionmng_secrets(
+                aws_config['aws_session_mng'],
+                aws_config['aws_region']
+            )
+        except ImportError:
+            # Try relative import as fallback (for running as package)
+            try:
+                from ..utils.aws_secrets import get_llm_secrets
+                return get_sessionmng_secrets(
+                    aws_config['aws_session_mng'],
+                    aws_config['aws_region']
+                )
+            except Exception as e:
+                print(f"Warning: Could not load from AWS: {e}, using local config")
+        except Exception as e:
+            print(f"Warning: Could not load from AWS: {e}, using local config")
+
+    return {
+        'sessionmng_key': local_secrets.get('session_mng', '')
+    }
 
 # Load configs at module import time
 _config_dir = os.path.dirname(__file__)
@@ -48,13 +74,14 @@ _aws_config = _load_json_file(os.path.join(_config_dir, 'aws_secrets_config.json
 _local_secrets = _load_json_file(os.path.join(_config_dir, 'secrets_config.json'))
 _llm_config = _load_json_file(os.path.join(_config_dir, 'llm_config.json'))
 _llm_secrets = _load_llm_secrets(_aws_config, _local_secrets)
+_sessionmng_secrets = _load_sessionmng_secrets(_aws_config, _local_secrets)
 
 
 class Config:
     """Application configuration"""
 
     # secret key for session management
-    SECRET_KEY = '94d879fbfd41c394d07041cb9b7ce606a5825b9634838d5d11a918976c2e6bc1'
+    SECRET_KEY = _sessionmng_secrets.get('sessionmng_key', '')
 
     # Server configuration
     PORT = 5001
