@@ -26,7 +26,7 @@ def initiliaze_logger():
         # File output
     logger.add(log_file,
            format="{time} | {level} | {module}:{function}:{line} | {message}",
-           level="DEBUG")
+           level="INFO")
     # Finish initialization
     logger.info("Function logger initialized")
 

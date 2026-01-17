@@ -7,6 +7,12 @@ services:
       - "5001:5001"
     volumes:
       - ./data:/app/data
+      - ${HOME}/.aws:/root/.aws:ro
     environment:
       - PYTHONUNBUFFERED=1
+      - AWS_REGION=eu-north-1
+      - AWS_DEFAULT_REGION=eu-north-1
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     restart: unless-stopped

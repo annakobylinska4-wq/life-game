@@ -23,10 +23,7 @@ def get_llm_secrets(secret_name, region_name=None):
         "llm_provider": "openai"
     } """
 
-
-    
     logger.info(f"Retrieving LLM secrets from AWS Secrets Manager: {secret_name} in region {region_name}")
-
     try:
         secrets_manager = get_secrets_manager(region_name)
         secret = secrets_manager.get_secret(secret_name)
