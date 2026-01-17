@@ -24,11 +24,13 @@ from models.game_state import ACTION_TIME_COSTS, LOCATION_COORDS, format_time, i
 from config.config import config
 from chat_service import get_llm_response
 from models import GameState
-from utils.function_logger import set_current_user, get_function_logger
+from utils.function_logger import initiliaze_logger
 from utils.s3_storage import init_storage, get_storage
+from loguru import logger
 
-logger = get_function_logger()
-logger.log_function_call("app_startup")
+#import logging feature
+initiliaze_logger()
+logger.info("app_startup")
 
 app = FastAPI()
 
@@ -133,9 +135,6 @@ async def get_current_user(request: Request) -> str:
     if not username:
         raise HTTPException(status_code=401, detail='Invalid or expired session')
 
-    # Set user context for function logging
-    set_current_user(username)
-
     return username
 
 # Setup templates (if you have HTML templates)
@@ -155,6 +154,7 @@ async def index(request: Request):
 @app.post('/api/register')
 async def register(data: RegisterRequest):
     """Register a new user"""
+    logger.info(f"Registering user: {data.username}")
     if not data.username or not data.password:
         raise HTTPException(status_code=400, detail='Username and password required')
 
