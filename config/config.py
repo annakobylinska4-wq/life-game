@@ -4,6 +4,8 @@ Configuration file for the Life Game application
 import secrets
 import os
 import json
+from loguru import logger
+
 
 
 def _load_json_file(path):
@@ -12,9 +14,10 @@ def _load_json_file(path):
         return json.load(f)
 
 
-def _load_llm_secrets(aws_config, local_secrets):
+def _load_llm_secrets(use_aws_secrets, aws_config, local_secrets):
     """Load LLM secrets from AWS or local config"""
-    if aws_config.get('use_aws_secrets'):
+    if use_aws_secrets:
+        logger.info("Loading LLM secrets from AWS Secrets Manager")
         try:
             # Try absolute import first (works in Docker container)
             from utils.aws_secrets import get_llm_secrets
@@ -31,19 +34,21 @@ def _load_llm_secrets(aws_config, local_secrets):
                     aws_config['aws_region']
                 )
             except Exception as e:
-                print(f"Warning: Could not load from AWS: {e}, using local config")
+                logger.Warning(f"Warning: Could not load from AWS: {e}, using local config")
         except Exception as e:
-            print(f"Warning: Could not load from AWS: {e}, using local config")
+            logger.Warning(f"Warning: Could not load from AWS: {e}, using local config")
 
+    logger.info("Loading LLM secrets from local config")
     return {
         'openai_api_key': local_secrets.get('openai_api_key', ''),
         'anthropic_api_key': local_secrets.get('anthropic_api_key', ''),
         'llm_provider': local_secrets.get('llm_provider', 'openai')
     }
 
-def _load_sessionmng_secrets(aws_config, local_secrets):
+def _load_sessionmng_secrets(use_aws_secrets,aws_config, local_secrets):
     """Load session management secrets from AWS or local config"""
-    if aws_config.get('use_aws_secrets'):
+    if use_aws_secrets:
+        logger.info("Loading session management secrets from AWS Secrets Manager")
         try:
             # Try absolute import first (works in Docker container)
             from utils.aws_secrets import get_sessionmng_secrets
@@ -60,25 +65,32 @@ def _load_sessionmng_secrets(aws_config, local_secrets):
                     aws_config['aws_region']
                 )
             except Exception as e:
-                print(f"Warning: Could not load from AWS: {e}, using local config")
+                logger.Warning("Warning: Could not load from AWS: {e}, using local config")
         except Exception as e:
-            print(f"Warning: Could not load from AWS: {e}, using local config")
-
+            logger.Warning("Warning: Could not load from AWS: {e}, using local config")
+    
+    logger.info("Loading session management secrets from local config")
     return {
         'sessionmng_key': local_secrets.get('session_mng', '')
     }
 
-# Load configs at module import time
-_config_dir = os.path.dirname(__file__)
-_aws_config = _load_json_file(os.path.join(_config_dir, 'aws_secrets_config.json'))
-_local_secrets = _load_json_file(os.path.join(_config_dir, 'secrets_config.json'))
-_llm_config = _load_json_file(os.path.join(_config_dir, 'llm_config.json'))
-_llm_secrets = _load_llm_secrets(_aws_config, _local_secrets)
-_sessionmng_secrets = _load_sessionmng_secrets(_aws_config, _local_secrets)
+
 
 
 class Config:
     """Application configuration"""
+
+    # flag indicating local or AWS S3 storage
+    USE_AWS_STORAGE = False
+    USE_AWS_SECRETS = True
+
+    # Load configs at module import time
+    _config_dir = os.path.dirname(__file__)
+    _aws_config = _load_json_file(os.path.join(_config_dir, 'aws_secrets_config.json'))
+    _local_secrets = _load_json_file(os.path.join(_config_dir, 'secrets_config.json'))
+    _llm_config = _load_json_file(os.path.join(_config_dir, 'llm_config.json'))
+    _llm_secrets = _load_llm_secrets(USE_AWS_SECRETS,_aws_config, _local_secrets)
+    _sessionmng_secrets = _load_sessionmng_secrets(USE_AWS_SECRETS,_aws_config, _local_secrets)
 
     # secret key for session management
     SECRET_KEY = _sessionmng_secrets.get('sessionmng_key', '')
@@ -114,24 +126,6 @@ class Config:
         if provider is None:
             provider = _llm_secrets.get('llm_provider', 'openai')
         return _llm_config.get(provider, _llm_config.get('openai', {}))
-
-    @staticmethod
-    def generate_secret_key():
-        """Generate a secure random secret key"""
-        return secrets.token_hex(32)
-
-# You can create different config classes for different environments
-class DevelopmentConfig(Config):
-    """Development environment configuration"""
-    DEBUG = True
-
-
-class ProductionConfig(Config):
-    """Production environment configuration"""
-    DEBUG = False
-    # In production, you should set SECRET_KEY from environment variable
-    # SECRET_KEY = os.environ.get('SECRET_KEY') or Config.generate_secret_key()
-
 
 # Default configuration to use
 config = Config()
