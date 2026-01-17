@@ -173,12 +173,13 @@ async def register(data: RegisterRequest):
     game_states = load_game_states()
     game_states[data.username] = create_new_game_state()
     save_game_states(game_states)
-
+    logger.info(f"User {data.username} registered successfully")
     return {'success': True, 'message': 'Registration successful'}
 
 @app.post('/api/login')
 async def login(data: LoginRequest):
     """Login user and create session"""
+    logger.info(f"User {data.username} attempting to log in")
     users = load_users()
 
     if data.username not in users:
@@ -198,12 +199,13 @@ async def login(data: LoginRequest):
         max_age=86400,  # 24 hours
         samesite='lax'
     )
-
+    logger.info(f"User {data.username} logged in successfully")
     return response
 
 @app.post('/api/logout')
 async def logout(username: str = Depends(get_current_user)):
     """Logout user by clearing session cookie"""
+    logger.info(f"User {username} logging out")
     response = JSONResponse(content={'success': True})
     response.delete_cookie(key='session')
     return response
