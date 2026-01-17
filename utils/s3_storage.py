@@ -6,6 +6,7 @@ import json
 import os
 import boto3
 from botocore.exceptions import ClientError
+from loguru import logger
 
 
 class S3Storage:
@@ -19,15 +20,15 @@ class S3Storage:
             bucket_name: S3 bucket name (if None, uses local storage)
             region_name: AWS region
         """
-        self.bucket_name = bucket_name or os.environ.get('S3_BUCKET_NAME')
-        self.region_name = region_name or os.environ.get('AWS_REGION', 'eu-north-1')
+        self.bucket_name = bucket_name if bucket_name is not None else os.environ.get('S3_BUCKET_NAME')
+        self.region_name = region_name if region_name is not None else os.environ.get('AWS_REGION', 'eu-north-1')
         self.client = None
         self._use_s3 = bool(self.bucket_name)
 
         if self._use_s3:
-            print(f"S3 Storage initialized: bucket={self.bucket_name}, region={self.region_name}")
+            logger.info(f"S3 Storage initialized: bucket={self.bucket_name}, region={self.region_name}")
         else:
-            print("S3 Storage: No bucket configured, using local storage")
+            logger.info("S3 Storage: No bucket configured, using local storage")
 
     def _get_client(self):
         """Lazy initialization of boto3 S3 client"""
@@ -109,7 +110,7 @@ class S3Storage:
                 )
                 return True
             except Exception as e:
-                print(f"S3 write error for {filename}: {e}")
+                logger.info(f"S3 write error for {filename}: {e}")
                 # Fall back to local if S3 fails
                 if local_path:
                     os.makedirs(os.path.dirname(local_path), exist_ok=True)
@@ -127,6 +128,89 @@ class S3Storage:
     def is_using_s3(self):
         """Check if S3 storage is active"""
         return self._use_s3
+
+    def upload_log_file(self, local_log_path, s3_key=None):
+        """
+        Upload a log file to S3
+
+        Args:
+            local_log_path: Path to the local log file
+            s3_key: S3 key for the log file (if None, uses logs/{filename})
+
+        Returns:
+            bool: True if successful
+        """
+        if not self._use_s3:
+            logger.debug("S3 not configured, log file remains local")
+            return False
+
+        if not os.path.exists(local_log_path):
+            logger.warning(f"Log file not found: {local_log_path}")
+            return False
+
+        try:
+            client = self._get_client()
+            filename = os.path.basename(local_log_path)
+            if s3_key is None:
+                s3_key = f"logs/{filename}"
+
+            with open(local_log_path, 'rb') as f:
+                client.put_object(
+                    Bucket=self.bucket_name,
+                    Key=s3_key,
+                    Body=f,
+                    ContentType='text/plain'
+                )
+            logger.info(f"Log file uploaded to S3: {s3_key}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to upload log file to S3: {e}")
+            return False
+
+    def append_to_s3_log(self, log_entry, s3_key):
+        """
+        Append a log entry to an S3 log file
+
+        Args:
+            log_entry: String to append to the log
+            s3_key: S3 key for the log file
+
+        Returns:
+            bool: True if successful
+        """
+        if not self._use_s3:
+            return False
+
+        try:
+            client = self._get_client()
+
+            # Read existing content
+            try:
+                response = client.get_object(
+                    Bucket=self.bucket_name,
+                    Key=s3_key
+                )
+                existing_content = response['Body'].read().decode('utf-8')
+            except ClientError as e:
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    existing_content = ""
+                else:
+                    raise
+
+            # Append new entry
+            new_content = existing_content + log_entry
+
+            # Write back to S3
+            client.put_object(
+                Bucket=self.bucket_name,
+                Key=s3_key,
+                Body=new_content.encode('utf-8'),
+                ContentType='text/plain'
+            )
+            return True
+        except Exception as e:
+            logger.error(f"Failed to append to S3 log: {e}")
+            return False
 
 
 # Global instance

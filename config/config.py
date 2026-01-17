@@ -137,10 +137,16 @@ class Config:
     """Application configuration"""
 
     # flag indicating local or AWS S3 storage
-    USE_AWS_STORAGE = False
+    USE_AWS_LOG_STORAGE = True
     USE_AWS_SECRETS = True
 
-
+    # S3 bucket for log storage (only used if USE_AWS_LOG_STORAGE is True)
+    # Set via environment variable S3_BUCKET_NAME, defaults to 'life-game-data-eunorth1'
+    S3_LOG_BUCKET = os.environ.get('S3_BUCKET_NAME', 'life-game-data-eunorth1')
+    if os.environ.get('S3_BUCKET_NAME'):
+        logger.info(f"S3_LOG_BUCKET set to: {S3_LOG_BUCKET}")
+    else:
+        logger.info(f"S3_LOG_BUCKET using default: {S3_LOG_BUCKET}")
     # Server configuration
     PORT = 5001
     DEBUG = True

@@ -12,7 +12,9 @@ from pydantic import BaseModel
 import json
 from datetime import datetime
 import hashlib
+import asyncio
 from typing import Optional
+from contextlib import asynccontextmanager
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from actions import perform_action
 from actions.shop import get_shop_catalogue, purchase_item
@@ -24,18 +26,64 @@ from models.game_state import ACTION_TIME_COSTS, LOCATION_COORDS, format_time, i
 from config.config import config
 from chat_service import get_llm_response
 from models import GameState
-from utils.function_logger import initiliaze_logger
+from utils.function_logger import initiliaze_logger, upload_logs_to_s3
 from utils.s3_storage import init_storage, get_storage
 from loguru import logger
 
-#import logging feature
-initiliaze_logger()
-logger.info("app_startup")
+# Background task for periodic log uploads
+_upload_task = None
+_shutdown = False
 
-app = FastAPI()
+async def periodic_log_upload():
+    """Background task to upload logs to S3 every 60 seconds"""
+    global _shutdown
+    while not _shutdown:
+        await asyncio.sleep(60)  # Upload every 60 seconds
+        if not _shutdown:
+            try:
+                upload_logs_to_s3()
+            except Exception as e:
+                logger.error(f"Error in periodic log upload: {e}")
 
-# Initialize S3 storage (uses env var S3_BUCKET_NAME if set, otherwise local storage)
-storage = init_storage()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifecycle manager for FastAPI app"""
+    global _upload_task, _shutdown
+
+    # Startup
+    initiliaze_logger()
+    logger.info("app_startup")
+
+    # Start background log upload task if S3 is enabled
+    if config.USE_AWS_LOG_STORAGE:
+        _shutdown = False
+        _upload_task = asyncio.create_task(periodic_log_upload())
+        logger.info("Started periodic log upload task")
+
+    yield
+
+    # Shutdown
+    logger.info("app_shutdown")
+    _shutdown = True
+
+    # Cancel background task
+    if _upload_task:
+        _upload_task.cancel()
+        try:
+            await _upload_task
+        except asyncio.CancelledError:
+            pass
+
+    # Final log upload before shutdown
+    if config.USE_AWS_LOG_STORAGE:
+        logger.info("Uploading final logs to S3...")
+        upload_logs_to_s3()
+        logger.info("Final log upload complete")
+
+app = FastAPI(lifespan=lifespan)
+
+# Initialize S3 storage with default bucket name
+storage = init_storage(bucket_name=config.S3_LOG_BUCKET)
 
 # Mount static files
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
