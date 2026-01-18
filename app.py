@@ -16,7 +16,7 @@ import asyncio
 from typing import Optional
 from contextlib import asynccontextmanager
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from actions import perform_action
+from actions import perform_action, get_action_type_for_location
 from actions.shop import get_shop_catalogue, purchase_item
 from actions.john_lewis import get_john_lewis_catalogue, purchase_john_lewis_item
 from actions.estate_agent import get_flat_catalogue, rent_flat
@@ -178,7 +178,6 @@ async def get_current_user(request: Request) -> str:
     session_token = request.cookies.get('session')
     if not session_token:
         raise HTTPException(status_code=401, detail='Not logged in')
-
     username = verify_session_token(session_token)
     if not username:
         raise HTTPException(status_code=401, detail='Invalid or expired session')
@@ -204,13 +203,12 @@ async def register(data: RegisterRequest):
     """Register a new user"""
     logger.info(f"Registering user: {data.username}")
     if not data.username or not data.password:
+        logger.error("Registration failed: Missing username or password")
         raise HTTPException(status_code=400, detail='Username and password required')
-
     users = load_users()
-
     if data.username in users:
+        logger.error(f"Registration failed: Username {data.username} already exists")
         raise HTTPException(status_code=400, detail='Username already exists')
-
     users[data.username] = {
         'password': hash_password(data.password),
         'created_at': datetime.now().isoformat()
@@ -231,9 +229,11 @@ async def login(data: LoginRequest):
     users = load_users()
 
     if data.username not in users:
+        logger.error(f"Login failed: Username {data.username} does not exist")
         raise HTTPException(status_code=401, detail='Invalid credentials')
 
     if users[data.username]['password'] != hash_password(data.password):
+        logger.error(f"Login failed: Invalid password for user {data.username}")
         raise HTTPException(status_code=401, detail='Invalid credentials')
 
     # Create session token
@@ -282,18 +282,7 @@ async def get_time_info(location: str, username: str = Depends(get_current_user)
     state = game_states[username]
     game_state_obj = GameState(state)
 
-    # Map location to action type
-    action_type_map = {
-        'home': 'rest',
-        'workplace': 'work',
-        'university': 'university',
-        'shop': 'shop_purchase',
-        'john_lewis': 'john_lewis',
-        'job_office': 'job_office',
-        'estate_agent': 'estate_agent'
-    }
-
-    action_type = action_type_map.get(location, 'shop_purchase')
+    action_type = get_action_type_for_location(location)
     travel_time, action_time, total_time = game_state_obj.get_total_time_cost(location, action_type)
     has_time = game_state_obj.has_enough_time(location, action_type)
 
@@ -316,18 +305,8 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
     game_states = load_game_states()
     state = game_states[username]
 
-    # Map action to location and action type
-    action_location_map = {
-        'home': ('home', 'rest'),
-        'workplace': ('workplace', 'work'),
-        'university': ('university', 'university'),
-        'shop': ('shop', 'shop_purchase'),
-        'john_lewis': ('john_lewis', 'john_lewis'),
-        'job_office': ('job_office', 'job_office'),
-        'estate_agent': ('estate_agent', 'estate_agent')
-    }
-
-    location, action_type = action_location_map.get(data.action, (data.action, data.action))
+    location = data.action
+    action_type = get_action_type_for_location(location)
 
     # Check if player has enough time
     game_state_obj = GameState(state)

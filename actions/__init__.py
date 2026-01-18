@@ -33,6 +33,29 @@ ACTION_BUTTON_LABELS = {
 }
 
 
+def get_action_type_for_location(location):
+    """
+    Map location to action type for time calculations.
+
+    Most locations use their name as the action type, with a few exceptions:
+    - home -> rest
+    - workplace -> work
+    - shop -> shop_purchase
+
+    Args:
+        location: Location name
+
+    Returns:
+        str: Action type for time cost calculations
+    """
+    location_to_action = {
+        'home': 'rest',
+        'workplace': 'work',
+        'shop': 'shop_purchase',
+    }
+    return location_to_action.get(location, location)
+
+
 def perform_action(action_name, state):
     """
     Performs a game action and returns the updated state
@@ -61,6 +84,7 @@ __all__ = [
     'visit_john_lewis',
     'visit_estate_agent',
     'perform_action',
+    'get_action_type_for_location',
     'ACTION_HANDLERS',
     'ACTION_BUTTON_LABELS'
 ]

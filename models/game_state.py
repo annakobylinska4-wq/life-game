@@ -50,6 +50,7 @@ def calculate_travel_time(from_location, to_location):
     Returns:
         int: Travel time in minutes (always 0)
     """
+    # TO DO: re-introduce travel time calculation later
     return 0
 
 
