@@ -1,10 +1,11 @@
-# Life Game with a LLM twist
+# Life Game with an LLM twist
+*** Game can be accessed at coolgaming.co.uk ***
 
 A turn-based life simulation game where you navigate through life decisions, manage resources, and build your career. 
 Initial functionality allows the user to influence the game by chatting with other game personas (such as a shopkeeper, estate agent etc.) 
 through OpenAI function calling.
 Built with FastAPI and vanilla JavaScript.
-Game can be accessed at coolgaming.co.uk
+
 
 ## Features
 
@@ -38,59 +39,6 @@ Game can be accessed at coolgaming.co.uk
    echo '{}' > data/users.json
    echo '{}' > data/game_states.json
    ```
-
-## Running the Game
-
-### Option 1: Local Development
-
-Run the application directly with uvicorn:
-
-```bash
-python3 -m uvicorn life-game.app:app --host 0.0.0.0 --port 5001 --reload
-```
-
-Then open your browser and navigate to:
-```
-http://localhost:5001
-```
-
-### Option 2: Docker (Local Testing)
-
-1. Set build target to local in `deployment/deploy-config.sh`:
-   ```bash
-   BUILD_TARGET="local"
-   ```
-
-2. Build and run the container:
-   ```bash
-   cd life_game
-   docker build -t life-game .
-   docker run -p 5001:5001 life-game
-   ```
-
-3. Access at `http://localhost:5001`
-
-### Option 3: AWS Deployment
-
-The game is deployed on AWS Fargate and accessible at:
-```
-http://life-game-alb-1075655009.eu-north-1.elb.amazonaws.com
-```
-
-To deploy updates:
-
-1. Ensure build target is set to AWS in `deployment/deploy-config.sh`:
-   ```bash
-   BUILD_TARGET="aws"
-   ```
-
-2. Run the deployment script:
-   ```bash
-   cd life_game/deployment
-   ./deploy-update.sh
-   ```
-
-3. Wait 2-3 minutes for the service to update.
 
 ## Project Structure
 
