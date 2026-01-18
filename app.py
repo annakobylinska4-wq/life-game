@@ -21,7 +21,7 @@ from actions.john_lewis import get_john_lewis_catalogue, purchase_john_lewis_ite
 from actions.estate_agent import get_flat_catalogue, rent_flat
 from actions.university import get_course_catalogue, get_available_courses, enroll_course, get_course_by_id
 from actions.job_office import get_available_jobs, apply_for_job
-from models.game_state import ACTION_TIME_COSTS, LOCATION_COORDS, LOCATION_DISPLAY_NAMES, format_time, is_location_open
+from models.game_state import ACTION_TIME_COSTS,  LOCATION_DISPLAY_NAMES, format_time, is_location_open
 from config.config import config
 from chatbot.llm_client import get_llm_response
 from models import GameState

@@ -9,50 +9,8 @@ MINUTES_PER_DAY = 1440  # 24 hours
 DAY_START_HOUR = 6  # Day starts at 6:00 AM
 
 # Action time costs (in minutes)
-ACTION_TIME_COSTS = {
-    'work': 120,           # 2 hours
-    'rest': 120,           # 2 hours (sleep)
-    'shop_purchase': 60,   # 1 hour to shop and eat
-    'john_lewis': 120,     # 2 hours shopping
-    'university': 120,     # 2 hour lecture
-    'job_office': 60,      # 1 hour for job application
-    'estate_agent': 90,    # 1.5 hours to view and sign for flat
-}
-
-# Location coordinates for travel time calculation
-# Grid matches visual layout: X = horizontal position, Y = row (top=2, bottom=6)
-# Top row (Y=2): Home(10%), University(36%), Job Office(62%), John Lewis(88%)
-# Bottom row (Y=6): Estate Agent(20%), Workplace(50%), Food Market(80%)
-LOCATION_COORDS = {
-    'home': (1, 2),            # Top row, far left (10%)
-    'university': (4, 2),      # Top row, center-left (36%)
-    'job_office': (6, 2),      # Top row, center-right (62%)
-    'john_lewis': (9, 2),      # Top row, far right (88%)
-    'estate_agent': (2, 6),    # Bottom row, left (20%)
-    'workplace': (5, 6),       # Bottom row, center (50%)
-    'shop': (8, 6),            # Bottom row, right (80%)
-}
-
-# Travel time per grid unit (in minutes)
-TRAVEL_TIME_PER_UNIT = 10  # ~10 min per unit distance (tube/walking)
-MIN_TRAVEL_TIME = 10  # Minimum 10 minutes for nearby locations
-
-
-def calculate_travel_time(from_location, to_location):
-    """
-    Calculate travel time between two locations.
-    Travel time has been removed from the game - always returns 0.
-
-    Args:
-        from_location: Starting location name
-        to_location: Destination location name
-
-    Returns:
-        int: Travel time in minutes (always 0)
-    """
-    # TO DO: re-introduce travel time calculation later
-    return 0
-
+ACTION_TIME_COSTS = 120
+TRAVEL_TIME = 60
 
 def format_time(minutes_remaining):
     """
@@ -280,7 +238,6 @@ class GameState:
             self.qualification = state_dict.get('qualification', 'None')
             self.current_job = state_dict.get('current_job', 'Unemployed')
             self.job_wage = state_dict.get('job_wage', 0)
-            self.turn = state_dict.get('turn', 1)
             self.happiness = state_dict.get('happiness', config.INITIAL_HAPPINESS)
             self.tiredness = state_dict.get('tiredness', config.INITIAL_TIREDNESS)
             self.hunger = state_dict.get('hunger', config.INITIAL_HUNGER)
@@ -292,6 +249,7 @@ class GameState:
             self.enrolled_course = state_dict.get('enrolled_course', None)
             self.lectures_completed = state_dict.get('lectures_completed', 0)
             # Time tracking
+            self.turn = state_dict.get('turn', 1)
             self.time_remaining = state_dict.get('time_remaining', MINUTES_PER_DAY)
             self.current_location = state_dict.get('current_location', 'home')
         else:
@@ -301,7 +259,6 @@ class GameState:
             self.qualification = 'None'
             self.current_job = 'Unemployed'
             self.job_wage = 0
-            self.turn = 1
             self.happiness = config.INITIAL_HAPPINESS
             self.tiredness = config.INITIAL_TIREDNESS
             self.hunger = config.INITIAL_HUNGER
@@ -313,6 +270,7 @@ class GameState:
             self.enrolled_course = None
             self.lectures_completed = 0
             # Time tracking
+            self.turn = 1
             self.time_remaining = MINUTES_PER_DAY  # Start with full day
             self.current_location = 'home'  # Start at home
 
@@ -425,29 +383,7 @@ class GameState:
         if self.rent > 0:
             self.money -= self.rent
 
-    def get_travel_time_to(self, destination):
-        """
-        Get travel time from current location to destination.
 
-        Args:
-            destination: Target location name
-
-        Returns:
-            int: Travel time in minutes
-        """
-        return calculate_travel_time(self.current_location, destination)
-
-    def get_action_time(self, action_type):
-        """
-        Get time cost for an action.
-
-        Args:
-            action_type: Type of action (e.g., 'work', 'rest', 'shop_purchase')
-
-        Returns:
-            int: Time cost in minutes
-        """
-        return ACTION_TIME_COSTS.get(action_type, 60)  # Default 1 hour
 
     def get_total_time_cost(self, destination, action_type):
         """
@@ -460,8 +396,8 @@ class GameState:
         Returns:
             tuple: (travel_time, action_time, total_time)
         """
-        travel_time = self.get_travel_time_to(destination)
-        action_time = self.get_action_time(action_type)
+        travel_time = TRAVEL_TIME
+        action_time = ACTION_TIME_COSTS
         return (travel_time, action_time, travel_time + action_time)
 
     def has_enough_time(self, destination, action_type):
