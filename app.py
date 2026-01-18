@@ -184,6 +184,31 @@ async def get_current_user(request: Request) -> str:
 
     return username
 
+def check_endgame_conditions(game_state_obj, current_message=None):
+    """
+    Check for burnout and bankruptcy conditions and reset if needed.
+
+    Args:
+        game_state_obj: GameState instance to check
+        current_message: Optional message to override if endgame condition is met
+
+    Returns:
+        tuple: (burnout, bankruptcy, message)
+    """
+    burnout = game_state_obj.check_burnout()
+    if burnout:
+        game_state_obj.reset()
+        message = "BURNOUT"
+    else:
+        message = current_message
+
+    bankruptcy = game_state_obj.check_bankruptcy()
+    if bankruptcy:
+        game_state_obj.reset()
+        message = "BANKRUPTCY"
+
+    return burnout, bankruptcy, message
+
 # Setup templates (if you have HTML templates)
 templates_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
 try:
@@ -337,17 +362,8 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
     # Use GameState class to handle state (don't increment turn - spend_time handles day rollover)
     game_state_obj = GameState(updated_state)
 
-    # Check for burnout (exhausted AND starving)
-    burnout = game_state_obj.check_burnout()
-    if burnout:
-        game_state_obj.reset()
-        message = "BURNOUT"  # Special message to trigger frontend popup
-
-    # Check for bankruptcy (money below 0)
-    bankruptcy = game_state_obj.check_bankruptcy()
-    if bankruptcy:
-        game_state_obj.reset()
-        message = "BANKRUPTCY"
+    # Check for endgame conditions (burnout and bankruptcy)
+    burnout, bankruptcy, message = check_endgame_conditions(game_state_obj, message)
 
     updated_state = game_state_obj.to_dict()
 
@@ -396,17 +412,8 @@ async def handle_purchase(data: PurchaseRequest, username: str = Depends(get_cur
     # Use GameState class to handle state
     game_state_obj = GameState(updated_state)
 
-    # Check for burnout (exhausted AND starving)
-    burnout = game_state_obj.check_burnout()
-    if burnout:
-        game_state_obj.reset()
-        message = "BURNOUT"
-
-    # Check for bankruptcy (money below 0)
-    bankruptcy = game_state_obj.check_bankruptcy()
-    if bankruptcy:
-        game_state_obj.reset()
-        message = "BANKRUPTCY"
+    # Check for endgame conditions (burnout and bankruptcy)
+    burnout, bankruptcy, message = check_endgame_conditions(game_state_obj, message)
 
     updated_state = game_state_obj.to_dict()
 
@@ -450,17 +457,8 @@ async def handle_john_lewis_purchase(data: PurchaseRequest, username: str = Depe
     game_state_obj = GameState(updated_state)
     game_state_obj.update_look()  # Update look based on clothing items
 
-    # Check for burnout (exhausted AND starving)
-    burnout = game_state_obj.check_burnout()
-    if burnout:
-        game_state_obj.reset()
-        message = "BURNOUT"
-
-    # Check for bankruptcy (money below 0)
-    bankruptcy = game_state_obj.check_bankruptcy()
-    if bankruptcy:
-        game_state_obj.reset()
-        message = "BANKRUPTCY"
+    # Check for endgame conditions (burnout and bankruptcy)
+    burnout, bankruptcy, message = check_endgame_conditions(game_state_obj, message)
 
     updated_state = game_state_obj.to_dict()
 
@@ -538,17 +536,8 @@ async def handle_rent_flat(data: RentFlatRequest, username: str = Depends(get_cu
     # Use GameState class to handle state
     game_state_obj = GameState(updated_state)
 
-    # Check for burnout (exhausted AND starving)
-    burnout = game_state_obj.check_burnout()
-    if burnout:
-        game_state_obj.reset()
-        message = "BURNOUT"
-
-    # Check for bankruptcy (money below 0)
-    bankruptcy = game_state_obj.check_bankruptcy()
-    if bankruptcy:
-        game_state_obj.reset()
-        message = "BANKRUPTCY"
+    # Check for endgame conditions (burnout and bankruptcy)
+    burnout, bankruptcy, message = check_endgame_conditions(game_state_obj, message)
 
     updated_state = game_state_obj.to_dict()
 
@@ -649,15 +638,8 @@ async def handle_pass_time(username: str = Depends(get_current_user)):
     # Increment turn (will always happen since we passed enough time)
     turn_summary = game_state_obj.increment_turn()
 
-    # Check for burnout
-    burnout = game_state_obj.check_burnout()
-    if burnout:
-        game_state_obj.reset()
-
-    # Check for bankruptcy (money below 0)
-    bankruptcy = game_state_obj.check_bankruptcy()
-    if bankruptcy:
-        game_state_obj.reset()
+    # Check for endgame conditions (burnout and bankruptcy)
+    burnout, bankruptcy, message = check_endgame_conditions(game_state_obj)
 
     updated_state = game_state_obj.to_dict()
 
@@ -665,12 +647,14 @@ async def handle_pass_time(username: str = Depends(get_current_user)):
     game_states[username] = updated_state
     save_game_states(game_states)
 
-    hours_passed = time_to_pass // 60
-    minutes_passed = time_to_pass % 60
-    if hours_passed > 0:
-        message = f"You passed {hours_passed}h {minutes_passed}m and the day ended..."
-    else:
-        message = f"You passed {minutes_passed} minutes and the day ended..."
+    # Set message if no endgame condition occurred
+    if not burnout and not bankruptcy:
+        hours_passed = time_to_pass // 60
+        minutes_passed = time_to_pass % 60
+        if hours_passed > 0:
+            message = f"You passed {hours_passed}h {minutes_passed}m and the day ended..."
+        else:
+            message = f"You passed {minutes_passed} minutes and the day ended..."
 
     return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
 
@@ -710,17 +694,8 @@ async def handle_apply_job(data: ApplyJobRequest, username: str = Depends(get_cu
     # Use GameState class to handle state
     game_state_obj = GameState(updated_state)
 
-    # Check for burnout (exhausted AND starving)
-    burnout = game_state_obj.check_burnout()
-    if burnout:
-        game_state_obj.reset()
-        message = "BURNOUT"
-
-    # Check for bankruptcy (money below 0)
-    bankruptcy = game_state_obj.check_bankruptcy()
-    if bankruptcy:
-        game_state_obj.reset()
-        message = "BANKRUPTCY"
+    # Check for endgame conditions (burnout and bankruptcy)
+    burnout, bankruptcy, message = check_endgame_conditions(game_state_obj, message)
 
     updated_state = game_state_obj.to_dict()
 
