@@ -105,7 +105,7 @@ class Action:
                 - error: str (only if validation failed)
         """
         from models import GameState
-        from models.game_state import is_location_open, get_location_display_name
+        from actions.locations import is_location_open, get_location_display_name
 
         # Create GameState object for validation
         game_state_obj = GameState(state)

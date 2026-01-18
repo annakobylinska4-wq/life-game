@@ -34,6 +34,7 @@ ACTION_BUTTON_LABELS = {
 
 
 from .base import Action
+from .locations import get_location_display_name, is_location_open, get_location_opening_hours
 
 
 def check_endgame_conditions(game_state_obj, current_message=None):
@@ -93,5 +94,8 @@ __all__ = [
     'execute_action_with_validation',
     'check_endgame_conditions',
     'ACTION_HANDLERS',
-    'ACTION_BUTTON_LABELS'
+    'ACTION_BUTTON_LABELS',
+    'get_location_display_name',
+    'is_location_open',
+    'get_location_opening_hours'
 ]
