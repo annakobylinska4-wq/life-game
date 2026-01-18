@@ -8,7 +8,6 @@ from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
 import json
 from datetime import datetime
 import hashlib
@@ -26,6 +25,10 @@ from models.game_state import ACTION_TIME_COSTS, LOCATION_COORDS, LOCATION_DISPL
 from config.config import config
 from chatbot.llm_client import get_llm_response
 from models import GameState
+from schemas import (
+    RegisterRequest, LoginRequest, ActionRequest, ChatRequest,
+    PurchaseRequest, RentFlatRequest, EnrollCourseRequest, ApplyJobRequest
+)
 from utils.function_logger import initiliaze_logger, upload_logs_to_s3
 from utils.s3_storage import init_storage, get_storage
 from loguru import logger
@@ -109,34 +112,6 @@ if not storage.is_using_s3():
     if not os.path.exists(GAME_STATES_FILE):
         with open(GAME_STATES_FILE, 'w') as f:
             json.dump({}, f)
-
-# Pydantic models for request/response validation
-class RegisterRequest(BaseModel):
-    username: str
-    password: str
-
-class LoginRequest(BaseModel):
-    username: str
-    password: str
-
-class ActionRequest(BaseModel):
-    action: str
-
-class ChatRequest(BaseModel):
-    action: str
-    message: str
-
-class PurchaseRequest(BaseModel):
-    item_name: str
-
-class RentFlatRequest(BaseModel):
-    tier: int
-
-class EnrollCourseRequest(BaseModel):
-    course_id: str
-
-class ApplyJobRequest(BaseModel):
-    job_title: str
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
