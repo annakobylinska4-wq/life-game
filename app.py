@@ -15,7 +15,7 @@ import asyncio
 from typing import Optional
 from contextlib import asynccontextmanager
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from actions import perform_action, get_action_type_for_location
+from actions import perform_action, get_action_type_for_location, check_endgame_conditions
 from actions.shop import get_shop_catalogue, purchase_item
 from actions.john_lewis import get_john_lewis_catalogue, purchase_john_lewis_item
 from actions.estate_agent import get_flat_catalogue, rent_flat
@@ -161,31 +161,6 @@ async def get_current_user(request: Request) -> str:
         raise HTTPException(status_code=401, detail='Invalid or expired session')
 
     return username
-
-def check_endgame_conditions(game_state_obj, current_message=None):
-    """
-    Check for burnout and bankruptcy conditions and reset if needed.
-
-    Args:
-        game_state_obj: GameState instance to check
-        current_message: Optional message to override if endgame condition is met
-
-    Returns:
-        tuple: (burnout, bankruptcy, message)
-    """
-    burnout = game_state_obj.check_burnout()
-    if burnout:
-        game_state_obj.reset()
-        message = "BURNOUT"
-    else:
-        message = current_message
-
-    bankruptcy = game_state_obj.check_bankruptcy()
-    if bankruptcy:
-        game_state_obj.reset()
-        message = "BANKRUPTCY"
-
-    return burnout, bankruptcy, message
 
 # Setup templates (if you have HTML templates)
 templates_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")

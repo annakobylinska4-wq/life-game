@@ -56,6 +56,32 @@ def get_action_type_for_location(location):
     return location_to_action.get(location, location)
 
 
+def check_endgame_conditions(game_state_obj, current_message=None):
+    """
+    Check for burnout and bankruptcy conditions and reset if needed.
+
+    Args:
+        game_state_obj: GameState instance to check
+        current_message: Optional message to override if endgame condition is met
+
+    Returns:
+        tuple: (burnout, bankruptcy, message)
+    """
+    burnout = game_state_obj.check_burnout()
+    if burnout:
+        game_state_obj.reset()
+        message = "BURNOUT"
+    else:
+        message = current_message
+
+    bankruptcy = game_state_obj.check_bankruptcy()
+    if bankruptcy:
+        game_state_obj.reset()
+        message = "BANKRUPTCY"
+
+    return burnout, bankruptcy, message
+
+
 def perform_action(action_name, state):
     """
     Performs a game action and returns the updated state
@@ -157,9 +183,7 @@ def execute_action_with_validation(
     if post_action_callback:
         post_action_callback(game_state_obj)
 
-    # Import check_endgame_conditions here to avoid circular import
-    # (app imports from actions, so we can't import from app at module level)
-    from app import check_endgame_conditions
+    # Check for endgame conditions (burnout and bankruptcy)
     burnout, bankruptcy, message = check_endgame_conditions(game_state_obj, message)
 
     updated_state = game_state_obj.to_dict()
@@ -184,6 +208,7 @@ __all__ = [
     'visit_estate_agent',
     'perform_action',
     'execute_action_with_validation',
+    'check_endgame_conditions',
     'get_action_type_for_location',
     'ACTION_HANDLERS',
     'ACTION_BUTTON_LABELS'
