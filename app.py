@@ -286,8 +286,8 @@ async def get_time_info(location: str, username: str = Depends(get_current_user)
     game_state_obj = GameState(state)
 
     action_type = get_action_type_for_location(location)
-    travel_time, action_time, total_time = game_state_obj.get_total_time_cost(location, action_type)
-    has_time = game_state_obj.has_enough_time(location, action_type)
+    travel_time, action_time, total_time = game_state_obj.get_total_time_cost
+    has_time = game_state_obj.has_enough_time
 
     return {
         'success': True,
@@ -320,8 +320,8 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
         location_name = get_location_display_name(location)
         raise HTTPException(status_code=400, detail=f"{location_name} is closed! Opening hours: {open_hour}am - {close_hour % 12}pm.")
 
-    if not game_state_obj.has_enough_time(location, action_type):
-        travel_time, action_time, total_time = game_state_obj.get_total_time_cost(location, action_type)
+    if not game_state_obj.has_enough_time:
+        travel_time, action_time, total_time = game_state_obj.get_total_time_cost
         hours = total_time // 60
         mins = total_time % 60
         time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
@@ -370,8 +370,8 @@ async def handle_purchase(data: PurchaseRequest, username: str = Depends(get_cur
 
     # Check if player has enough time
     game_state_obj = GameState(state)
-    if not game_state_obj.has_enough_time('shop', 'shop_purchase'):
-        travel_time, action_time, total_time = game_state_obj.get_total_time_cost('shop', 'shop_purchase')
+    if not game_state_obj.has_enough_time:
+        travel_time, action_time, total_time = game_state_obj.get_total_time_cost
         hours = total_time // 60
         mins = total_time % 60
         time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
@@ -414,8 +414,8 @@ async def handle_john_lewis_purchase(data: PurchaseRequest, username: str = Depe
 
     # Check if player has enough time
     game_state_obj = GameState(state)
-    if not game_state_obj.has_enough_time('john_lewis', 'john_lewis'):
-        travel_time, action_time, total_time = game_state_obj.get_total_time_cost('john_lewis', 'john_lewis')
+    if not game_state_obj.has_enough_time:
+        travel_time, action_time, total_time = game_state_obj.get_total_time_cost
         hours = total_time // 60
         mins = total_time % 60
         time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
@@ -494,15 +494,15 @@ async def handle_rent_flat(data: RentFlatRequest, username: str = Depends(get_cu
         location_name = get_location_display_name('estate_agent')
         raise HTTPException(status_code=400, detail=f"{location_name} is closed! Opening hours: {open_hour}am - {close_hour % 12}pm.")
 
-    if not game_state_obj.has_enough_time('estate_agent', 'estate_agent'):
-        travel_time, action_time, total_time = game_state_obj.get_total_time_cost('estate_agent', 'estate_agent')
+    if not game_state_obj.has_enough_time:
+        travel_time, action_time, total_time = game_state_obj.get_total_time_cost
         hours = total_time // 60
         mins = total_time % 60
         time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
         raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
 
     # Spend time for travel and action
-    travel_time, action_time, _, turn_summary = game_state_obj.spend_time('estate_agent', 'estate_agent')
+    travel_time, action_time, _, turn_summary = game_state_obj.spend_time()
     state = game_state_obj.to_dict()
 
     # Rent the flat
@@ -652,8 +652,8 @@ async def handle_apply_job(data: ApplyJobRequest, username: str = Depends(get_cu
         location_name = get_location_display_name('job_office')
         raise HTTPException(status_code=400, detail=f"{location_name} is closed! Opening hours: {open_hour}am - {close_hour % 12}pm.")
 
-    if not game_state_obj.has_enough_time('job_office', 'job_office'):
-        travel_time, action_time, total_time = game_state_obj.get_total_time_cost('job_office', 'job_office')
+    if not game_state_obj.has_enough_time:
+        travel_time, action_time, total_time = game_state_obj.get_total_time_cost
         hours = total_time // 60
         mins = total_time % 60
         time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"

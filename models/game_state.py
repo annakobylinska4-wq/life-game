@@ -401,36 +401,23 @@ class GameState:
         if self.rent > 0:
             self.money -= self.rent
 
-
-
-    def get_total_time_cost(self, destination, action_type):
+    def has_enough_time(self):
         """
-        Get total time cost including travel and action.
+        Check if there's enough time remaining for travel + action.
+        """
+        return self.time_remaining >= ACTION_TIME_COSTS + TRAVEL_TIME
 
-        Args:
-            destination: Target location
-            action_type: Type of action to perform
+    def get_total_time_cost(self):
+        """
+        Get total time cost for travel and action.
 
         Returns:
             tuple: (travel_time, action_time, total_time)
         """
         travel_time = TRAVEL_TIME
         action_time = ACTION_TIME_COSTS
-        return (travel_time, action_time, travel_time + action_time)
-
-    def has_enough_time(self, destination, action_type):
-        """
-        Check if there's enough time remaining for travel + action.
-
-        Args:
-            destination: Target location
-            action_type: Type of action to perform
-
-        Returns:
-            bool: True if enough time, False otherwise
-        """
-        _, _, total_time = self.get_total_time_cost(destination, action_type)
-        return self.time_remaining >= total_time
+        total_time = travel_time + action_time
+        return (travel_time, action_time, total_time)
 
     def spend_time(self, destination, action_type):
         """
@@ -444,7 +431,7 @@ class GameState:
             tuple: (travel_time, action_time, success, turn_summary)
             turn_summary is None if day didn't end, otherwise contains turn change info
         """
-        travel_time, action_time, total_time = self.get_total_time_cost(destination, action_type)
+        travel_time, action_time, total_time = (TRAVEL_TIME, ACTION_TIME_COSTS, TRAVEL_TIME + ACTION_TIME_COSTS)
 
         if self.time_remaining < total_time:
             return (travel_time, action_time, False, None)
