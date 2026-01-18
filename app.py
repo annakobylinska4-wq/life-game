@@ -33,6 +33,9 @@ from utils.function_logger import initiliaze_logger, upload_logs_to_s3
 from utils.s3_storage import init_storage, get_storage
 from loguru import logger
 
+
+
+
 # Background task for periodic log uploads
 _upload_task = None
 _shutdown = False

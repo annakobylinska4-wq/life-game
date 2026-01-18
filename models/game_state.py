@@ -59,32 +59,27 @@ def get_time_period(minutes_remaining):
 
 
 # Opening hours and display names are now stored in Action classes
-# Import them dynamically to avoid circular imports
-def _get_action_class(location):
-    """Get the Action class for a location"""
-    if location == 'home':
-        from actions.home import HomeAction
-        return HomeAction
-    elif location == 'workplace':
-        from actions.workplace import WorkplaceAction
-        return WorkplaceAction
-    elif location == 'university':
-        from actions.university import UniversityAction
-        return UniversityAction
-    elif location == 'shop':
-        from actions.shop import ShopAction
-        return ShopAction
-    elif location == 'john_lewis':
-        from actions.john_lewis import JohnLewisAction
-        return JohnLewisAction
-    elif location == 'job_office':
-        from actions.job_office import JobOfficeAction
-        return JobOfficeAction
-    elif location == 'estate_agent':
-        from actions.estate_agent import EstateAgentAction
-        return EstateAgentAction
-    return None
+from actions.home import HomeAction
+from actions.workplace import WorkplaceAction
+from actions.university import UniversityAction
+from actions.shop import ShopAction
+from actions.john_lewis import JohnLewisAction
+from actions.job_office import JobOfficeAction
+from actions.estate_agent import EstateAgentAction
 
+# Map location names to their Action classes
+
+
+
+LOCATION_ACTION_CLASSES = {
+    'home': HomeAction,
+    'workplace': WorkplaceAction,
+    'university': UniversityAction,
+    'shop': ShopAction,
+    'john_lewis': JohnLewisAction,
+    'job_office': JobOfficeAction,
+    'estate_agent': EstateAgentAction
+}
 
 def get_location_display_name(location):
     """
@@ -96,10 +91,10 @@ def get_location_display_name(location):
     Returns:
         str: Display name for the location
     """
-    action_class = _get_action_class(location)
+    action_class = LOCATION_ACTION_CLASSES.get(location)
     if not action_class:
         return 'This location'
-    return action_class.get_display_name()
+    return action_class.LOCATION_DISPLAY_NAME
 
 
 def is_location_open(location, minutes_remaining):
@@ -113,11 +108,11 @@ def is_location_open(location, minutes_remaining):
     Returns:
         tuple: (is_open, opening_hour, closing_hour) or (True, None, None) if no hours
     """
-    action_class = _get_action_class(location)
+    action_class = LOCATION_ACTION_CLASSES.get(location)
     if not action_class:
         return True, None, None
 
-    opening_hours = action_class.get_opening_hours()
+    opening_hours = action_class.LOCATION_OPENING_HOURS
     if not opening_hours:
         return True, None, None
 
@@ -239,13 +234,6 @@ def get_hunger_label(hunger_value):
         if min_val <= hunger_value <= max_val:
             return label
     return 'Starving'  # Default for values > 100
-
-# Work clothes that improve look (from John Lewis)
-CLOTHING_ITEMS = [
-    'Formal Suit', 'Blazer', 'Dress Shirt', 'Oxford Shirt', 'Dress Trousers',
-    'Chinos', 'Oxford Shoes', 'Brogues', 'Silk Tie', 'Leather Belt',
-    'Waistcoat', 'Cufflinks'
-]
 
 
 class GameState:
@@ -538,7 +526,7 @@ class GameState:
         Look improves as the player acquires more clothing items.
         Scale: 1 (Shabby) to 5 (Very well groomed)
         """
-        clothing_count = sum(1 for item in self.items if item in CLOTHING_ITEMS)
+        clothing_count = sum(1 for item in self.items )
 
         # Calculate look level based on clothing count
         # 0 items = level 1, 2-3 items = level 2, 4-5 items = level 3, etc.
