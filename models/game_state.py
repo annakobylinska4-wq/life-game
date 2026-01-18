@@ -419,13 +419,17 @@ class GameState:
         total_time = travel_time + action_time
         return (travel_time, action_time, total_time)
 
-    def spend_time(self, destination, action_type):
+    def spend_time(self, destination=None, action_type=None):
         """
         Spend time for travel and action, update location.
 
         Args:
-            destination: Target location
-            action_type: Type of action to perform
+            destination: Target location (optional, for legacy compatibility)
+            action_type: Type of action to perform (optional, for legacy compatibility)
+
+        Note:
+            The destination and action_type parameters are kept for backward compatibility
+            but are not used in time calculations. All actions cost the same fixed time.
 
         Returns:
             tuple: (travel_time, action_time, success, turn_summary)
@@ -437,7 +441,10 @@ class GameState:
             return (travel_time, action_time, False, None)
 
         self.time_remaining -= total_time
-        self.current_location = destination
+
+        # Update location if provided
+        if destination is not None:
+            self.current_location = destination
 
         # Check if day is over (less than 15 minutes remaining)
         turn_summary = None

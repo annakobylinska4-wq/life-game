@@ -305,57 +305,46 @@ async def get_time_info(location: str, username: str = Depends(get_current_user)
 @app.post('/api/action')
 async def handle_action(data: ActionRequest, username: str = Depends(get_current_user)):
     """Handle game action"""
+    from actions import execute_action_with_validation
+
     game_states = load_game_states()
     state = game_states[username]
 
     location = data.action
-    action_type = get_action_type_for_location(location)
 
-    # Check if player has enough time
-    game_state_obj = GameState(state)
+    # Use generic action handler
+    result = execute_action_with_validation(
+        state=state,
+        location=location,
+        action_handler=lambda s: perform_action(data.action, s),
+        check_opening_hours=True
+    )
 
-    # Check if location is open
-    is_open, open_hour, close_hour = is_location_open(location, game_state_obj.time_remaining)
-    if not is_open:
-        location_name = get_location_display_name(location)
-        raise HTTPException(status_code=400, detail=f"{location_name} is closed! Opening hours: {open_hour}am - {close_hour % 12}pm.")
-
-    if not game_state_obj.has_enough_time:
-        travel_time, action_time, total_time = game_state_obj.get_total_time_cost
-        hours = total_time // 60
-        mins = total_time % 60
-        time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
-        raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str} but you only have {game_state_obj.time_remaining // 60}h {game_state_obj.time_remaining % 60}m left.")
-
-    # Spend time for travel and action
-    travel_time, action_time, time_success, turn_summary = game_state_obj.spend_time(location, action_type)
-    state = game_state_obj.to_dict()
-
-    # Perform the action using the actions module
-    updated_state, message, success = perform_action(data.action, state)
-
-    if not success:
-        raise HTTPException(status_code=400, detail=message)
-
-    # Use GameState class to handle state (don't increment turn - spend_time handles day rollover)
-    game_state_obj = GameState(updated_state)
-
-    # Check for endgame conditions (burnout and bankruptcy)
-    burnout, bankruptcy, message = check_endgame_conditions(game_state_obj, message)
-
-    updated_state = game_state_obj.to_dict()
+    if not result['success']:
+        raise HTTPException(status_code=400, detail=result['error'])
 
     # Save updated state
-    game_states[username] = updated_state
+    game_states[username] = result['state']
     save_game_states(game_states)
 
-    # Add time info to message
-    if not burnout and not bankruptcy:
+    # Add time info to message for general actions
+    message = result['message']
+    if not result['burnout'] and not result['bankruptcy']:
+        # Get action time from game state constants
+        from models.game_state import ACTION_TIME_COSTS
+        action_time = ACTION_TIME_COSTS
         action_str = f"{action_time // 60}h {action_time % 60}m" if action_time % 60 > 0 else f"{action_time // 60}h"
         time_info = f" (⏱ {action_str})"
         message = message + time_info
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
+    return {
+        'success': True,
+        'state': result['state'],
+        'message': message,
+        'burnout': result['burnout'],
+        'bankruptcy': result['bankruptcy'],
+        'turn_summary': result['turn_summary']
+    }
 
 @app.get('/api/shop/catalogue')
 async def get_catalogue(username: str = Depends(get_current_user)):
@@ -365,41 +354,34 @@ async def get_catalogue(username: str = Depends(get_current_user)):
 @app.post('/api/shop/purchase')
 async def handle_purchase(data: PurchaseRequest, username: str = Depends(get_current_user)):
     """Purchase a specific item from the shop"""
+    from actions import execute_action_with_validation
+
     game_states = load_game_states()
     state = game_states[username]
 
-    # Check if player has enough time
-    game_state_obj = GameState(state)
-    if not game_state_obj.has_enough_time:
-        travel_time, action_time, total_time = game_state_obj.get_total_time_cost
-        hours = total_time // 60
-        mins = total_time % 60
-        time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
-        raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
+    # Use generic action handler
+    result = execute_action_with_validation(
+        state=state,
+        location='shop',
+        action_handler=lambda s: purchase_item(s, data.item_name),
+        check_opening_hours=False  # Shop is always open
+    )
 
-    # Spend time for travel and action
-    travel_time, action_time, _, turn_summary = game_state_obj.spend_time('shop', 'shop_purchase')
-    state = game_state_obj.to_dict()
-
-    # Purchase the item
-    updated_state, message, success = purchase_item(state, data.item_name)
-
-    if not success:
-        raise HTTPException(status_code=400, detail=message)
-
-    # Use GameState class to handle state
-    game_state_obj = GameState(updated_state)
-
-    # Check for endgame conditions (burnout and bankruptcy)
-    burnout, bankruptcy, message = check_endgame_conditions(game_state_obj, message)
-
-    updated_state = game_state_obj.to_dict()
+    if not result['success']:
+        raise HTTPException(status_code=400, detail=result['error'])
 
     # Save updated state
-    game_states[username] = updated_state
+    game_states[username] = result['state']
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
+    return {
+        'success': True,
+        'state': result['state'],
+        'message': result['message'],
+        'burnout': result['burnout'],
+        'bankruptcy': result['bankruptcy'],
+        'turn_summary': result['turn_summary']
+    }
 
 @app.get('/api/john_lewis/catalogue')
 async def get_john_lewis_cat(username: str = Depends(get_current_user)):
@@ -409,42 +391,35 @@ async def get_john_lewis_cat(username: str = Depends(get_current_user)):
 @app.post('/api/john_lewis/purchase')
 async def handle_john_lewis_purchase(data: PurchaseRequest, username: str = Depends(get_current_user)):
     """Purchase a specific item from John Lewis"""
+    from actions import execute_action_with_validation
+
     game_states = load_game_states()
     state = game_states[username]
 
-    # Check if player has enough time
-    game_state_obj = GameState(state)
-    if not game_state_obj.has_enough_time:
-        travel_time, action_time, total_time = game_state_obj.get_total_time_cost
-        hours = total_time // 60
-        mins = total_time % 60
-        time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
-        raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
+    # Use generic action handler with update_look callback for clothing purchases
+    result = execute_action_with_validation(
+        state=state,
+        location='john_lewis',
+        action_handler=lambda s: purchase_john_lewis_item(s, data.item_name),
+        check_opening_hours=False,  # John Lewis is always open
+        post_action_callback=lambda game_state_obj: game_state_obj.update_look()
+    )
 
-    # Spend time for travel and action
-    travel_time, action_time, _, turn_summary = game_state_obj.spend_time('john_lewis', 'john_lewis')
-    state = game_state_obj.to_dict()
-
-    # Purchase the item
-    updated_state, message, success = purchase_john_lewis_item(state, data.item_name)
-
-    if not success:
-        raise HTTPException(status_code=400, detail=message)
-
-    # Use GameState class to handle state
-    game_state_obj = GameState(updated_state)
-    game_state_obj.update_look()  # Update look based on clothing items
-
-    # Check for endgame conditions (burnout and bankruptcy)
-    burnout, bankruptcy, message = check_endgame_conditions(game_state_obj, message)
-
-    updated_state = game_state_obj.to_dict()
+    if not result['success']:
+        raise HTTPException(status_code=400, detail=result['error'])
 
     # Save updated state
-    game_states[username] = updated_state
+    game_states[username] = result['state']
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
+    return {
+        'success': True,
+        'state': result['state'],
+        'message': result['message'],
+        'burnout': result['burnout'],
+        'bankruptcy': result['bankruptcy'],
+        'turn_summary': result['turn_summary']
+    }
 
 @app.post('/api/chat')
 async def handle_chat(data: ChatRequest, username: str = Depends(get_current_user)):
@@ -482,48 +457,34 @@ async def get_flats_catalogue(username: str = Depends(get_current_user)):
 @app.post('/api/estate_agent/rent')
 async def handle_rent_flat(data: RentFlatRequest, username: str = Depends(get_current_user)):
     """Rent a flat of the specified tier"""
+    from actions import execute_action_with_validation
+
     game_states = load_game_states()
     state = game_states[username]
 
-    # Check if player has enough time
-    game_state_obj = GameState(state)
+    # Use generic action handler
+    result = execute_action_with_validation(
+        state=state,
+        location='estate_agent',
+        action_handler=lambda s: rent_flat(s, data.tier),
+        check_opening_hours=True
+    )
 
-    # Check if estate agent is open
-    is_open, open_hour, close_hour = is_location_open('estate_agent', game_state_obj.time_remaining)
-    if not is_open:
-        location_name = get_location_display_name('estate_agent')
-        raise HTTPException(status_code=400, detail=f"{location_name} is closed! Opening hours: {open_hour}am - {close_hour % 12}pm.")
-
-    if not game_state_obj.has_enough_time:
-        travel_time, action_time, total_time = game_state_obj.get_total_time_cost
-        hours = total_time // 60
-        mins = total_time % 60
-        time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
-        raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
-
-    # Spend time for travel and action
-    travel_time, action_time, _, turn_summary = game_state_obj.spend_time()
-    state = game_state_obj.to_dict()
-
-    # Rent the flat
-    updated_state, message, success = rent_flat(state, data.tier)
-
-    if not success:
-        raise HTTPException(status_code=400, detail=message)
-
-    # Use GameState class to handle state
-    game_state_obj = GameState(updated_state)
-
-    # Check for endgame conditions (burnout and bankruptcy)
-    burnout, bankruptcy, message = check_endgame_conditions(game_state_obj, message)
-
-    updated_state = game_state_obj.to_dict()
+    if not result['success']:
+        raise HTTPException(status_code=400, detail=result['error'])
 
     # Save updated state
-    game_states[username] = updated_state
+    game_states[username] = result['state']
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
+    return {
+        'success': True,
+        'state': result['state'],
+        'message': result['message'],
+        'burnout': result['burnout'],
+        'bankruptcy': result['bankruptcy'],
+        'turn_summary': result['turn_summary']
+    }
 
 @app.get('/api/university/catalogue')
 async def get_courses_catalogue(username: str = Depends(get_current_user)):
@@ -561,21 +522,34 @@ async def get_courses_catalogue(username: str = Depends(get_current_user)):
 @app.post('/api/university/enroll')
 async def handle_enroll_course(data: EnrollCourseRequest, username: str = Depends(get_current_user)):
     """Enroll in a course"""
+    from actions import execute_action_with_validation
+
     game_states = load_game_states()
     state = game_states[username]
 
-    # Enroll in the course (no turn increment for enrollment)
-    updated_state, message, success = enroll_course(state, data.course_id)
+    # Use generic action handler - enrollment now consumes time like other actions
+    result = execute_action_with_validation(
+        state=state,
+        location='university',
+        action_handler=lambda s: enroll_course(s, data.course_id),
+        check_opening_hours=True
+    )
 
-    if not success:
-        raise HTTPException(status_code=400, detail=message)
+    if not result['success']:
+        raise HTTPException(status_code=400, detail=result['error'])
 
-    # Save updated state (no turn increment for enrollment)
-    game_state_obj = GameState(updated_state)
-    game_states[username] = game_state_obj.to_dict()
+    # Save updated state
+    game_states[username] = result['state']
     save_game_states(game_states)
 
-    return {'success': True, 'state': game_state_obj.to_dict(), 'message': message}
+    return {
+        'success': True,
+        'state': result['state'],
+        'message': result['message'],
+        'burnout': result['burnout'],
+        'bankruptcy': result['bankruptcy'],
+        'turn_summary': result['turn_summary']
+    }
 
 @app.get('/api/job_office/jobs')
 async def get_jobs_list(username: str = Depends(get_current_user)):
@@ -640,48 +614,34 @@ async def handle_pass_time(username: str = Depends(get_current_user)):
 @app.post('/api/job_office/apply')
 async def handle_apply_job(data: ApplyJobRequest, username: str = Depends(get_current_user)):
     """Apply for a specific job"""
+    from actions import execute_action_with_validation
+
     game_states = load_game_states()
     state = game_states[username]
 
-    # Check if player has enough time
-    game_state_obj = GameState(state)
+    # Use generic action handler
+    result = execute_action_with_validation(
+        state=state,
+        location='job_office',
+        action_handler=lambda s: apply_for_job(s, data.job_title),
+        check_opening_hours=True
+    )
 
-    # Check if job office is open
-    is_open, open_hour, close_hour = is_location_open('job_office', game_state_obj.time_remaining)
-    if not is_open:
-        location_name = get_location_display_name('job_office')
-        raise HTTPException(status_code=400, detail=f"{location_name} is closed! Opening hours: {open_hour}am - {close_hour % 12}pm.")
-
-    if not game_state_obj.has_enough_time:
-        travel_time, action_time, total_time = game_state_obj.get_total_time_cost
-        hours = total_time // 60
-        mins = total_time % 60
-        time_str = f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
-        raise HTTPException(status_code=400, detail=f"Not enough time today! This would take {time_str}.")
-
-    # Spend time for travel and action
-    travel_time, action_time, _, turn_summary = game_state_obj.spend_time('job_office', 'job_office')
-    state = game_state_obj.to_dict()
-
-    # Apply for the job
-    updated_state, message, success = apply_for_job(state, data.job_title)
-
-    if not success:
-        raise HTTPException(status_code=400, detail=message)
-
-    # Use GameState class to handle state
-    game_state_obj = GameState(updated_state)
-
-    # Check for endgame conditions (burnout and bankruptcy)
-    burnout, bankruptcy, message = check_endgame_conditions(game_state_obj, message)
-
-    updated_state = game_state_obj.to_dict()
+    if not result['success']:
+        raise HTTPException(status_code=400, detail=result['error'])
 
     # Save updated state
-    game_states[username] = updated_state
+    game_states[username] = result['state']
     save_game_states(game_states)
 
-    return {'success': True, 'state': updated_state, 'message': message, 'burnout': burnout, 'bankruptcy': bankruptcy, 'turn_summary': turn_summary}
+    return {
+        'success': True,
+        'state': result['state'],
+        'message': result['message'],
+        'burnout': result['burnout'],
+        'bankruptcy': result['bankruptcy'],
+        'turn_summary': result['turn_summary']
+    }
 
 if __name__ == '__main__':
     import uvicorn
