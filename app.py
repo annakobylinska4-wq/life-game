@@ -21,7 +21,7 @@ from actions.john_lewis import get_john_lewis_catalogue, purchase_john_lewis_ite
 from actions.estate_agent import get_flat_catalogue, rent_flat
 from actions.university import get_course_catalogue, get_available_courses, enroll_course, get_course_by_id
 from actions.job_office import get_available_jobs, apply_for_job
-from models.game_state import ACTION_TIME_COSTS,  LOCATION_DISPLAY_NAMES, format_time, is_location_open
+from models.game_state import ACTION_TIME_COSTS, format_time, is_location_open, get_location_display_name
 from config.config import config
 from chatbot.llm_client import get_llm_response
 from models import GameState
@@ -314,7 +314,7 @@ async def handle_action(data: ActionRequest, username: str = Depends(get_current
     # Check if location is open
     is_open, open_hour, close_hour = is_location_open(location, game_state_obj.time_remaining)
     if not is_open:
-        location_name = LOCATION_DISPLAY_NAMES.get(location, 'This location')
+        location_name = get_location_display_name(location)
         raise HTTPException(status_code=400, detail=f"{location_name} is closed! Opening hours: {open_hour}am - {close_hour % 12}pm.")
 
     if not game_state_obj.has_enough_time(location, action_type):
@@ -488,7 +488,7 @@ async def handle_rent_flat(data: RentFlatRequest, username: str = Depends(get_cu
     # Check if estate agent is open
     is_open, open_hour, close_hour = is_location_open('estate_agent', game_state_obj.time_remaining)
     if not is_open:
-        location_name = LOCATION_DISPLAY_NAMES.get('estate_agent', 'The estate agent')
+        location_name = get_location_display_name('estate_agent')
         raise HTTPException(status_code=400, detail=f"{location_name} is closed! Opening hours: {open_hour}am - {close_hour % 12}pm.")
 
     if not game_state_obj.has_enough_time('estate_agent', 'estate_agent'):
@@ -646,7 +646,7 @@ async def handle_apply_job(data: ApplyJobRequest, username: str = Depends(get_cu
     # Check if job office is open
     is_open, open_hour, close_hour = is_location_open('job_office', game_state_obj.time_remaining)
     if not is_open:
-        location_name = LOCATION_DISPLAY_NAMES.get('job_office', 'The job office')
+        location_name = get_location_display_name('job_office')
         raise HTTPException(status_code=400, detail=f"{location_name} is closed! Opening hours: {open_hour}am - {close_hour % 12}pm.")
 
     if not game_state_obj.has_enough_time('job_office', 'job_office'):

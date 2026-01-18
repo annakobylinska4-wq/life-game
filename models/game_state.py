@@ -58,23 +58,48 @@ def get_time_period(minutes_remaining):
         return 'night'
 
 
-# Opening hours for locations (24-hour format)
-LOCATION_OPENING_HOURS = {
-    'university': (6, 20),      # 6am - 8pm (day starts at 6am)
-    'job_office': (6, 20),      # 6am - 8pm
-    'estate_agent': (6, 20),    # 6am - 8pm
-}
+# Opening hours and display names are now stored in Action classes
+# Import them dynamically to avoid circular imports
+def _get_action_class(location):
+    """Get the Action class for a location"""
+    if location == 'home':
+        from actions.home import HomeAction
+        return HomeAction
+    elif location == 'workplace':
+        from actions.workplace import WorkplaceAction
+        return WorkplaceAction
+    elif location == 'university':
+        from actions.university import UniversityAction
+        return UniversityAction
+    elif location == 'shop':
+        from actions.shop import ShopAction
+        return ShopAction
+    elif location == 'john_lewis':
+        from actions.john_lewis import JohnLewisAction
+        return JohnLewisAction
+    elif location == 'job_office':
+        from actions.job_office import JobOfficeAction
+        return JobOfficeAction
+    elif location == 'estate_agent':
+        from actions.estate_agent import EstateAgentAction
+        return EstateAgentAction
+    return None
 
-# Display names for locations (for user-facing messages)
-LOCATION_DISPLAY_NAMES = {
-    'home': 'Home',
-    'workplace': 'Workplace',
-    'university': 'The university',
-    'shop': 'The shop',
-    'john_lewis': 'John Lewis',
-    'job_office': 'The job office',
-    'estate_agent': 'The estate agent'
-}
+
+def get_location_display_name(location):
+    """
+    Get the display name for a location.
+
+    Args:
+        location: Location identifier
+
+    Returns:
+        str: Display name for the location
+    """
+    action_class = _get_action_class(location)
+    if not action_class:
+        return 'This location'
+    return action_class.get_display_name()
 
 
 def is_location_open(location, minutes_remaining):
@@ -88,10 +113,15 @@ def is_location_open(location, minutes_remaining):
     Returns:
         tuple: (is_open, opening_hour, closing_hour) or (True, None, None) if no hours
     """
-    if location not in LOCATION_OPENING_HOURS:
+    action_class = _get_action_class(location)
+    if not action_class:
         return True, None, None
 
-    open_hour, close_hour = LOCATION_OPENING_HOURS[location]
+    opening_hours = action_class.get_opening_hours()
+    if not opening_hours:
+        return True, None, None
+
+    open_hour, close_hour = opening_hours
     time_str = format_time(minutes_remaining)
     current_hour = int(time_str.split(':')[0])
 
@@ -271,7 +301,7 @@ class GameState:
             self.lectures_completed = 0
             # Time tracking
             self.turn = 1
-            self.time_remaining = MINUTES_PER_DAY  # Start with full day
+            self.time_remaining = MINUTES_PER_DAY  # time remaining in this turn
             self.current_location = 'home'  # Start at home
 
     def to_dict(self):

@@ -3,9 +3,21 @@ Job office action - handles player employment based on education and appearance
 """
 from utils.function_logger import log_function_call
 from .university import get_jobs_for_education, get_course_by_id
+from .base import Action
 
-# Button label for this action
-BUTTON_LABEL = 'Get a new job'
+
+class JobOfficeAction(Action):
+    """Job office location for finding employment"""
+    BUTTON_LABEL = 'Get a new job'
+    LOCATION_DISPLAY_NAME = 'The job office'
+    LOCATION_OPENING_HOURS = (6, 20)  # 6am - 8pm
+
+
+# Create instance for backward compatibility
+job_office_action = JobOfficeAction()
+
+# Export for backward compatibility
+BUTTON_LABEL = JobOfficeAction.BUTTON_LABEL
 
 # Look requirements for jobs based on wage tiers
 # Higher paying jobs require better appearance (look level 1-5)

@@ -2,9 +2,21 @@
 Home action - handles player rest and recovery
 """
 from utils.function_logger import log_function_call
+from .base import Action
 
-# Button label for this action
-BUTTON_LABEL = 'Relax at home'
+
+class HomeAction(Action):
+    """Home location for resting and recovery"""
+    BUTTON_LABEL = 'Relax at home'
+    LOCATION_DISPLAY_NAME = 'Home'
+    LOCATION_OPENING_HOURS = None  # Always open
+
+
+# Create instance for backward compatibility
+home_action = HomeAction()
+
+# Export for backward compatibility
+BUTTON_LABEL = HomeAction.BUTTON_LABEL
 
 # Rest effects based on flat tier (0-5)
 # Better homes provide better rest and happiness bonuses

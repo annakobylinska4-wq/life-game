@@ -2,9 +2,21 @@
 Estate Agent action - handles flat rentals for players
 """
 from utils.function_logger import log_function_call
+from .base import Action
 
-# Button label for this action
-BUTTON_LABEL = 'Browse flats'
+
+class EstateAgentAction(Action):
+    """Estate agent location for browsing and renting flats"""
+    BUTTON_LABEL = 'Browse flats'
+    LOCATION_DISPLAY_NAME = 'The estate agent'
+    LOCATION_OPENING_HOURS = (6, 20)  # 6am - 8pm
+
+
+# Create instance for backward compatibility
+estate_agent_action = EstateAgentAction()
+
+# Export for backward compatibility
+BUTTON_LABEL = EstateAgentAction.BUTTON_LABEL
 
 # Flat tiers with rent prices and descriptions
 # Tier 0 = homeless (no flat), Tier 1-5 = increasingly nicer flats
