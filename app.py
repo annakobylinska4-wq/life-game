@@ -24,7 +24,7 @@ from actions.university import get_course_catalogue, get_available_courses, enro
 from actions.job_office import get_available_jobs, apply_for_job
 from models.game_state import ACTION_TIME_COSTS, LOCATION_COORDS, format_time, is_location_open
 from config.config import config
-from chat_service import get_llm_response
+from chatbot.llm_client import get_llm_response
 from models import GameState
 from utils.function_logger import initiliaze_logger, upload_logs_to_s3
 from utils.s3_storage import init_storage, get_storage
