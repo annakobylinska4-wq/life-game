@@ -33,29 +33,6 @@ ACTION_BUTTON_LABELS = {
 }
 
 
-def get_action_type_for_location(location):
-    """
-    Map location to action type for time calculations.
-
-    Most locations use their name as the action type, with a few exceptions:
-    - home -> rest
-    - workplace -> work
-    - shop -> shop_purchase
-
-    Args:
-        location: Location name
-
-    Returns:
-        str: Action type for time cost calculations
-    """
-    location_to_action = {
-        'home': 'rest',
-        'workplace': 'work',
-        'shop': 'shop_purchase',
-    }
-    return location_to_action.get(location, location)
-
-
 def check_endgame_conditions(game_state_obj, current_message=None):
     """
     Check for burnout and bankruptcy conditions and reset if needed.
@@ -163,8 +140,7 @@ def execute_action_with_validation(
         }
 
     # Spend time for travel and action
-    action_type = get_action_type_for_location(location)
-    travel_time, action_time, _, turn_summary = game_state_obj.spend_time(location, action_type)
+    travel_time, action_time, _, turn_summary = game_state_obj.spend_time(location)
     state = game_state_obj.to_dict()
 
     # Execute the actual action
@@ -209,7 +185,6 @@ __all__ = [
     'perform_action',
     'execute_action_with_validation',
     'check_endgame_conditions',
-    'get_action_type_for_location',
     'ACTION_HANDLERS',
     'ACTION_BUTTON_LABELS'
 ]

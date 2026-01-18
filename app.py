@@ -15,7 +15,7 @@ import asyncio
 from typing import Optional
 from contextlib import asynccontextmanager
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from actions import perform_action, get_action_type_for_location, check_endgame_conditions
+from actions import perform_action, check_endgame_conditions
 from actions.shop import get_shop_catalogue, purchase_item
 from actions.john_lewis import get_john_lewis_catalogue, purchase_john_lewis_item
 from actions.estate_agent import get_flat_catalogue, rent_flat
@@ -260,9 +260,8 @@ async def get_time_info(location: str, username: str = Depends(get_current_user)
     state = game_states[username]
     game_state_obj = GameState(state)
 
-    action_type = get_action_type_for_location(location)
-    travel_time, action_time, total_time = game_state_obj.get_total_time_cost
-    has_time = game_state_obj.has_enough_time
+    travel_time, action_time, total_time = game_state_obj.get_total_time_cost()
+    has_time = game_state_obj.has_enough_time()
 
     return {
         'success': True,
