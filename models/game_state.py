@@ -107,6 +107,17 @@ LOCATION_OPENING_HOURS = {
     'estate_agent': (6, 20),    # 6am - 8pm
 }
 
+# Display names for locations (for user-facing messages)
+LOCATION_DISPLAY_NAMES = {
+    'home': 'Home',
+    'workplace': 'Workplace',
+    'university': 'The university',
+    'shop': 'The shop',
+    'john_lewis': 'John Lewis',
+    'job_office': 'The job office',
+    'estate_agent': 'The estate agent'
+}
+
 
 def is_location_open(location, minutes_remaining):
     """
