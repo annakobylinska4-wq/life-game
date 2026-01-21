@@ -7,25 +7,19 @@ This module centralizes all location-related metadata including:
 - Location availability checks
 """
 
-# Import all Action classes to access their metadata
-from actions.home import HomeAction
-from actions.workplace import WorkplaceAction
-from actions.university import UniversityAction
-from actions.shop import ShopAction
-from actions.john_lewis import JohnLewisAction
-from actions.job_office import JobOfficeAction
-from actions.estate_agent import EstateAgentAction
+# Import location metadata from each module
+from actions import home, workplace, university, shop, john_lewis, job_office, estate_agent
 
 
-# Map location names to their Action classes
-LOCATION_ACTION_CLASSES = {
-    'home': HomeAction,
-    'workplace': WorkplaceAction,
-    'university': UniversityAction,
-    'shop': ShopAction,
-    'john_lewis': JohnLewisAction,
-    'job_office': JobOfficeAction,
-    'estate_agent': EstateAgentAction
+# Map location names to their metadata modules
+LOCATION_MODULES = {
+    'home': home,
+    'workplace': workplace,
+    'university': university,
+    'shop': shop,
+    'john_lewis': john_lewis,
+    'job_office': job_office,
+    'estate_agent': estate_agent
 }
 
 
@@ -39,10 +33,10 @@ def get_location_display_name(location):
     Returns:
         str: Display name for the location
     """
-    action_class = LOCATION_ACTION_CLASSES.get(location)
-    if not action_class:
+    module = LOCATION_MODULES.get(location)
+    if not module:
         return 'This location'
-    return action_class.LOCATION_DISPLAY_NAME
+    return module.LOCATION_DISPLAY_NAME
 
 
 def is_location_open(location, minutes_remaining):
@@ -58,11 +52,11 @@ def is_location_open(location, minutes_remaining):
     """
     from models.game_state import format_time
 
-    action_class = LOCATION_ACTION_CLASSES.get(location)
-    if not action_class:
+    module = LOCATION_MODULES.get(location)
+    if not module:
         return True, None, None
 
-    opening_hours = action_class.LOCATION_OPENING_HOURS
+    opening_hours = module.LOCATION_OPENING_HOURS
     if not opening_hours:
         return True, None, None
 
@@ -84,7 +78,7 @@ def get_location_opening_hours(location):
     Returns:
         tuple: (open_hour, close_hour) or None if always open
     """
-    action_class = LOCATION_ACTION_CLASSES.get(location)
-    if not action_class:
+    module = LOCATION_MODULES.get(location)
+    if not module:
         return None
-    return action_class.LOCATION_OPENING_HOURS
+    return module.LOCATION_OPENING_HOURS

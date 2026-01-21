@@ -3,21 +3,12 @@ Shop action - handles player purchases
 """
 import random
 from utils.function_logger import log_function_call
-from .base import Action
 
 
-class ShopAction(Action):
-    """Shop location for purchasing food"""
-    BUTTON_LABEL = 'Buy some food'
-    LOCATION_DISPLAY_NAME = 'The shop'
-    LOCATION_OPENING_HOURS = None  # Always open
-
-
-# Create instance for backward compatibility
-shop_action = ShopAction()
-
-# Export for backward compatibility
-BUTTON_LABEL = ShopAction.BUTTON_LABEL
+# Location metadata
+BUTTON_LABEL = 'Buy some food'
+LOCATION_DISPLAY_NAME = 'The shop'
+LOCATION_OPENING_HOURS = None  # Always open
 
 
 # Food items catalogue with emoji icons

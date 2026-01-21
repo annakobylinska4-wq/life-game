@@ -2,21 +2,12 @@
 Workplace action - handles player work and earnings
 """
 from utils.function_logger import log_function_call
-from .base import Action
 
 
-class WorkplaceAction(Action):
-    """Workplace location for earning money"""
-    BUTTON_LABEL = 'Work'
-    LOCATION_DISPLAY_NAME = 'Workplace'
-    LOCATION_OPENING_HOURS = None  # Always open
-
-
-# Create instance for backward compatibility
-workplace_action = WorkplaceAction()
-
-# Export for backward compatibility
-BUTTON_LABEL = WorkplaceAction.BUTTON_LABEL
+# Location metadata
+BUTTON_LABEL = 'Work'
+LOCATION_DISPLAY_NAME = 'Workplace'
+LOCATION_OPENING_HOURS = None  # Always open
 
 # Working increases tiredness (scaled for 2h work period, 1/4 of original 8h value)
 WORK_TIREDNESS_INCREASE = 5

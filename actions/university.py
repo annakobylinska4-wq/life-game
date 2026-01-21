@@ -3,21 +3,12 @@ University action - handles player education with course-based progression
 """
 from config import config
 from utils.function_logger import log_function_call
-from .base import Action
 
 
-class UniversityAction(Action):
-    """University location for education and course enrollment"""
-    BUTTON_LABEL = 'Attend lecture'
-    LOCATION_DISPLAY_NAME = 'The university'
-    LOCATION_OPENING_HOURS = (6, 20)  # 6am - 8pm
-
-
-# Create instance for backward compatibility
-university_action = UniversityAction()
-
-# Export for backward compatibility
-BUTTON_LABEL = UniversityAction.BUTTON_LABEL
+# Location metadata
+BUTTON_LABEL = 'Attend lecture'
+LOCATION_DISPLAY_NAME = 'The university'
+LOCATION_OPENING_HOURS = (6, 20)  # 6am - 8pm
 
 # Education Course Catalogue
 # Each course has: name, lectures_required, cost_per_lecture, prerequisites, jobs_unlocked, emoji

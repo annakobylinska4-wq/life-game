@@ -4,21 +4,12 @@ Items are stored in inventory for later use
 """
 import random
 from utils.function_logger import log_function_call
-from .base import Action
 
 
-class JohnLewisAction(Action):
-    """John Lewis location for purchasing clothes and furniture"""
-    BUTTON_LABEL = 'Browse products'
-    LOCATION_DISPLAY_NAME = 'John Lewis'
-    LOCATION_OPENING_HOURS = None  # Always open
-
-
-# Create instance for backward compatibility
-john_lewis_action = JohnLewisAction()
-
-# Export for backward compatibility
-BUTTON_LABEL = JohnLewisAction.BUTTON_LABEL
+# Location metadata
+BUTTON_LABEL = 'Browse products'
+LOCATION_DISPLAY_NAME = 'John Lewis'
+LOCATION_OPENING_HOURS = None  # Always open
 
 
 # John Lewis catalogue - work clothes only (stored in inventory)
