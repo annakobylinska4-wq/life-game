@@ -204,6 +204,8 @@ class GameState:
             self.turn = state_dict.get('turn', 1)
             self.time_remaining = state_dict.get('time_remaining', MINUTES_PER_DAY)
             self.current_location = state_dict.get('current_location', 'home')
+            # Conversation history (per location)
+            self.conversation_history = state_dict.get('conversation_history', {})
         else:
             # Create new game state with initial values
             self.money = config.INITIAL_MONEY
@@ -225,6 +227,8 @@ class GameState:
             self.turn = 1
             self.time_remaining = MINUTES_PER_DAY  # time remaining in this turn
             self.current_location = 'home'  # Start at home
+            # Conversation history (per location)
+            self.conversation_history = {}
 
     def to_dict(self):
         """
@@ -258,7 +262,9 @@ class GameState:
             'time_remaining': self.time_remaining,
             'current_time': format_time(self.time_remaining),
             'time_period': get_time_period(self.time_remaining),
-            'current_location': self.current_location
+            'current_location': self.current_location,
+            # Conversation history
+            'conversation_history': self.conversation_history
         }
 
     @classmethod
@@ -519,6 +525,8 @@ class GameState:
         # Reset time tracking
         self.time_remaining = MINUTES_PER_DAY
         self.current_location = 'home'
+        # Clear conversation history on reset
+        self.conversation_history = {}
 
     def __repr__(self):
         """String representation for debugging"""

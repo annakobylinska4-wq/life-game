@@ -103,15 +103,21 @@ def register_location_routes(app, get_current_user, load_game_states, save_game_
         game_states = load_game_states()
         state = game_states.get(username)
 
-        # Get LLM response with potential tool calls
+        # Get LLM response with potential tool calls and conversation history
         result = get_llm_response(data.action, data.message, state)
 
-        # If tools were called and state was updated, save the new state
+        # Always save state if it was updated (either from tool calls or conversation history)
         if result.get('updated_state'):
-            # Use GameState class to handle turn increment and per-turn updates
-            game_state_obj = GameState(result['updated_state'])
-            game_state_obj.increment_turn()
-            game_states[username] = game_state_obj.to_dict()
+            # Check if tools were called (which may require turn increment)
+            if result.get('tool_calls'):
+                # Use GameState class to handle turn increment and per-turn updates
+                game_state_obj = GameState(result['updated_state'])
+                game_state_obj.increment_turn()
+                game_states[username] = game_state_obj.to_dict()
+            else:
+                # Just conversation, no turn increment - save updated state with conversation history
+                game_states[username] = result['updated_state']
+
             save_game_states(game_states)
 
         return {
